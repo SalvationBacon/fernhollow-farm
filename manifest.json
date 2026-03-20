@@ -1,0 +1,25 @@
+{
+  "name": "Fernhollow Farm",
+  "short_name": "Fernhollow",
+  "description": "A cozy pixel-art idle farming game. Plant, grow, harvest — the land is yours.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#241a0c",
+  "theme_color": "#1a1208",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"]
+}
