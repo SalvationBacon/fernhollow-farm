@@ -1,8 +1,4 @@
-function forceSleep(){
-  // Forced to sleep = always a penalty (ran out of day)
-  dayPenaltyEnergy=true;
-  doSleep();
-}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -828,6 +824,7 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 /* ── PC / LANDSCAPE MODE ── */
 body.pc-mode{
   flex-direction:row;
+  justify-content:flex-start;
   align-items:stretch;
   padding:0;
   overflow:hidden;
@@ -2452,6 +2449,11 @@ function clickHouse(){
   doSleep();
 }
 
+function forceSleep(){
+  // Forced to sleep = always a penalty (ran out of day)
+  dayPenaltyEnergy=true;
+  doSleep();
+}
 function doSleep(){
   const shipped=Object.entries(shipping).filter(([,q])=>q>0);
   const total=getShipTotal();
