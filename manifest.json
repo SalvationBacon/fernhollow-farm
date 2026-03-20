@@ -4,7 +4,7 @@
   "description": "A cozy pixel-art idle farming game. Plant, grow, harvest — the land is yours.",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#241a0c",
   "theme_color": "#1a1208",
   "icons": [

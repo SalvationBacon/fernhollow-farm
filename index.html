@@ -5105,7 +5105,7 @@ function closeSkillOverlay(){
 // SOUND ENGINE
 // ══════════════════════════════════════
 let audioCtx=null;
-let pcMode=true; // landscape/PC view toggle
+let pcMode=(window.innerWidth>=800); // auto-detect: PC for wide screens, mobile for phones
 let soundEnabled=true; // loaded from save
 let musicEnabled=true; // background music toggle
 let musicVolume=0.7;   // 0.0 – 1.0

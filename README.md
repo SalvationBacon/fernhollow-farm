@@ -4,7 +4,7 @@ A cozy pixel-art idle farming game that runs entirely in your browser. Plant cro
 
 ## 🎮 Play Now
 
-**[fernhollow-farm →](https://salvationbacon.github.io/fernhollow-farm/)**
+**[fernhollow-farm →](https://yourusername.github.io/fernhollow-farm/)**
 
 Installable as an app on mobile — tap "Add to Home Screen" for the full experience.
 
