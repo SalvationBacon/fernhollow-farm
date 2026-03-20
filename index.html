@@ -4005,7 +4005,7 @@ function confirmReset(){
 }
 
 function doReset(){
-  // wipe every key this game touches
+  // Wipe all localStorage keys
   localStorage.removeItem(SAVE_KEY);
   localStorage.removeItem(TUT_KEY);
   localStorage.removeItem(TAB_TIP_KEY);
@@ -4014,36 +4014,58 @@ function doReset(){
   localStorage.removeItem(INSTALL_DISMISSED_KEY);
   localStorage.removeItem(NOTIF_PROMPTED_KEY);
   notifCancelAll();
-  // reset devMode in memory
+
+  // Reset dev mode
   devMode=false;
   devFlags={unlimitedEnergy:false,instantGrow:false,rareForage:false};
   const devBtn=document.getElementById('dev-hud-btn');
   if(devBtn) devBtn.style.display='none';
   speed=1;
-  // close settings
-  closeSettings();
-  // show title screen fresh
-  const ts=document.getElementById('title-screen');
-  ts.classList.remove('fade-out','hidden');
-  // update title screen for new player
-  const btn=document.getElementById('ts-start-btn');
-  if(btn)btn.textContent='▸ START GAME';
-  const badge=document.getElementById('ts-continue-badge');
-  if(badge)badge.textContent='NEW GAME';
-  // reset state in background (player won't see until they hit START)
+
+  // Stop music cleanly
+  if(musicPlaying) musicStop();
+
+  // Reset all state to defaults
   defaultState();
+
+  // Rebuild plot DOM
   const p=document.getElementById('plot');p.innerHTML='';
   for(let i=0;i<N;i++){
     const el=document.createElement('div');el.className='tile';el.id='t'+i;
     el.onclick=(ii=>()=>handleTile(ii))(i);p.appendChild(el);renderTile(i);
   }
-  applySeasonVisuals();renderSeeds();renderInv();
-  updateInvBadge();updateShipCount();
-  upCoins();upEnergy();
+
+  // Refresh all UI
+  applySeasonVisuals();
+  renderSeeds();
+  renderInv();
+  updateInvBadge();
+  updateShipCount();
+  upCoins();
+  upEnergy();
+  updateAllSkillUI();
+  renderAnimals();
+  updateSceneBuildings();
+  showAnimalTab();
+  refreshAllSceneCrops();
+  renderWaterBtn();
+  updateAchBadge();
+  pcUpdate();
+
   document.getElementById('dn').textContent=day;
   document.getElementById('hvn').textContent=hvst;
   document.getElementById('earnedn').textContent=totalEarned;
   document.getElementById('reset-confirm').style.display='none';
+
+  // Close settings and return to fresh title screen
+  closeSettings();
+  const ts=document.getElementById('title-screen');
+  ts.classList.remove('fade-out','hidden');
+  const tsBtn=document.getElementById('ts-start-btn');
+  if(tsBtn) tsBtn.textContent='▸ START GAME';
+  const tsBadge=document.getElementById('ts-continue-badge');
+  if(tsBadge) tsBadge.textContent='NEW GAME';
+
   notifInit();
 }
 
