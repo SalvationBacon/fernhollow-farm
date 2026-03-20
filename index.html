@@ -59,6 +59,7 @@ body{background:#0e0c08;display:flex;justify-content:center;align-items:flex-sta
   font-family:'Press Start 2P',monospace;
   background:var(--deep);
   width:100%;max-width:420px;
+  margin:0 auto;
   border:3px solid var(--border);
   box-shadow:0 0 0 1px var(--rim),0 8px 32px rgba(0,0,0,.7);
   overflow:hidden;position:relative;
@@ -861,6 +862,7 @@ body.pc-mode #pc-right{
   display:flex!important;
   flex-direction:column;
   flex:1;
+  width:0;
   height:100%;
   overflow-y:auto;
   overflow-x:hidden;
@@ -878,6 +880,7 @@ body.pc-mode #pc-right #gw{
   flex-shrink:0;
   overflow:hidden;
   position:relative;
+  margin:0 auto;
 }
 body.pc-mode #scene{height:180px}
 body.pc-mode #plot{grid-template-columns:repeat(6,1fr)}
@@ -920,7 +923,7 @@ body.pc-mode .scene-crop:nth-child(6){left:calc(55% + 120px)!important}
 /* Default: hide sidebar, normal layout */
 #pc-wrap{display:flex;flex-direction:column;align-items:center;width:100%;min-height:100vh;}
 #pc-left{display:none}
-#pc-right{display:flex;flex-direction:column;align-items:center;width:100%;padding:16px 0 40px;box-sizing:border-box;}
+#pc-right{display:flex;flex-direction:column;align-items:center;width:100%;padding:16px 0 40px;box-sizing:border-box;min-height:100vh;}
 /* Landscape scene elements — reposition using % when game fills width */
 body.pc-mode .house{left:50%;transform:translateX(-50%)}
 body.pc-mode #scene-barn{right:6%}
@@ -4318,20 +4321,12 @@ const TUT_STEPS=[
   {
     id:'harvest',
     title:'4. YOUR FIRST CROP!',
-    body:'Your crop is planted and watered! Parsnip takes 1 in-game day to grow.\n\nTap SLEEP on your house tonight and it will be ready to harvest tomorrow morning.',
+    body:'Your crop is planted and watered! Parsnip takes 1 in-game day to grow.\n\nTap the house to sleep and it will be ready to harvest tomorrow morning.',
     target:'field-panel',
     waitFor:'none',
     tabTo:null,
     showBtn:true,
     btnLabel:'GOT IT ▸',
-  },
-  {
-    id:'harvest_wait',
-    title:'4b. HARVEST!',
-    body:'Your crop is ready! Tap the tile to harvest it into your BAG.',
-    target:'field-panel',
-    waitFor:'firstHarvest',
-    tabTo:null,
   },
   {
     id:'ship',
@@ -4343,7 +4338,7 @@ const TUT_STEPS=[
   },
   {
     id:'done',
-    title:'7. THE FARM IS YOURS!',
+    title:'6. THE FARM IS YOURS!',
     body:'Visit THE VALLEY tab for foraging, fishing, chopping and mining. Head to TOWN to meet the villagers!',
     target:'tab-do',
     waitFor:'none',
