@@ -52,7 +52,7 @@ function forceSleep(){
   --season: #f87ca0;
 }
 
-body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-height:100vh}
+body{background:#0e0c08;display:flex;justify-content:center;align-items:flex-start;padding:0;min-height:100vh;box-sizing:border-box;}
 
 /* ── GAME WRAPPER ── */
 #gw{
@@ -830,9 +830,11 @@ body.pc-mode{
   flex-direction:row;
   align-items:stretch;
   padding:0;
+  margin:0;
   overflow:hidden;
   height:100vh;
   width:100vw;
+  justify-content:flex-start;
 }
 body.pc-mode #pc-wrap{
   display:flex!important;
@@ -863,6 +865,7 @@ body.pc-mode #pc-right{
   overflow-y:auto;
   overflow-x:hidden;
   align-items:center;
+  justify-content:flex-start;
   background:#0e0c08;
   min-width:0;
   padding:16px 0 40px;
@@ -873,7 +876,7 @@ body.pc-mode #pc-right #gw{
   width:420px!important;
   max-width:420px!important;
   flex-shrink:0;
-  overflow:visible!important;
+  overflow:hidden;
   position:relative;
 }
 body.pc-mode #scene{height:180px}
@@ -915,9 +918,9 @@ body.pc-mode .scene-crop:nth-child(5){left:calc(55% + 70px)!important}
 body.pc-mode .scene-crop:nth-child(6){left:calc(55% + 120px)!important}
 
 /* Default: hide sidebar, normal layout */
-#pc-wrap{display:contents}
+#pc-wrap{display:flex;flex-direction:column;align-items:center;width:100%;min-height:100vh;}
 #pc-left{display:none}
-#pc-right{display:contents}
+#pc-right{display:flex;flex-direction:column;align-items:center;width:100%;padding:16px 0 40px;box-sizing:border-box;}
 /* Landscape scene elements — reposition using % when game fills width */
 body.pc-mode .house{left:50%;transform:translateX(-50%)}
 body.pc-mode #scene-barn{right:6%}
@@ -4310,12 +4313,22 @@ const TUT_STEPS=[
     target:'field-panel',
     waitFor:'firstWater',
     tabTo:null,
-    hint:'Watering starts the growth timer. Sleep to advance the day and grow your crop!',
+    hint:'Watering starts the growth timer. Sleep tonight to advance the day!',
   },
   {
     id:'harvest',
-    title:'4. HARVEST!',
-    body:'Your crop is growing! When it says HARVEST tap the tile to collect it into your BAG.',
+    title:'4. YOUR FIRST CROP!',
+    body:'Your crop is planted and watered! Parsnip takes 1 in-game day to grow.\n\nTap SLEEP on your house tonight and it will be ready to harvest tomorrow morning.',
+    target:'field-panel',
+    waitFor:'none',
+    tabTo:null,
+    showBtn:true,
+    btnLabel:'GOT IT ▸',
+  },
+  {
+    id:'harvest_wait',
+    title:'4b. HARVEST!',
+    body:'Your crop is ready! Tap the tile to harvest it into your BAG.',
     target:'field-panel',
     waitFor:'firstHarvest',
     tabTo:null,
@@ -4330,7 +4343,7 @@ const TUT_STEPS=[
   },
   {
     id:'done',
-    title:'6. THE FARM IS YOURS!',
+    title:'7. THE FARM IS YOURS!',
     body:'Visit THE VALLEY tab for foraging, fishing, chopping and mining. Head to TOWN to meet the villagers!',
     target:'tab-do',
     waitFor:'none',
@@ -5459,9 +5472,9 @@ function applyPCMode(){
     document.getElementById('pc-right').style.display='flex';
   }else{
     document.body.classList.remove('pc-mode');
-    document.getElementById('pc-wrap').style.display='contents';
+    document.getElementById('pc-wrap').style.display='';
     document.getElementById('pc-left').style.display='none';
-    document.getElementById('pc-right').style.display='contents';
+    document.getElementById('pc-right').style.display='';
   }
   const lbl=document.getElementById('pc-mode-label');
   if(lbl) lbl.textContent=pcMode?'🖥 LANDSCAPE ON':'📱 PORTRAIT';
