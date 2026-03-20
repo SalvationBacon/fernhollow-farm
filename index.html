@@ -4542,6 +4542,24 @@ function toggleSound(on){
   if(on) playSound('coin'); // preview
 }
 
+// ── VISIBILITY CHANGE — pause all audio when app backgrounded/closed ──
+let _wasMusPlaying=false;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    // Page hidden — suspend all audio
+    _wasMusPlaying=musicPlaying&&!musicPaused;
+    if(_wasMusPlaying) musicPause();
+    // Suspend audio contexts to stop any lingering oscillators
+    if(audioCtx&&audioCtx.state==='running') try{audioCtx.suspend();}catch(e){}
+    if(musicCtx&&musicCtx.state==='running') try{musicCtx.suspend();}catch(e){}
+  }else{
+    // Page visible again — resume
+    if(audioCtx&&audioCtx.state==='suspended') try{audioCtx.resume();}catch(e){}
+    if(musicCtx&&musicCtx.state==='suspended') try{musicCtx.resume();}catch(e){}
+    if(_wasMusPlaying&&musicEnabled) musicResume();
+  }
+});
+
 // ══════════════════════════════════════
 // FEEDBACK — BUG REPORT & FEATURE REQUEST
 // ══════════════════════════════════════
