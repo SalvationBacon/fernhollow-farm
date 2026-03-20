@@ -1,10 +1,14 @@
-<!DOCTYPE html>
+function forceSleep(){
+  // Forced to sleep = always a penalty (ran out of day)
+  dayPenaltyEnergy=true;
+  doSleep();
+}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fernhollow Farm</title>
-<meta name="description" content="A cozy pixel-art idle farming game. Plant, grow, harvest — the land is yours.">
+<meta name="description" content="A cozy pixel-art farming game. Wake at 6am, tend your crops, fish the river, mine 100 floors and befriend 6 villagers. Rebuild the town hall one season at a time. Your farm, your pace.">
 <meta name="theme-color" content="#1a1208">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1093,7 +1097,7 @@ body.pc-mode #farmer{left:22%}
         <div class="pc-stat-row"><span class="pc-stat-label">ENERGY</span><span class="pc-stat-val" id="pc-energy" style="color:var(--pink)">30</span></div>
         <div class="pc-stat-row"><span class="pc-stat-label">HARVESTS</span><span class="pc-stat-val" id="pc-hvst">0</span></div>
         <div class="pc-stat-row"><span class="pc-stat-label">EARNED</span><span class="pc-stat-val" id="pc-earned">0g</span></div>
-        <div class="pc-stat-row"><span class="pc-stat-label">NEXT DAY</span><span class="pc-stat-val" id="pc-nextday" style="color:var(--muted)">--:--</span></div>
+        <div class="pc-stat-row"><span class="pc-stat-label">TIME</span><span class="pc-stat-val" id="pc-nextday" style="color:var(--muted)">6:00 AM</span></div>
       </div>
     </div>
 
@@ -1140,12 +1144,12 @@ body.pc-mode #farmer{left:22%}
   <div id="season-bar">
     <span id="season-label">🌸 SPRING</span>
     <div id="season-progress-wrap"><div id="season-progress" style="width:0%"></div></div>
-    <span id="season-days-left">24 DAYS LEFT</span>
+    <span id="season-days-left">28 DAYS LEFT</span>
   </div>
   <div id="clock-bar">
-    <span>TIME: <span id="real-time">--:--:--</span></span>
+    <span>🕐 <span id="real-time">6:00 AM</span></span>
     <div id="day-progress-wrap"><div id="day-progress" style="width:0%"></div></div>
-    <span id="next-reset">RESETS :00</span>
+    <span id="next-reset" style="font-size:5px">1AM IN 19m</span>
   </div>
   <div id="skills-bar">
     <div class="skill-chip farming" onclick="openSkillOverlay('farming')">
@@ -1200,7 +1204,7 @@ body.pc-mode #farmer{left:22%}
     <div class="soil-strip" id="soil-strip"></div>
     <div class="tree" style="left:5px"><div class="tree-t" id="tree-t1"></div><div class="tree-b"></div></div>
     <div class="tree" style="right:7px"><div class="tree-t" id="tree-t2"></div><div class="tree-b"></div></div>
-    <div class="house">
+    <div class="house" onclick="clickHouse()" style="cursor:pointer" title="Tap to sleep">
       <div class="h-roof"></div>
       <div class="h-wall">
         <div class="h-win" id="wl" style="left:3px"></div>
@@ -1294,7 +1298,7 @@ body.pc-mode #farmer{left:22%}
     <div id="inv-grid"></div>
     <button id="ship-all-btn" onclick="shipAll()">📦 SHIP ALL UNLOCKED ITEMS</button>
     <div id="inv-ship-area">
-      <div id="inv-ship-label">📦 SHIPPING BOX — SELLS AT NEXT HOUR</div>
+      <div id="inv-ship-label">📦 SHIPPING BOX — SELLS TONIGHT</div>
       <div id="inv-ship-list"></div>
       <div id="inv-ship-total"></div>
       <button id="unship-all-btn" onclick="unshipAll()" style="display:none">✕ UNSHIP ALL</button>
@@ -1304,7 +1308,7 @@ body.pc-mode #farmer{left:22%}
     <div id="th-header">
       <div id="th-building-art">🏛</div>
       <div id="th-title">FERNHOLLOW VILLAGE HALL</div>
-      <div id="th-subtitle">The old town hall lies in ruin.<br>Contribute to rebuild it room by room.</div>
+      <div id="th-subtitle">Restore Fernhollow's town hall across all four seasons.<br>Complete each room to unlock the next.</div>
     </div>
     <div class="th-overall-progress">
       <span class="th-overall-label">ROOMS COMPLETE</span>
@@ -1379,13 +1383,20 @@ body.pc-mode #farmer{left:22%}
       </div>
       <div class="act-desc">Chop the farm trees for wood. Trees regrow after 3 days.</div>
       <div class="tree-hp-wrap" id="tree-hp-wrap">
+        <div style="font-size:5px;color:var(--muted);margin-bottom:3px">🌲 TREE 1</div>
         <div class="tree-hp-bar-bg"><div class="tree-hp-bar" id="tree-hp-bar" style="width:100%"></div></div>
         <span class="tree-hp-label" id="tree-hp-label">5/5 HP</span>
       </div>
       <div id="wc-status" style="font-size:5px;color:var(--gold);margin-bottom:4px;min-height:10px"></div>
       <div style="display:flex;gap:4px">
-        <button class="act-btn chop" id="chop-btn" onclick="doChop()" style="flex:1">CHOP!</button>
+        <button class="act-btn chop" id="chop-btn" onclick="doChop()" style="flex:1">🪓 CHOP 1</button>
         <button class="act-btn" id="growth-dust-btn" onclick="doGrowthDust()" style="flex:0 0 auto;background:var(--lift);border-color:#285878;color:var(--blue);display:none">✨ DUST</button>
+      </div>
+      <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+        <div style="font-size:5px;color:var(--muted);margin-bottom:3px">🌲 TREE 2</div>
+        <div class="tree-hp-bar-bg" style="margin-bottom:3px"><div class="tree-hp-bar" id="tree2-hp-bar" style="width:100%"></div></div>
+        <span class="tree-hp-label" id="tree2-hp-label">5/5 HP</span>
+        <button class="act-btn chop" id="chop2-btn" onclick="doChop2()" style="width:100%;margin-top:4px">🪓 CHOP 2</button>
       </div>
       <div class="act-result" id="chop-result"></div>
     </div>
@@ -1818,7 +1829,7 @@ body.pc-mode #farmer{left:22%}
 
       <div class="settings-section">
         <div class="settings-section-title">▸ NOTIFICATIONS</div>
-        <div class="settings-desc">Get notified when crops are ready, a new day starts, or a season is ending — even with the tab in the background.</div>
+        <div class="settings-desc">Get a reminder if you've been away from the farm for 2 hours.</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
           <span id="notif-label" style="font-size:4px;color:var(--cream)">🔕 NOTIFICATIONS OFF</span>
           <label class="toggle-switch">
@@ -1893,25 +1904,25 @@ body.pc-mode #farmer{left:22%}
 // ── SEASONS ──
 const SEASONS = [
   {
-    id:'spring', name:'SPRING', icon:'🌸', daysPerSeason:24,
+    id:'spring', name:'SPRING', icon:'🌸', daysPerSeason:28,
     skyTint:null, groundColor:'#5d8a32', treeColor:'#2d6e1e', cloudColor:'#ddeeff',
     progressColor:'#f87ca0',
     crops:['parsnip','caulifl','potato','garlic','tulip','kale']
   },
   {
-    id:'summer', name:'SUMMER', icon:'☀️', daysPerSeason:24,
+    id:'summer', name:'SUMMER', icon:'☀️', daysPerSeason:28,
     groundColor:'#4a8a28', treeColor:'#1a6010', cloudColor:'#eef8ff',
     progressColor:'#f5d020',
     crops:['tomato','radish','wheat','blueberry','sunflower','starfruit']
   },
   {
-    id:'fall', name:'FALL', icon:'🍂', daysPerSeason:24,
+    id:'fall', name:'FALL', icon:'🍂', daysPerSeason:28,
     groundColor:'#7a6030', treeColor:'#b85010', cloudColor:'#e8d8b0',
     progressColor:'#e07820',
     crops:['pumpkin','bok-choy','yam','amaranth','grape','cranberry']
   },
   {
-    id:'winter', name:'WINTER', icon:'❄️', daysPerSeason:24,
+    id:'winter', name:'WINTER', icon:'❄️', daysPerSeason:28,
     groundColor:'#b0c8d8', treeColor:'#405870', cloudColor:'#e8f0f8',
     progressColor:'#88bbdd',
     crops:['holly','snow-yam','crocus','winter-root','crystal-fruit','ice-leek']
@@ -1920,34 +1931,34 @@ const SEASONS = [
 
 // ── ALL CROPS ──
 const ALL_CROPS = [
-  // Spring
-  {id:'parsnip', name:'PARSNIP',   icon:'🌿',cost:20,sell:22, baseSec:60, unlock:0,   season:'spring',desc:'Starter crop.'},
-  {id:'caulifl', name:'CAULIFLWR', icon:'🥦',cost:30,sell:63, baseSec:900,unlock:20,  season:'spring',desc:'Big seller.'},
-  {id:'potato',  name:'POTATO',    icon:'🥔',cost:40,sell:113, baseSec:1800,unlock:50, season:'spring',desc:'25% double yield!'},
-  {id:'garlic',  name:'GARLIC',    icon:'🧄',cost:50,sell:210, baseSec:3600,unlock:100, season:'spring',desc:'Good margins.'},
-  {id:'tulip',   name:'TULIP',     icon:'🌷',cost:70,sell:598, baseSec:10800,unlock:200,season:'spring',desc:'Flower crop.'},
-  {id:'kale',    name:'KALE',      icon:'🥬',cost:100,sell:1645,baseSec:28800,unlock:400,season:'spring',desc:'High value.'},
+  // baseDays: T1=1 T2=2 T3=3 T4=5 T5=8 T6=14
+  {id:'parsnip', name:'PARSNIP',   icon:'🌿',cost:20,sell:22,  baseDays:1,  unlock:0,   season:'spring',desc:'Starter crop.'},
+  {id:'caulifl', name:'CAULIFLWR', icon:'🥦',cost:30,sell:63,  baseDays:2,  unlock:20,  season:'spring',desc:'Big seller.'},
+  {id:'potato',  name:'POTATO',    icon:'🥔',cost:40,sell:113, baseDays:3,  unlock:50,  season:'spring',desc:'25% double yield!'},
+  {id:'garlic',  name:'GARLIC',    icon:'🧄',cost:50,sell:210, baseDays:5,  unlock:100, season:'spring',desc:'Good margins.'},
+  {id:'tulip',   name:'TULIP',     icon:'🌷',cost:70,sell:598, baseDays:8,  unlock:200, season:'spring',desc:'Flower crop.'},
+  {id:'kale',    name:'KALE',      icon:'🥬',cost:100,sell:1645,baseDays:14, unlock:400, season:'spring',desc:'High value.'},
 
-  {id:'tomato',     name:'TOMATO',     icon:'🍅',cost:20,sell:22, baseSec:60, unlock:0,   season:'summer',desc:'Summer staple.'},
-  {id:'radish',     name:'RADISH',     icon:'🌱',cost:30,sell:63, baseSec:900,unlock:20,  season:'summer',desc:'Quick grower.'},
-  {id:'wheat',      name:'WHEAT',      icon:'🌾',cost:40,sell:113, baseSec:1800,unlock:50, season:'summer',desc:'25% double yield!'},
-  {id:'blueberry',  name:'BLUEBERRY',  icon:'🫐',cost:50,sell:210, baseSec:3600,unlock:100, season:'summer',desc:'Good margins.'},
-  {id:'sunflower',  name:'SUNFLOWER',  icon:'🌻',cost:70,sell:598, baseSec:10800,unlock:200,season:'summer',desc:'Seeds + oil.'},
-  {id:'starfruit',  name:'STARFRUIT',  icon:'⭐',cost:100,sell:1645,baseSec:28800,unlock:400,season:'summer',desc:'Slow prestige.'},
+  {id:'tomato',     name:'TOMATO',     icon:'🍅',cost:20,sell:22,  baseDays:1,  unlock:0,   season:'summer',desc:'Summer staple.'},
+  {id:'radish',     name:'RADISH',     icon:'🌱',cost:30,sell:63,  baseDays:2,  unlock:20,  season:'summer',desc:'Quick grower.'},
+  {id:'wheat',      name:'WHEAT',      icon:'🌾',cost:40,sell:113, baseDays:3,  unlock:50,  season:'summer',desc:'25% double yield!'},
+  {id:'blueberry',  name:'BLUEBERRY',  icon:'🫐',cost:50,sell:210, baseDays:5,  unlock:100, season:'summer',desc:'Good margins.'},
+  {id:'sunflower',  name:'SUNFLOWER',  icon:'🌻',cost:70,sell:598, baseDays:8,  unlock:200, season:'summer',desc:'Seeds + oil.'},
+  {id:'starfruit',  name:'STARFRUIT',  icon:'⭐',cost:100,sell:1645,baseDays:14, unlock:400, season:'summer',desc:'Slow prestige.'},
 
-  {id:'pumpkin',    name:'PUMPKIN',    icon:'🎃',cost:20,sell:22, baseSec:60,unlock:0,    season:'fall',  desc:'Classic fall.'},
-  {id:'bok-choy',   name:'BOK CHOY',   icon:'🥗',cost:30,sell:63, baseSec:900,unlock:20,  season:'fall',  desc:'Fast & easy.'},
-  {id:'yam',        name:'YAM',        icon:'🍠',cost:40,sell:113, baseSec:1800,unlock:50, season:'fall',desc:'25% double yield!'},
-  {id:'amaranth',   name:'AMARANTH',   icon:'💜',cost:50,sell:210, baseSec:3600,unlock:100, season:'fall',  desc:'For dye cloth.'},
-  {id:'grape',      name:'GRAPE',      icon:'🍇',cost:70,sell:598,baseSec:10800,unlock:200, season:'fall',  desc:'Makes wine.'},
-  {id:'cranberry',  name:'CRANBERRY',  icon:'🍒',cost:100,sell:1645,baseSec:28800,unlock:400,season:'fall',  desc:'Multi-harvest.'},
+  {id:'pumpkin',    name:'PUMPKIN',    icon:'🎃',cost:20,sell:22,  baseDays:1,  unlock:0,   season:'fall',  desc:'Classic fall.'},
+  {id:'bok-choy',   name:'BOK CHOY',   icon:'🥗',cost:30,sell:63,  baseDays:2,  unlock:20,  season:'fall',  desc:'Fast & easy.'},
+  {id:'yam',        name:'YAM',        icon:'🍠',cost:40,sell:113, baseDays:3,  unlock:50,  season:'fall',  desc:'25% double yield!'},
+  {id:'amaranth',   name:'AMARANTH',   icon:'💜',cost:50,sell:210, baseDays:5,  unlock:100, season:'fall',  desc:'For dye cloth.'},
+  {id:'grape',      name:'GRAPE',      icon:'🍇',cost:70,sell:598, baseDays:8,  unlock:200, season:'fall',  desc:'Makes wine.'},
+  {id:'cranberry',  name:'CRANBERRY',  icon:'🍒',cost:100,sell:1645,baseDays:14, unlock:400, season:'fall',  desc:'Multi-harvest.'},
 
-  {id:'holly',         name:'HOLLY',        icon:'🌿',cost:20,sell:22, baseSec:60, unlock:0,   season:'winter',desc:'Winter hardy.'},
-  {id:'snow-yam',      name:'SNOW YAM',     icon:'⬜',cost:30,sell:63, baseSec:900,unlock:20,  season:'winter',desc:'Cold crop.'},
-  {id:'crocus',        name:'CROCUS',       icon:'🌸',cost:40,sell:113, baseSec:1800,unlock:50, season:'winter',desc:'25% double yield!'},
-  {id:'winter-root',   name:'WINTER ROOT',  icon:'🌰',cost:50,sell:210, baseSec:3600,unlock:100,season:'winter',desc:'Deep roots.'},
-  {id:'crystal-fruit', name:'CRYSTAL FRUIT',icon:'💎',cost:70,sell:598,baseSec:10800,unlock:200, season:'winter',desc:'Rare & valuable.'},
-  {id:'ice-leek',      name:'ICE LEEK',     icon:'🥬',cost:100,sell:1645,baseSec:28800,unlock:400,season:'winter',desc:'Slow prestige.'},
+  {id:'holly',         name:'HOLLY',        icon:'🌿',cost:20,sell:22,  baseDays:1,  unlock:0,   season:'winter',desc:'Winter hardy.'},
+  {id:'snow-yam',      name:'SNOW YAM',     icon:'⬜',cost:30,sell:63,  baseDays:2,  unlock:20,  season:'winter',desc:'Cold crop.'},
+  {id:'crocus',        name:'CROCUS',       icon:'🌸',cost:40,sell:113, baseDays:3,  unlock:50,  season:'winter',desc:'25% double yield!'},
+  {id:'winter-root',   name:'WINTER ROOT',  icon:'🌰',cost:50,sell:210, baseDays:5,  unlock:100, season:'winter',desc:'Deep roots.'},
+  {id:'crystal-fruit', name:'CRYSTAL FRUIT',icon:'💎',cost:70,sell:598, baseDays:8,  unlock:200, season:'winter',desc:'Rare & valuable.'},
+  {id:'ice-leek',      name:'ICE LEEK',     icon:'🥬',cost:100,sell:1645,baseDays:14, unlock:400, season:'winter',desc:'Slow prestige.'},
 ];
 
 const UNLOCK_COSTS=[0,0,300,800,1500,3000];
@@ -1975,12 +1986,18 @@ let skills={
   mining:  {xp:0,level:1},
 };
 let seasonIndex,seasonDay;
-let seasonHarvests={spring:0,summer:0,fall:0,winter:0}; // persistent per-season harvest counts
+let seasonHarvests={spring:0,summer:0,fall:0,winter:0};
 let sel,starOpacity=0,skyTimeOverride=null;
 let inventory,shipping;
-let lastHourUTC=null;
 let tiles;
 let treeHp=5,treeMaxHp=5,treeRespawnDaysLeft=0;
+let tree2Hp=5,tree2RespawnDaysLeft=0; // second tree, independent
+// ── DAY CLOCK ──
+// 1 real second = 1 in-game minute. Day = 6am (0s) to 1am (1140s). Forced sleep at 1140s.
+// Clock only ticks while the page is visible — pauses when app is backgrounded.
+let dayStartTime=0;
+let dayPenaltyEnergy=false;
+let activeSecsAtHide=0; // seconds elapsed when page was last hidden
 // ── ANIMALS ──
 // buildings: {coop:false, barn:false}
 // animals: array of {type, fed, product, daysSinceProduct}
@@ -1989,11 +2006,11 @@ let animals=[];
 let autoFeeder=false;
 let autoCollect=false;
 let fishingRod=0; // 0=none, 1=bamboo, 2=fibre, 3=master
-let bagCapacity=20; // max unique item stacks in inventory
+let bagCapacity=30; // max unique item stacks in inventory
 let devFlags={unlimitedEnergy:false,instantGrow:false};
 let devMode=false;
 let wateringCanTier=0; // 0=basic(1 plot),1=copper(2),2=iron(4),3=gold(6)
-let maxEnergy=30;      // base 30, +10 per Angel Fruit (max 50)
+let maxEnergy=30;      // base 30, +10 per Angel Fruit (no hard cap)
 // ── VILLAGERS ──
 let villagerState={};
 let villagerOpen=null;
@@ -2007,7 +2024,7 @@ let mineRocks=[];
 let mineActive=false;
 let mineStartFloor=1;
 let mineConsumables={tonic:0,grip:0,blast:0};
-let mineActiveBuffs={tonic:0,grip:false};
+let mineActiveBuffs={tonic:0,grip:0};
 // ── FISHING / WOODCUTTING ──
 let fishingUnlocked=false;
 let hasAxe=false;
@@ -2015,11 +2032,16 @@ let axeTier=0;
 let wcSharpenCharges=0;
 let wcTonicReady=false;
 let wcInstaGCharges=0;
+let luckyBaitReady=false;  // next cast auto-succeeds
+let fishNetReady=false;    // next cast catches 2 fish
 // ── INVENTORY LOCKS ──
 let lockedItems={};
 // ── ACHIEVEMENTS ──
 let achFlags={};
 let achUnlocked={};
+let salStockRemaining=3; // how many special crops left in current 5-day window
+let salStockWindow=0;    // which window (seasonDay÷5 floor) was last stocked
+let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
 
 function defaultState(){
   coins=60;day=1;hvst=0;totalEarned=0;energy=30;speed=1;fertilized=false;
@@ -2028,26 +2050,34 @@ function defaultState(){
   sel=ALL_CROPS[0];
   inventory={};shipping={};
   treeHp=5;treeRespawnDaysLeft=0;
+  tree2Hp=5;tree2RespawnDaysLeft=0;
   devFlags={unlimitedEnergy:false,instantGrow:false};
   skills={farming:{xp:0,level:1},foraging:{xp:0,level:1},fishing:{xp:0,level:1},chopping:{xp:0,level:1},mining:{xp:0,level:1}};
-  tiles=Array(N).fill(0).map((_,i)=>({st:i<2?'empty':'locked',crop:null,plantedAt:0,endAt:0,origMs:0,watered:false,waterDue:0}));
+  tiles=Array(N).fill(0).map((_,i)=>({st:i<2?'empty':'locked',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null}));
   buildings={coop:false,barn:false};
   animals=[];
   autoFeeder=false;
   autoCollect=false;
   fishingRod=0;
-  bagCapacity=20;
-  townHall={rooms:{},forgeQueue:[]};
+  luckyBaitReady=false;
+  fishNetReady=false;
+  bagCapacity=30;
+  townHall={rooms:{},forgeQueue:[],preserveQueue:[]};
   villagerState={};villagerOpen=null;
   mineUnlocked=false;pickaxeTier=0;mineFloor=1;mineCheckpoint=1;
   mineRocks=[];mineActive=false;
   mineConsumables={tonic:0,grip:0,blast:0};
-  mineActiveBuffs={tonic:0,grip:false};
+  mineActiveBuffs={tonic:0,grip:0}; // grip: floors remaining (0=inactive)
   fishingUnlocked=false;hasAxe=false;axeTier=0;
   wcSharpenCharges=0;wcTonicReady=false;wcInstaGCharges=0;vilMet={};
   lockedItems={};
   wateringCanTier=0;maxEnergy=30;
   achFlags={};achUnlocked={};
+  dayStartTime=Date.now();
+  dayPenaltyEnergy=false;
+  salStockRemaining=3;
+  salStockWindow=0;
+  salBulkDealUsed=false;
 }
 
 function saveGame(){
@@ -2056,20 +2086,23 @@ function saveGame(){
     seasonIndex,seasonDay,seasonHarvests,
     selId:sel.id,
     inventory,shipping,
-    treeHp,treeRespawnDaysLeft,buildings,animals,autoFeeder,autoCollect,fishingRod,bagCapacity,
+    treeHp,treeRespawnDaysLeft,tree2Hp,tree2RespawnDaysLeft,buildings,animals,autoFeeder,autoCollect,fishingRod,bagCapacity,
     devFlags,
     townHall,villagerState,  // townHall.sprinklerTier saved inside townHall
     mineUnlocked,pickaxeTier,mineFloor,mineCheckpoint,mineConsumables,fishingUnlocked,hasAxe,axeTier,wcSharpenCharges,wcTonicReady,wcInstaGCharges,vilMet,lockedItems,wateringCanTier,maxEnergy,
+    luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
+    dayStartTime,dayPenaltyEnergy,
+    salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
       st:t.st,
       cropId:t.crop?t.crop.id:null,
-      plantedAt:t.plantedAt,
-      endAt:t.endAt,
-      origMs:t.origMs,
+      plantedDay:t.plantedDay||0,
+      growDays:t.growDays||0,
+      daysGrown:t.daysGrown||0,
       watered:t.watered||false,
-      waterDue:t.waterDue||0
+      waterDueDay:t.waterDueDay||0
     }))
   };
   localStorage.setItem(SAVE_KEY,JSON.stringify(data));
@@ -2097,6 +2130,8 @@ function loadGame(){
     inventory=d.inventory||{};shipping=d.shipping||{};
     treeHp=typeof d.treeHp==='number'?d.treeHp:5;
     treeRespawnDaysLeft=d.treeRespawnDaysLeft||0;
+    tree2Hp=typeof d.tree2Hp==='number'?d.tree2Hp:5;
+    tree2RespawnDaysLeft=d.tree2RespawnDaysLeft||0;
     buildings=d.buildings||{coop:false,barn:false};
     animals=d.animals||[];
     autoFeeder=d.autoFeeder||false;
@@ -2105,6 +2140,7 @@ function loadGame(){
     bagCapacity=d.bagCapacity||20;
     townHall=d.townHall||{rooms:{}};
     if(!townHall.forgeQueue) townHall.forgeQueue=[];
+    if(!townHall.preserveQueue) townHall.preserveQueue=[];
     villagerState=d.villagerState||{};
     mineUnlocked=d.mineUnlocked||false;
     pickaxeTier=d.pickaxeTier||0;
@@ -2124,34 +2160,33 @@ function loadGame(){
     wcSharpenCharges=d.wcSharpenCharges||0;
     wcTonicReady=d.wcTonicReady||false;
     wcInstaGCharges=d.wcInstaGCharges||0;
+    luckyBaitReady=d.luckyBaitReady||false;
+    fishNetReady=d.fishNetReady||false;
     vilMet=d.vilMet||{};
     lockedItems=d.lockedItems||{};
     wateringCanTier=typeof d.wateringCanTier==='number'?d.wateringCanTier:0;
     maxEnergy=typeof d.maxEnergy==='number'?d.maxEnergy:30;
     achFlags=d.achFlags||{};
     achUnlocked=d.achUnlocked||{};
+    salStockRemaining=typeof d.salStockRemaining==='number'?d.salStockRemaining:3;
+    salStockWindow=d.salStockWindow||0;
+    salBulkDealUsed=d.salBulkDealUsed||false;
+    dayStartTime=d.dayStartTime||Date.now();
+    dayPenaltyEnergy=d.dayPenaltyEnergy||false;
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
-      let endAt=t.endAt,st=t.st;
-      if(st==='grow'&&crop){
-        if(Date.now()>=t.endAt){
-          st='ready';
-        }
-      }
-      // if origMs is missing or suspiciously small (e.g. from a dev instantGrow save),
-      // restore it from the crop base time so resumeGrowingTiles works correctly
-      let origMs=t.origMs;
-      if(st==='grow'&&crop&&(!origMs||origMs<1000)){
-        origMs=crop.baseSec*1000;
-        // also clamp endAt to at most origMs from plantedAt
-        const maxEnd=(t.plantedAt||Date.now())+origMs;
-        if(endAt>maxEnd) endAt=maxEnd;
-      }
-      return{st,crop,plantedAt:t.plantedAt||Date.now(),endAt,origMs,watered:t.watered||false,waterDue:t.waterDue||0,iv:null,timer:null};
+      let st=t.st;
+      let growDays=t.growDays||0;
+      let daysGrown=t.daysGrown||0;
+      let plantedDay=t.plantedDay||0;
+      let waterDueDay=t.waterDueDay||0;
+      // Legacy save migration from real-time to day-based
+      if(!growDays&&crop&&st==='grow') growDays=crop.baseDays||1;
+      if(st==='grow'&&crop&&daysGrown>=growDays&&t.watered) st='ready';
+      return{st,crop,plantedDay,growDays,daysGrown,watered:t.watered||false,waterDueDay,iv:null,timer:null};
     });
-    // pad tiles if needed
-    while(tiles.length<N) tiles.push({st:'locked',crop:null,plantedAt:0,endAt:0,origMs:0,iv:null,timer:null});
+    while(tiles.length<N) tiles.push({st:'locked',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null});
     return true;
   }catch(e){return false}
 }
@@ -2184,8 +2219,7 @@ function applySeasonVisuals(){
   document.getElementById('season-label').textContent=s.icon+' '+s.name;
   document.getElementById('season-footer').textContent='SEASON: '+s.name+' '+s.icon;
   document.getElementById('season-progress').style.background=s.progressColor;
-  document.getElementById('tree-t1').style.background=s.treeColor;
-  document.getElementById('tree-t2').style.background=s.treeColor;
+  ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background=s.treeColor;});
   ['cl1','cl2','cl3'].forEach(id=>document.getElementById(id).style.background=s.cloudColor);
   updateSeasonBar();
 }
@@ -2221,7 +2255,7 @@ function killOutOfSeasonCrops(){
       // cancel timers
       if(t.iv){clearInterval(t.iv);t.iv=null}
       if(t.timer){clearTimeout(t.timer);t.timer=null}
-      tiles[i]={st:'empty',crop:null,plantedAt:0,endAt:0,origMs:0,iv:null,timer:null};
+      tiles[i]={st:'empty',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
       killed++;
       // wilt animation on scene sprite before removing
       const el=document.getElementById('sc-'+i);
@@ -2324,23 +2358,7 @@ function buildStars(){
     s.appendChild(d);
   }
 }
-function getRealH(){
-  if(skyTimeOverride!==null) return skyTimeOverride;
-  // 45 mins of day, 15 mins of night per hour
-  // minute 0 = 6am dawn, minute 45 = 7pm dusk, minute 60 = 6am again
-  const n=new Date();
-  const progress=(n.getUTCMinutes()*60+n.getUTCSeconds())/3600; // 0.0–1.0
-  let h;
-  if(progress<=0.75){
-    // 0–45 mins maps to 6am–7pm (13 hours of day)
-    h=6+(progress/0.75)*13;
-  }else{
-    // 45–60 mins maps to 7pm–6am (11 hours of night compressed into 15 mins)
-    h=19+((progress-0.75)/0.25)*11;
-    if(h>=24) h-=24;
-  }
-  return h;
-}
+function getRealH(){ return getGameH(); }
 function updateSky(){
   const h=getRealH(),{sky,gr}=getSky(h);
   document.getElementById('sky').style.background=sky;
@@ -2374,20 +2392,69 @@ function updateSky(){
 
 // ── CLOCK ──
 const pad2=n=>String(Math.floor(n)).padStart(2,'0');
-function getUTCHourKey(){const n=new Date();return n.getUTCFullYear()+'-'+pad2(n.getUTCMonth()+1)+'-'+pad2(n.getUTCDate())+'T'+pad2(n.getUTCHours())}
+
+// DAY CLOCK: 1 real second = 1 in-game minute. 6am=0s, 1am=1140s.
+const DAY_START_H      = 6;
+const DAY_END_H        = 25;   // 1am next day
+const DAY_SECS         = (DAY_END_H - DAY_START_H) * 60; // 1140
+const PENALTY_CUTOFF_H = 20;   // forced sleep before 8pm triggers penalty
+
+function getSessionSec(){
+  return Math.min(DAY_SECS, Math.floor((Date.now() - dayStartTime) / 1000));
+}
+
+function getGameH(){
+  if(skyTimeOverride!==null) return skyTimeOverride;
+  return DAY_START_H + getSessionSec() / 60;
+}
+
+function getGameTimeStr(){
+  let h=getGameH();
+  if(h>=24) h-=24;
+  const hh=Math.floor(h);
+  const mm=Math.floor((h-hh)*60);
+  const ampm=hh<12?'AM':'PM';
+  const hDisp=hh===0?12:hh>12?hh-12:hh;
+  return pad2(hDisp)+':'+pad2(mm)+' '+ampm;
+}
+
 function clockTick(){
-  const now=new Date();
-  const utcM=now.getUTCMinutes(),utcS=now.getUTCSeconds(),utcH=now.getUTCHours();
-  const localH=now.getHours(),localM=now.getMinutes(),localS=now.getSeconds();
-  document.getElementById('real-time').textContent=pad2(localH)+':'+pad2(localM)+':'+pad2(localS);
-  document.getElementById('day-progress').style.width=Math.round(((utcM*60+utcS)/3600)*100)+'%';
-  const secLeft=3600-(utcM*60+utcS);
-  document.getElementById('next-reset').textContent='RESETS IN '+pad2(Math.floor(secLeft/60))+':'+pad2(secLeft%60);
+  const sec=getSessionSec();
+  const timeEl=document.getElementById('real-time');
+  if(timeEl) timeEl.textContent=getGameTimeStr();
+  const dpEl=document.getElementById('day-progress');
+  if(dpEl) dpEl.style.width=Math.round((sec/DAY_SECS)*100)+'%';
+  const secsLeft=Math.max(0,DAY_SECS-sec);
+  const nrEl=document.getElementById('next-reset');
+  if(nrEl){
+    if(secsLeft<=0){nrEl.textContent='SLEEP TIME!';nrEl.style.color='var(--red)';}
+    else if(secsLeft<=120){nrEl.textContent='1AM IN '+secsLeft+'s';nrEl.style.color='var(--gold)';}
+    else{nrEl.textContent='1AM IN '+Math.floor(secsLeft/60)+'m';nrEl.style.color='';}
+  }
   updateSky();
   checkForgeQueue();
-  const key=getUTCHourKey();
-  if(lastHourUTC===null){lastHourUTC=key;return}
-  if(key!==lastHourUTC){lastHourUTC=key;triggerNewDay()}
+  checkPreserveQueue();
+  // Forced sleep at 1am
+  if(sec>=DAY_SECS){
+    const sumEl=document.getElementById('summary');
+    if(!sumEl||!sumEl.className.includes('show')){
+      dayPenaltyEnergy=(getGameH()<PENALTY_CUTOFF_H);
+      doSleep();
+    }
+  }
+}
+
+function clickHouse(){
+  const h=getGameH();
+  if(h<8){info('TOO EARLY TO SLEEP! KEEP FARMING UNTIL AT LEAST 8AM.');return;}
+  dayPenaltyEnergy=false;
+  doSleep();
+}
+
+function doSleep(){
+  const shipped=Object.entries(shipping).filter(([,q])=>q>0);
+  const total=getShipTotal();
+  triggerNewDay(shipped,total);
 }
 
 // ── HELPERS ──
@@ -2532,7 +2599,15 @@ function popupShip(){
 function getEnergyGain(id){
   // cooked meals — look up in ALL_ITEMS_MAP
   if(ALL_ITEMS_MAP[id]&&ALL_ITEMS_MAP[id].energy) return ALL_ITEMS_MAP[id].energy;
-  if(id.endsWith('_fish')) return 1;
+  if(id.endsWith('_fish')){
+    // energy from fish scales with sell value
+    const fishInfo=ALL_ITEMS_MAP[id];
+    if(fishInfo&&fishInfo.sell>=40) return 6;
+    if(fishInfo&&fishInfo.sell>=20) return 4;
+    if(fishInfo&&fishInfo.sell>=10) return 3;
+    if(fishInfo&&fishInfo.sell>=5)  return 2;
+    return 1;
+  }
   if(id.endsWith('_forage')) return 1;
   // crops
   const crop=ALL_CROPS.find(c=>c.id===id.split('|')[0]);
@@ -2548,7 +2623,7 @@ function shipCrop(id){
   if(!inventory[id]||inventory[id]<=0)return;
   shipCropOne(id);
   const item=getItemInfo(id);
-  info('SHIPPED '+item.icon+' '+item.name+' → BOX. SELLS AT NEXT HOUR!');
+  info('SHIPPED '+item.icon+' '+item.name+' → BOX. SELLS TONIGHT!');
   playSound('ship');
   tutHook('firstShip');
   achFlags.ship_first=true;
@@ -2601,41 +2676,37 @@ function renderShipList(){
 function getShipTotal(){return Object.entries(shipping).reduce((a,[id,q])=>{const item=getItemInfo(id);return a+(item.sell*q)},0)}
 
 // ── END OF DAY ──
-function triggerNewDay(){
-  const shipped=Object.entries(shipping).filter(([,q])=>q>0);
-  const total=getShipTotal();
-  coins+=total;totalEarned+=total;
-  upCoins();
+function triggerNewDay(shipped,total){
+  coins+=total;totalEarned+=total;upCoins();
   if(total>=1000) achFlags.big_day=true;
-  if(total>0){playSound('coin');pcAddLog('💰 Day payout: +'+total+'g');}$('earnedn').textContent=totalEarned;
+  if(total>0){playSound('coin');pcAddLog('💰 Day payout: +'+total+'g');}
+  $('earnedn').textContent=totalEarned;
+  advanceCropDay();
   advanceSeason();
   day++;$('dn').textContent=day;
-  energy=maxEnergy;upEnergy();
+  const wasPenalised=dayPenaltyEnergy;
+  const newEnergy=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
+  dayPenaltyEnergy=false;
+  energy=newEnergy;upEnergy();
   playSound('newday');
-  // tree respawn
   if(treeHp<=0&&treeRespawnDaysLeft>0){
     treeRespawnDaysLeft--;
-    if(treeRespawnDaysLeft===0){treeHp=treeMaxHp;info('THE TREES HAVE REGROWN!')}
+    if(treeRespawnDaysLeft===0){treeHp=treeMaxHp;}
   }
-  showSummary(shipped,total);
+  if(tree2Hp<=0&&tree2RespawnDaysLeft>0){
+    tree2RespawnDaysLeft--;
+    if(tree2RespawnDaysLeft===0){tree2Hp=treeMaxHp;info('THE TREES HAVE REGROWN!');}
+  }
+  showSummary(shipped,total,wasPenalised);
   shipping={};updateShipCount();renderInv();
-  // reset water due for all growing tiles (new day = water your crops)
-  tiles.forEach((t,i)=>{
-    if(t.st==='grow'&&t.crop&&t.watered&&t.waterDue>0){
-      t.waterDue=Date.now()+WATER_INTERVAL_MS;
-    }
-  });
   renderWaterBtn();
   animalNewDay();
   vilNewDay();
-  notifScheduleNewDay();
   checkAchievements();
+  dayStartTime=Date.now();
   saveGame();
 }
-function showSummary(shipped,total){
-  const now=new Date();
-  const prevH=pad2((now.getUTCHours()-1+24)%24);
-  const curH=pad2(now.getUTCHours());
+function showSummary(shipped,total,wasPenalised){
   $('sum-day').textContent='DAY '+day+'  |  '+currentSeason().icon+' '+currentSeason().name;
   const lines=$('sum-lines');lines.innerHTML='';
   $('summary').className='show';
@@ -2656,7 +2727,12 @@ function showSummary(shipped,total){
   const d=250+shipped.length*300+150;
   setTimeout(()=>$('sum-divider').style.opacity=1,d);
   setTimeout(()=>{$('sum-total').style.opacity=1;$('sum-total').textContent='TOTAL: '+total+'g'},d+250);
-  setTimeout(()=>{$('sum-bonus').style.opacity=1;$('sum-bonus').textContent='+10 ENERGY RESTORED\n+'+total+'g DEPOSITED'},d+500);
+  setTimeout(()=>{
+    const energyAmt=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
+    const penaltyNote=wasPenalised?' ⚠ EARLY SLEEP -10%':'';
+    $('sum-bonus').style.opacity=1;
+    $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED';
+  },d+500);
   setTimeout(()=>$('sum-sleep').style.opacity=1,d+900);
 }
 function dismissSummary(){
@@ -2673,32 +2749,13 @@ function dismissSummary(){
 function setSpeed(s){
   speed=s;
   [1,10,60,300].forEach(v=>$('sb'+v).className='spd-btn'+(s===v?' on':''));
-  tiles.forEach((_,i)=>{if(tiles[i].st==='grow')restartTimer(i)});
-}
-function restartTimer(i){
-  const t=tiles[i];
-  if(t.iv){clearInterval(t.iv);t.iv=null}
-  if(t.timer){clearTimeout(t.timer);t.timer=null}
-  const prog=Math.min(1,(Date.now()-t.plantedAt)/t.origMs);
-  const rem=(1-prog)*t.crop.baseSec*1000/speed;
-  if(rem<=0){tiles[i].st='ready';renderTile(i);return}
-  t.endAt=Date.now()+rem;
-  t.iv=setInterval(()=>{if(tiles[i].st==='grow')renderTile(i);else{clearInterval(tiles[i].iv);tiles[i].iv=null}},300);
-  t.timer=setTimeout(()=>{
-    if(tiles[i].st==='grow'){
-      tiles[i].st='ready';
-      if(tiles[i].iv){clearInterval(tiles[i].iv);tiles[i].iv=null}
-      renderTile(i);info(t.crop.icon+' '+t.crop.name+' READY!');
-    }
-  },rem);
 }
 
 // ── TILES ──
-function formatTime(sec){
-  if(sec<60) return sec+'s';
-  if(sec<3600){const m=Math.ceil(sec/60);return m+'m';}
-  const h=Math.floor(sec/3600),m=Math.ceil((sec%3600)/60);
-  return m>0?h+'h '+m+'m':h+'h';
+function formatTime(days){
+  if(days<=0) return 'READY';
+  if(days===1) return '1 DAY';
+  return days+' DAYS';
 }
 
 function renderTile(i){
@@ -2713,21 +2770,17 @@ function renderTile(i){
     el.innerHTML='<div style="font-size:15px;color:#8a6840">+</div><div class="t-lbl">EMPTY</div>';
   }else if(t.st==='grow'){
     if(!t.watered){
-      // needs first watering
       el.className='tile needs-water';
       el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl" style="color:var(--blue)">💧 WATER!</div>`;
-    }else if(t.waterDue>0&&Date.now()>t.waterDue){
-      // overdue — paused
+    }else if(t.waterDueDay>0&&day>=t.waterDueDay){
+      const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
       el.className='tile paused';
-      const remMs=Math.max(0,t.endAt-Date.now()),totalMs=t.origMs;
-      const pct=totalMs>0?Math.min(100,Math.round((1-remMs/totalMs)*100)):0;
       el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl" style="color:var(--blue)">💧 WATER!</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:var(--blue)"></div></div>`;
     }else{
-      const remMs=Math.max(0,t.endAt-Date.now()),totalMs=t.origMs;
-      const pct=totalMs>0?Math.min(100,Math.round((1-remMs/totalMs)*100)):0;
-      const timeLabel=formatTime(Math.ceil(remMs/1000));
+      const daysLeft=Math.max(0,t.growDays-(t.daysGrown||0));
+      const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
       el.className='tile';
-      el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl">${timeLabel}</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%"></div></div>`;
+      el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl">${formatTime(daysLeft)}</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%"></div></div>`;
     }
   }else{
     el.className='tile ready';
@@ -2735,6 +2788,7 @@ function renderTile(i){
   }
   updateSceneCrop(i);
 }
+
 
 // Scene crop sprite positions — 6 slots spread across the soil strip
 // avoiding the house (centre) and ship box (far left)
@@ -2764,9 +2818,7 @@ function updateSceneCrop(i){
   el.style.left=SCENE_CROP_X[i]+'px';
 
   if(t.st==='grow'){
-    const remMs=Math.max(0,t.endAt-Date.now());
-    const totalMs=t.crop.baseSec*1000/speed;
-    const pct=Math.min(100,Math.round((1-remMs/totalMs)*100));
+    const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
     // 3 growth stages
     let icon,sz;
     if(pct<25){icon='🌱';sz=9;}
@@ -2795,26 +2847,23 @@ function refreshAllSceneCrops(){
   for(let i=0;i<N;i++) updateSceneCrop(i);
 }
 function plantTile(i){
-  if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! BUY COFFEE.');return}
+  if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! REST OR EAT FOOD.');return}
   if(!isCropAvailable(sel)){info(sel.name+' ONLY GROWS IN '+sel.season.toUpperCase()+'!');return}
   if(coins<sel.cost){info('NEED '+sel.cost+'g TO PLANT '+sel.name+'!');return}
   coins-=sel.cost;upCoins();
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
-  const baseMs=sel.baseSec*1000,adjMs=fertilized>0?baseMs*0.5:baseMs;
-  if(fertilized>0){fertilized--;}
-  // during tutorial all crops grow in 5 seconds
-  const tutMs=(tutActive&&!devFlags.instantGrow)?5000:null;
-  const actualMs=tutMs||(devFlags.instantGrow?1000:adjMs)/speed;
-  const now=Date.now();
-  tiles[i]={st:'grow',crop:sel,plantedAt:now,endAt:now+actualMs,origMs:adjMs,watered:false,waterDue:0,iv:null,timer:null};
+  let growDays=sel.baseDays;
+  if(fertilized>0){growDays=Math.max(1,growDays-1);fertilized--;}
+  if(devFlags.instantGrow) growDays=1;
+  tiles[i]={st:'grow',crop:sel,plantedDay:day,growDays,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
   moveFarmer(i);
   info('PLANTED '+sel.icon+' '+sel.name+'! 💧 NOW WATER IT!');
   playSound('plant');
   pcAddLog('Planted '+sel.icon+' '+sel.name);
   tutHook('firstPlant');
-  // tile starts paused — timer only starts after first water
   renderTile(i);
   renderWaterBtn();
+  saveGame();
 }
 function harvestTile(i){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! BUY FOOD FROM HOB IN TOWN.');return}
@@ -2843,17 +2892,18 @@ function harvestTile(i){
   info('HARVESTED '+c.icon+' '+c.name+qLabel+(bonus===2?' (DOUBLE!)':'')+' → BAG');
   playSound('harvest');
   pcAddLog('Harvested '+c.icon+' '+c.name+(qLabel||''));
-  // farming XP scales by crop tier (grow time) + quality bonus
-  const tierXp=c.baseSec>=28800?12:c.baseSec>=10800?8:c.baseSec>=3600?5:c.baseSec>=1800?3:c.baseSec>=900?2:1;
+  // farming XP: T1=1 T2=2 T3=4 T4=7 T5=11 T6=18 — higher tiers give more xp/day
+  // quality bonus: +1 silver, +2 gold
+  const tierXp=c.baseDays>=14?18:c.baseDays>=8?11:c.baseDays>=5?7:c.baseDays>=3?4:c.baseDays>=2?2:1;
   const qualBonus=quality==='gold'?2:quality==='silver'?1:0;
   const xpGain=tierXp+qualBonus;
   skillAddXP('farming',xpGain);
   if(quality==='gold') achFlags.gold_crop=true;
-  if(c.baseSec>=28800) achFlags.tier6_crop=true;
+  if(c.baseDays>=14) achFlags.tier6_crop=true;
   tutHook('firstHarvest');
   checkAchievements();
   if(tiles[i].iv){clearInterval(tiles[i].iv);tiles[i].iv=null}
-  tiles[i]={st:'empty',crop:null,plantedAt:0,endAt:0,origMs:0,iv:null,timer:null};
+  tiles[i]={st:'empty',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
   notifCancelCrop(i);
   renderTile(i);renderSeeds();
 }
@@ -2866,110 +2916,83 @@ function handleTile(i){
   }
   if(t.st==='ready')harvestTile(i);
   else if(t.st==='grow'){
-    if(!t.watered||(t.waterDue>0&&Date.now()>t.waterDue)){
+    if(!t.watered||(t.waterDueDay>0&&day>=t.waterDueDay)){
       waterTile(i);
     }else{
-      info(t.crop.icon+' GROWING... ~'+formatTime(Math.max(0,Math.ceil((t.endAt-Date.now())/1000)))+' LEFT.');
+      const dLeft=Math.max(0,t.growDays-(t.daysGrown||0));
+      info(t.crop.icon+' '+t.crop.name+' GROWING — '+formatTime(dLeft)+' LEFT. SLEEP TO ADVANCE!');
     }
   }
   else plantTile(i);
 }
 // ══════════════════════════════════════
-// WATERING SYSTEM
+// WATERING SYSTEM (day-based)
 // ══════════════════════════════════════
-const WATER_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
-const SHORT_CROP_MS     = 15 * 60 * 1000; // crops ≤15 min only need one water
+// T1–T2 (baseDays<=2): water once only. T3+: re-water every 2 in-game days.
+const SHORT_CROP_DAYS=2;
 
-function wateringCanPlots(){
-  // returns how many plots the current can waters per tap
-  return [1,2,4,6][wateringCanTier]||1;
+function wateringCanPlots(){return [1,2,4,6][wateringCanTier]||1;}
+
+function advanceCropDay(){
+  // Called at triggerNewDay — advance daysGrown on all watered, non-overdue crops
+  tiles.forEach((t,i)=>{
+    if(t.st!=='grow'||!t.crop||!t.watered) return;
+    if(t.waterDueDay>0&&day>=t.waterDueDay) return; // overdue — paused
+    t.daysGrown=(t.daysGrown||0)+1;
+    if(t.crop.baseDays>SHORT_CROP_DAYS) t.waterDueDay=day+1+2;
+    if(t.daysGrown>=t.growDays){
+      t.st='ready';
+      if(t.iv){clearInterval(t.iv);t.iv=null;}
+      info(t.crop.icon+' '+t.crop.name+' IS READY TO HARVEST!');
+      playSound('harvest');
+    }
+    renderTile(i);
+  });
+  renderWaterBtn();
 }
 
 function waterTile(i){
-  // Water a single tile — starts or resumes its timer
   const t=tiles[i];
   if(!t||t.st!=='grow'||!t.crop)return;
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
-
-  const now=Date.now();
   t.watered=true;
-
-  // Set next water-due time (only for long crops)
-  if(t.origMs>SHORT_CROP_MS){
-    t.waterDue=now+WATER_INTERVAL_MS;
-  }else{
-    t.waterDue=0; // short crop — no re-water needed
-  }
-
-  // If this is the first water, start the growth timer now
-  if(!t.timer&&!t.iv){
-    let actualMs=t.origMs/speed;
-    if(tutActive) actualMs=Math.min(actualMs,5000);
-    t.endAt=now+actualMs;
-    t.plantedAt=now;
-    t.iv=setInterval(()=>{if(tiles[i].st==='grow')renderTile(i);else{clearInterval(tiles[i].iv);tiles[i].iv=null;}},300);
-    t.timer=setTimeout(()=>{
-      if(tiles[i].st==='grow'){
-        tiles[i].st='ready';
-        if(tiles[i].iv){clearInterval(tiles[i].iv);tiles[i].iv=null;}
-        renderTile(i);info(t.crop.icon+' '+t.crop.name+' READY — TAP TO HARVEST!');
-        playSound('harvest');
-      }
-    },actualMs);
-    notifScheduleCrop(i,t.crop.name,t.crop.icon,now+actualMs);
-  }
-
+  t.waterDueDay=(t.crop.baseDays>SHORT_CROP_DAYS)?day+2:0;
   playSound('plant');
   tutHook('firstWater');
-  renderTile(i);renderWaterBtn();
-  updateSceneCrop(i);
+  renderTile(i);renderWaterBtn();updateSceneCrop(i);
+  info('💧 WATERED '+t.crop.icon+' '+t.crop.name+'!');
 }
 
 function doWater(){
-  // Water up to N plots based on can tier, prioritising unwatered/overdue
-  const needed=tiles
-    .map((t,i)=>({t,i}))
-    .filter(({t})=>t.st==='grow'&&t.crop&&(!t.watered||(t.waterDue>0&&Date.now()>t.waterDue)));
+  const needed=tiles.map((t,i)=>({t,i}))
+    .filter(({t})=>t.st==='grow'&&t.crop&&(!t.watered||(t.waterDueDay>0&&day>=t.waterDueDay)));
   if(!needed.length){info('💧 NO CROPS NEED WATERING RIGHT NOW!');return;}
   const toWater=needed.slice(0,wateringCanPlots());
   toWater.forEach(({i})=>waterTile(i));
-  if(toWater.length===1){
-    info('💧 WATERED '+tiles[toWater[0].i].crop.icon+' '+tiles[toWater[0].i].crop.name+'!');
-  }else{
-    info('💧 WATERED '+toWater.length+' CROPS!');
-  }
+  if(toWater.length>1) info('💧 WATERED '+toWater.length+' CROPS!');
   saveGame();
 }
 
 function renderWaterBtn(){
-  const btn=$('water-btn');
-  const lbl=$('water-can-label');
+  const btn=$('water-btn'),lbl=$('water-can-label');
   if(!btn)return;
   const canNames=['💧 BASIC CAN (1 plot)','💧 COPPER CAN (2 plots)','💧 IRON CAN (4 plots)','💧 GOLD CAN (all plots)'];
   if(lbl)lbl.textContent=canNames[wateringCanTier]||canNames[0];
-  const needsWater=tiles.some(t=>t.st==='grow'&&t.crop&&(!t.watered||(t.waterDue>0&&Date.now()>t.waterDue)));
+  const needsWater=tiles.some(t=>t.st==='grow'&&t.crop&&(!t.watered||(t.waterDueDay>0&&day>=t.waterDueDay)));
   btn.disabled=!needsWater||(energy<=0&&!devFlags.unlimitedEnergy);
   btn.style.borderColor=needsWater?'var(--blue)':'var(--border)';
   btn.style.color=needsWater?'var(--blue)':'var(--dim)';
 }
 
 function wateringTick(){
-  // Auto-water via sprinkler if owned
   if(typeof townHall!=='undefined'&&(townHall.sprinklerTier||0)>0) applySprinkler();
-  // Called every 30 seconds to pause overdue crops and refresh UI
   let anyOverdue=false;
   tiles.forEach((t,i)=>{
-    if(t.st==='grow'&&t.crop&&t.watered&&t.waterDue>0&&Date.now()>t.waterDue){
-      // Pause: stop the timer, adjust endAt to preserve remaining time
-      if(t.timer){clearTimeout(t.timer);t.timer=null;}
-      if(t.iv){clearInterval(t.iv);t.iv=null;}
-      anyOverdue=true;
-      renderTile(i);
-    }
+    if(t.st==='grow'&&t.crop&&t.watered&&t.waterDueDay>0&&day>=t.waterDueDay){anyOverdue=true;renderTile(i);}
   });
   renderWaterBtn();
-  if(anyOverdue) info('💧 CROPS ARE THIRSTY — TAP A PLOT OR THE WATER BUTTON!');
+  if(anyOverdue) info('💧 CROPS ARE THIRSTY — TAP WATER BUTTON!');
 }
 
 function moveFarmer(i){$('farmer').style.left=(80+(i%3)*80)+'px'}
@@ -2986,7 +3009,7 @@ function renderSeeds(){
     let cls='seed-card'+(sel.id===c.id?' sel':'')+(lkd?' lkd':'');
     d.className=cls;
     d.innerHTML=`<div class="sc-row"><div class="sc-icon">${c.icon}</div><div class="sc-name">${c.name}</div></div>
-<div class="sc-stats"><div class="sc-stat">SELL <span>${c.sell}g</span></div><div class="sc-stat">GROWS <span>${formatTime(c.baseSec)}</span></div></div>
+<div class="sc-stats"><div class="sc-stat">SELL <span>${c.sell}g</span></div><div class="sc-stat">GROWS <span>${formatTime(c.baseDays)}</span></div></div>
 <div class="sc-sub">${c.desc}</div>
 ${lkd?`<div class="sc-unlock">NEED ${remaining} MORE 🌾 THIS SEASON</div>`:`<div style="font-size:4px;color:#60aa40;margin-top:2px">COST: ${c.cost}g</div>`}`;
     if(!lkd)d.onclick=()=>{sel=c;info('SELECTED: '+c.name+' | '+c.cost+'g | SELLS '+c.sell+'g');renderSeeds();tutHook('seedSelected');};
@@ -3075,22 +3098,11 @@ function showTab(t){
 
 // ── RESUME GROWING TILES ──
 function resumeGrowingTiles(){
+  // Day-based: no real-time timers. Re-render and check if ready.
   tiles.forEach((t,i)=>{
     if(t.st==='grow'&&t.crop){
-      // not yet watered — stay paused, no timers
-      if(!t.watered){renderTile(i);return;}
-      // overdue water — stay paused
-      if(t.waterDue>0&&Date.now()>t.waterDue){renderTile(i);return;}
-      const rem=Math.max(0,t.endAt-Date.now());
-      if(rem===0){tiles[i].st='ready';renderTile(i);return;}
-      t.iv=setInterval(()=>{if(tiles[i].st==='grow')renderTile(i);else{clearInterval(tiles[i].iv);tiles[i].iv=null;}},300);
-      t.timer=setTimeout(()=>{
-        if(tiles[i].st==='grow'){
-          tiles[i].st='ready';
-          if(tiles[i].iv){clearInterval(tiles[i].iv);tiles[i].iv=null;}
-          renderTile(i);info(t.crop.icon+' '+t.crop.name+' READY!');
-        }
-      },rem);
+      if(t.watered&&(t.daysGrown||0)>=t.growDays) tiles[i].st='ready';
+      renderTile(i);
     }
   });
 }
@@ -3136,36 +3148,36 @@ const FORAGE_ITEMS = {
 const FISH_BY_SEASON = {
   // Sell prices: T1=1g, T2=2g, T3=4g, T4=8g, T5=16g, T6=32g (doubles each tier)
   spring:[
-    {id:'minnow',     name:'MINNOW',     icon:'🐟', sell:1,   difficulty:0.1, tier:1},
-    {id:'sardine',    name:'SARDINE',    icon:'🐠', sell:2,   difficulty:0.25,tier:2},
-    {id:'shad',       name:'SHAD',       icon:'🐟', sell:4,   difficulty:0.4, tier:3},
-    {id:'eel',        name:'EEL',        icon:'🐍', sell:8,   difficulty:0.55,tier:4},
-    {id:'catfish',    name:'CATFISH',    icon:'🐟', sell:16,  difficulty:0.72,tier:5},
-    {id:'legend',     name:'LEGEND',     icon:'🐉', sell:32,  difficulty:0.9, tier:6},
+    {id:'minnow',     name:'MINNOW',     icon:'🐟', sell:5,   difficulty:0.1, tier:1},
+    {id:'sardine',    name:'SARDINE',    icon:'🐠', sell:5,   difficulty:0.25,tier:2},
+    {id:'shad',       name:'SHAD',       icon:'🐟', sell:10,   difficulty:0.4, tier:3},
+    {id:'eel',        name:'EEL',        icon:'🐍', sell:20,   difficulty:0.55,tier:4},
+    {id:'catfish',    name:'CATFISH',    icon:'🐟', sell:40,  difficulty:0.72,tier:5},
+    {id:'legend',     name:'LEGEND',     icon:'🐉', sell:80,  difficulty:0.9, tier:6},
   ],
   summer:[
-    {id:'anchovy',    name:'ANCHOVY',    icon:'🐟', sell:1,   difficulty:0.1, tier:1},
-    {id:'red-snapper',name:'RED SNAPPER',icon:'🐠', sell:2,   difficulty:0.25,tier:2},
-    {id:'tilapia',    name:'TILAPIA',    icon:'🐟', sell:4,   difficulty:0.4, tier:3},
-    {id:'pike',       name:'PIKE',       icon:'🐟', sell:8,   difficulty:0.55,tier:4},
-    {id:'pufferfish', name:'PUFFERFISH', icon:'🐡', sell:16,  difficulty:0.72,tier:5},
-    {id:'tuna',       name:'TUNA',       icon:'🐟', sell:32,  difficulty:0.9, tier:6},
+    {id:'anchovy',    name:'ANCHOVY',    icon:'🐟', sell:5,   difficulty:0.1, tier:1},
+    {id:'red-snapper',name:'RED SNAPPER',icon:'🐠', sell:5,   difficulty:0.25,tier:2},
+    {id:'tilapia',    name:'TILAPIA',    icon:'🐟', sell:10,   difficulty:0.4, tier:3},
+    {id:'pike',       name:'PIKE',       icon:'🐟', sell:20,   difficulty:0.55,tier:4},
+    {id:'pufferfish', name:'PUFFERFISH', icon:'🐡', sell:40,  difficulty:0.72,tier:5},
+    {id:'tuna',       name:'TUNA',       icon:'🐟', sell:80,  difficulty:0.9, tier:6},
   ],
   fall:[
-    {id:'herring',    name:'HERRING',    icon:'🐟', sell:1,   difficulty:0.1, tier:1},
-    {id:'albacore',   name:'ALBACORE',   icon:'🐟', sell:2,   difficulty:0.25,tier:2},
-    {id:'walleye',    name:'WALLEYE',    icon:'🐡', sell:4,   difficulty:0.4, tier:3},
-    {id:'salmon',     name:'SALMON',     icon:'🐟', sell:8,   difficulty:0.55,tier:4},
-    {id:'tiger-trout',name:'TIGER TROUT',icon:'🐠', sell:16,  difficulty:0.72,tier:5},
-    {id:'woodskip',   name:'WOODSKIP',   icon:'🐟', sell:32,  difficulty:0.9, tier:6},
+    {id:'herring',    name:'HERRING',    icon:'🐟', sell:5,   difficulty:0.1, tier:1},
+    {id:'albacore',   name:'ALBACORE',   icon:'🐟', sell:5,   difficulty:0.25,tier:2},
+    {id:'walleye',    name:'WALLEYE',    icon:'🐡', sell:10,   difficulty:0.4, tier:3},
+    {id:'salmon',     name:'SALMON',     icon:'🐟', sell:20,   difficulty:0.55,tier:4},
+    {id:'tiger-trout',name:'TIGER TROUT',icon:'🐠', sell:40,  difficulty:0.72,tier:5},
+    {id:'woodskip',   name:'WOODSKIP',   icon:'🐟', sell:80,  difficulty:0.9, tier:6},
   ],
   winter:[
-    {id:'smelt',      name:'SMELT',      icon:'🐟', sell:1,   difficulty:0.1, tier:1},
-    {id:'crab',       name:'CRAB',       icon:'🦀', sell:2,   difficulty:0.25,tier:2},
-    {id:'squid',      name:'SQUID',      icon:'🦑', sell:4,   difficulty:0.4, tier:3},
-    {id:'lingcod',    name:'LINGCOD',    icon:'🐡', sell:8,   difficulty:0.55,tier:4},
-    {id:'midnight-carp',name:'MID CARP', icon:'🐟', sell:16,  difficulty:0.72,tier:5},
-    {id:'glacierfish',name:'GLACIERFISH',icon:'🧊', sell:32,  difficulty:0.9, tier:6},
+    {id:'smelt',      name:'SMELT',      icon:'🐟', sell:5,   difficulty:0.1, tier:1},
+    {id:'crab',       name:'CRAB',       icon:'🦀', sell:5,   difficulty:0.25,tier:2},
+    {id:'squid',      name:'SQUID',      icon:'🦑', sell:10,   difficulty:0.4, tier:3},
+    {id:'lingcod',    name:'LINGCOD',    icon:'🐡', sell:20,   difficulty:0.55,tier:4},
+    {id:'midnight-carp',name:'MID CARP', icon:'🐟', sell:40,  difficulty:0.72,tier:5},
+    {id:'glacierfish',name:'GLACIERFISH',icon:'🧊', sell:80,  difficulty:0.9, tier:6},
   ],
 };
 
@@ -3274,19 +3286,76 @@ function doChop(){
 function doGrowthDust(){
   if(wcInstaGCharges<=0){info('NO GROWTH DUST! BUY FROM FORD IN THE 🏛 TOWN TAB.');return;}
   wcInstaGCharges--;
-  // instant fell + max wood drop + instant regrow
   const woodBonus=getWoodDropBonus()+axeTier;
-  const woodQty=6+woodBonus; // guaranteed max
+  // Fell whichever trees are alive, regrow both
+  let woodQty=0;
+  if(treeHp>0){woodQty+=3+Math.floor(Math.random()*4)+woodBonus;}
+  if(tree2Hp>0){woodQty+=3+Math.floor(Math.random()*4)+woodBonus;}
+  if(woodQty===0) woodQty=6+woodBonus; // both already stumps, still give wood
   addToInventory('wood',woodQty);
   if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
-  treeHp=treeMaxHp; // regrown
-  treeRespawnDaysLeft=0;
+  treeHp=treeMaxHp;treeRespawnDaysLeft=0;
+  tree2Hp=treeMaxHp;tree2RespawnDaysLeft=0;
   skillAddXP('chopping',7);
-  info('✨ GROWTH DUST! GOT '+woodQty+'x 🪵 WOOD + TREE INSTANTLY REGREW! ('+wcInstaGCharges+' left)');
-  $('chop-result').textContent='✨ GROWTH DUST! +'+woodQty+' 🪵 TREE REGREW! ('+wcInstaGCharges+' left)';
+  info('✨ GROWTH DUST! GOT '+woodQty+'x 🪵 WOOD — BOTH TREES REGREW! ('+wcInstaGCharges+' left)');
+  $('chop-result').textContent='✨ GROWTH DUST! +'+woodQty+' 🪵 BOTH TREES REGREW! ('+wcInstaGCharges+' left)';
   playSound('fell');
-  renderTreeHp();
+  renderTreeHp();renderTreeHp2();
   renderActivities();
+}
+
+// ── TREE 2 ──
+function renderTreeHp2(){
+  const el=$('tree2-hp-bar');
+  const lbl=$('tree2-hp-label');
+  const btn=$('chop2-btn');
+  if(!el)return;
+  const pct=Math.round((tree2Hp/treeMaxHp)*100);
+  el.style.width=pct+'%';
+  if(tree2Hp<=0){
+    el.style.background='#5a3010';
+    if(lbl)lbl.textContent='STUMP ('+tree2RespawnDaysLeft+'d)';
+    if(btn)btn.disabled=true;
+  }else{
+    el.style.background=tree2Hp>2?'#c8902a':'#e05020';
+    if(lbl)lbl.textContent=tree2Hp+'/'+treeMaxHp+' HP';
+    if(btn)btn.disabled=!hasAxe||(energy<=0&&!devFlags.unlimitedEnergy);
+  }
+}
+
+function doChop2(){
+  if(!hasAxe){info('VISIT FORD IN THE 🏛 TOWN TAB TO GET AN AXE FIRST!');return;}
+  if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');$('chop-result').textContent='NO ENERGY LEFT!';return;}
+  if(tree2Hp<=0){$('chop-result').textContent='TREE 2 IS A STUMP! WAIT '+tree2RespawnDaysLeft+' DAYS.';return;}
+  if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
+  let dmg=1;
+  if(wcSharpenCharges>0){dmg=2;wcSharpenCharges--;$('chop-result').textContent='SHARP SWING! ('+wcSharpenCharges+' CHARGES LEFT)';}
+  tree2Hp=Math.max(0,tree2Hp-dmg);
+  if(tree2Hp>0){
+    $('chop-result').textContent=(dmg>1?'SHARP ':'')+'CHOP! TREE 2 HAS '+tree2Hp+' HP LEFT.';
+    info('CHOPPING TREE 2... '+tree2Hp+' HP LEFT!');
+    skillAddXP('chopping',2);
+    playSound('chop');
+  }else{
+    const woodBonus=getWoodDropBonus()+axeTier;
+    const woodQty=3+Math.floor(Math.random()*4)+woodBonus;
+    const sapChance=Math.random()<getSapChance();
+    addToInventory('wood',woodQty);
+    if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
+    let msg='TREE 2 FELLED! GOT '+woodQty+'x 🪵 WOOD';
+    if(sapChance){addToInventory('sap',1);if(!ALL_ITEMS_MAP['sap']) ALL_ITEMS_MAP['sap']={icon:'🫧',name:'SAP',sell:8};msg+=' + 🫧 SAP';}
+    tree2RespawnDaysLeft=3;
+    msg+=' (REGROWS IN 3 DAYS)';
+    $('chop-result').textContent=msg;
+    info(msg);
+    skillAddXP('chopping',5);
+    achFlags.first_fell=true;
+    checkAchievements();
+    playSound('fell');
+  }
+  renderTreeHp2();
+  renderActivities();
+  saveGame();
 }
 
 // ── FISHING MINIGAME ──
@@ -3330,12 +3399,20 @@ function startFishing(){
   fishPos=FISH_BAR_H/2;
   fishVel=0;
   fishCatch=0;
+  // Lucky Bait: auto-fill catch bar — fish is caught immediately
+  if(luckyBaitReady){
+    luckyBaitReady=false;
+    fishCatch=100;
+  }
   $('fish-minigame').className='show';
   $('fish-btn').textContent='FISHING...';
   $('fish-btn').disabled=true;
   $('fish-result').textContent='';
   $('fish-catch-bar').style.width='0%';
-  $('fish-status').textContent=fishTarget.icon+' '+fishTarget.name+' — HOLD TO MOVE ZONE UP!';
+  let fishStatusExtra='';
+  if(luckyBaitReady) fishStatusExtra=' 🪱 BAIT ACTIVE!';
+  if(fishNetReady) fishStatusExtra+=' 🕸 NET ACTIVE!';
+  $('fish-status').textContent=fishTarget.icon+' '+fishTarget.name+' — HOLD TO MOVE ZONE UP!'+fishStatusExtra;
   playSound('cast');
   renderFishBar();
   // scroll fishing section into view so minigame is visible without scrolling
@@ -3442,19 +3519,23 @@ function endFishing(success){
   $('fish-minigame').className='';
   $('fish-status').textContent='';
   if(success){
-    addToInventory(fishTarget.id+'_fish',1);
+    const catchQty=fishNetReady?2:1;
+    fishNetReady=false;
+    addToInventory(fishTarget.id+'_fish',catchQty);
     if(!ALL_ITEMS_MAP[fishTarget.id+'_fish'])
       ALL_ITEMS_MAP[fishTarget.id+'_fish']={icon:fishTarget.icon,name:fishTarget.name,sell:fishTarget.sell};
-    $('fish-result').textContent='CAUGHT '+fishTarget.icon+' '+fishTarget.name+'!';
-    info('CAUGHT A '+fishTarget.icon+' '+fishTarget.name+'! ADDED TO BAG.');
+    const catchMsg=catchQty>1?'CAUGHT 2x '+fishTarget.icon+' '+fishTarget.name+' — NET! 🕸':'CAUGHT '+fishTarget.icon+' '+fishTarget.name+'!';
+    $('fish-result').textContent=catchMsg;
+    info(catchMsg+' ADDED TO BAG.');
     playSound('catch');
-    pcAddLog('🎣 Caught '+fishTarget.icon+' '+fishTarget.name);
-    // fishing XP: rare fish (difficulty>0.6) worth more
-    skillAddXP('fishing',fishTarget.difficulty>0.6?6:3);
+    pcAddLog('🎣 Caught '+catchQty+'x '+fishTarget.icon+' '+fishTarget.name);
+    skillAddXP('fishing',fishTarget.difficulty>0.6?2:1);
     achFlags.first_catch=true;
     if(fishTarget.difficulty>0.6) achFlags.rare_fish=true;
     checkAchievements();
   }else{
+    luckyBaitReady=false; // bait consumed on use regardless
+    fishNetReady=false;
     $('fish-result').textContent='THE FISH GOT AWAY... TRY AGAIN!';
     info('THE FISH ESCAPED! BETTER LUCK NEXT TIME.');
   }
@@ -3462,12 +3543,21 @@ function endFishing(success){
 
 function renderActivities(){
   renderTreeHp();
+  renderTreeHp2();
   const noEnergy=energy<2&&!devFlags.unlimitedEnergy;
   const fb=$('forage-btn');if(fb)fb.disabled=noEnergy;
   const cb=$('chop-btn');
   if(cb){
     if(!hasAxe){cb.disabled=true;cb.textContent='GET AXE FROM FORD';}
-    else{cb.disabled=(energy<=0&&!devFlags.unlimitedEnergy)||treeHp<=0;cb.textContent='CHOP!';}
+    else{cb.disabled=(energy<=0&&!devFlags.unlimitedEnergy)||treeHp<=0;cb.textContent='🪓 CHOP 1';}
+  }
+  // fishing consumable status
+  const fishConsEl=$('fish-rod-status');
+  if(fishConsEl&&fishingUnlocked){
+    const parts=[];
+    if(luckyBaitReady) parts.push('🪱 BAIT READY');
+    if(fishNetReady) parts.push('🕸 NET READY');
+    if(parts.length) fishConsEl.textContent+='  '+parts.join('  ');
   }
   // woodcutting status
   const wcStatus=$('wc-status');
@@ -3561,7 +3651,7 @@ function rpsPlay(playerMove){
       $('rps-round-msg').style.color='#7fba60';
       $('rps-round-msg').textContent='YOU WIN THIS ROUND! 😄';
       setTaunt('lose');
-      skillAddXP('foraging',3);
+      skillAddXP('foraging',1);
       playSound('rpswin');
     }else if(outcome==='lose'){
       rpsSpiritScore++;
@@ -3653,7 +3743,7 @@ function endRps(){
   if(rpsPlayerScore===3){
     prize=devFlags.rareForage?available[available.length-1]:pickFromTiers(5,6);
     msg='PERFECT 3-0! THE SPIRIT YIELDS ITS RAREST TREASURE! ✦';
-    skillAddXP('foraging',5);
+    skillAddXP('foraging',2);
     achFlags.sweep_spirit=true;
   }else if(rpsPlayerScore===2){
     prize=pickFromTiers(3,4);
@@ -3705,7 +3795,7 @@ function devSyncAll(){
 function devToggle(flag,val){
   devFlags[flag]=val;
   if(flag==='unlimitedEnergy'){
-    if(val){energy=100;upEnergy();info('DEV: UNLIMITED ENERGY ON.');}
+    if(val){energy=maxEnergy;upEnergy();info('DEV: UNLIMITED ENERGY ON.');}
     else info('DEV: UNLIMITED ENERGY OFF.');
   }
   if(flag==='instantGrow'){
@@ -3731,16 +3821,23 @@ function devSyncSpeedBtns(){
 }
 function devSkipDays(n){
   for(let i=0;i<n;i++){
+    advanceCropDay();
     advanceSeason();
     day++;
     if(treeHp<=0&&treeRespawnDaysLeft>0){
       treeRespawnDaysLeft--;
       if(treeRespawnDaysLeft===0)treeHp=treeMaxHp;
     }
+    if(tree2Hp<=0&&tree2RespawnDaysLeft>0){
+      tree2RespawnDaysLeft--;
+      if(tree2RespawnDaysLeft===0)tree2Hp=treeMaxHp;
+    }
   }
-  energy=Math.min(maxEnergy,energy+n*5);upEnergy();
+  energy=maxEnergy;upEnergy();
   $('dn').textContent=day;
   applySeasonVisuals();renderSeeds();
+  for(let i=0;i<N;i++) renderTile(i);
+  renderWaterBtn();
   const msg='SKIPPED '+n+' DAY'+(n>1?'S':'')+' → DAY '+day+' | '+currentSeason().icon+' '+currentSeason().name;
   $('dev-skip-result').textContent=msg;
   showToast('⏩ '+n+' DAY'+(n>1?'S':'')+' SKIPPED!');
@@ -3769,7 +3866,7 @@ function devAddWood(amount){
 }
 function devRefillEnergy(){
   energy=maxEnergy;upEnergy();
-  $('dev-energy-result').textContent='ENERGY REFILLED TO '+maxEnergy+'!';
+  $('dev-energy-result').textContent='ENERGY REFILLED TO '+maxEnergy+'!'; saveGame();
   showToast('💗 ENERGY REFILLED!');
   info('DEV: ENERGY REFILLED TO '+maxEnergy+'.');
   devSyncAll();
@@ -3914,6 +4011,8 @@ function doReset(){
   localStorage.removeItem(TAB_TIP_KEY);
   localStorage.removeItem(SKILL_TIP_KEY);
   localStorage.removeItem('hh_ach_seen');
+  localStorage.removeItem(INSTALL_DISMISSED_KEY);
+  localStorage.removeItem(NOTIF_PROMPTED_KEY);
   notifCancelAll();
   // reset devMode in memory
   devMode=false;
@@ -3963,7 +4062,7 @@ const ACHIEVEMENTS=[
   {id:'hvst_200',      cat:'🌾 FARMING',   icon:'🌾', name:'VETERAN FARMER',    desc:'Harvest 200 crops total.',                check:()=>hvst>=200},
   {id:'hvst_500',      cat:'🌾 FARMING',   icon:'🌾', name:'MASTER FARMER',     desc:'Harvest 500 crops total.',                check:()=>hvst>=500},
   {id:'gold_crop',     cat:'🌾 FARMING',   icon:'🥇', name:'GOLDEN THUMB',      desc:'Harvest a gold quality crop.',            check:()=>!!achFlags.gold_crop},
-  {id:'tier6_crop',    cat:'🌾 FARMING',   icon:'🥬', name:'PATIENCE REWARDED', desc:'Harvest a tier 6 crop (8 hour grow time).',check:()=>!!achFlags.tier6_crop},
+  {id:'tier6_crop',    cat:'🌾 FARMING',   icon:'🥬', name:'PATIENCE REWARDED', desc:'Harvest a tier 6 crop (14-day grow time).',check:()=>!!achFlags.tier6_crop},
   {id:'all_plots',     cat:'🌾 FARMING',   icon:'🌱', name:'FULL FIELD',        desc:'Unlock all 6 farm plots.',                check:()=>tiles.filter(t=>t.st!=='locked').length>=6},
   {id:'all_seasons',   cat:'🌾 FARMING',   icon:'🌸', name:'FOUR SEASONS',      desc:'Harvest crops in all 4 seasons.',         check:()=>Object.values(seasonHarvests).every(v=>v>0)},
   {id:'farm_lv5',      cat:'🌾 FARMING',   icon:'🌾', name:'SKILLED HAND',      desc:'Reach Farming level 5.',                  check:()=>skills.farming.level>=5},
@@ -4189,7 +4288,7 @@ const TUT_STEPS=[
     target:'field-panel',
     waitFor:'firstWater',
     tabTo:null,
-    hint:'Watering starts the growth timer. Your first crop grows extra fast!',
+    hint:'Watering starts the growth timer. Sleep to advance the day and grow your crop!',
   },
   {
     id:'harvest',
@@ -4202,7 +4301,7 @@ const TUT_STEPS=[
   {
     id:'ship',
     title:'5. SHIP YOUR CROPS',
-    body:'Tap a crop in your bag then choose SHIP. It sells at the next midnight tick!',
+    body:'Tap a crop in your bag then choose SHIP. It sells when you sleep tonight!',
     target:'inv-grid',
     waitFor:'firstShip',
     tabTo:'inv',
@@ -4406,7 +4505,7 @@ const BASS=[
 ];
 
 function getMusicCtx(){
-  if(!musicCtx) musicCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(!musicCtx||musicCtx.state==='closed') musicCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(musicCtx.state==='suspended') musicCtx.resume();
   return musicCtx;
 }
@@ -4546,17 +4645,20 @@ function toggleSound(on){
 let _wasMusPlaying=false;
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
-    // Page hidden — suspend all audio
+    // Page hidden — freeze the day clock
+    activeSecsAtHide=getSessionSec();
+    // Fully stop music and suspend audio contexts
     _wasMusPlaying=musicPlaying&&!musicPaused;
-    if(_wasMusPlaying) musicPause();
-    // Suspend audio contexts to stop any lingering oscillators
-    if(audioCtx&&audioCtx.state==='running') try{audioCtx.suspend();}catch(e){}
-    if(musicCtx&&musicCtx.state==='running') try{musicCtx.suspend();}catch(e){}
+    if(musicPlaying) musicStop();
+    if(audioCtx){try{audioCtx.close();}catch(e){}audioCtx=null;}
+    if(musicCtx){try{musicCtx.close();}catch(e){}musicCtx=null;musicGain=null;}
+    // Start "farm misses you" timer — fires after 2hrs away
+    notifScheduleMiss();
   }else{
-    // Page visible again — resume
-    if(audioCtx&&audioCtx.state==='suspended') try{audioCtx.resume();}catch(e){}
-    if(musicCtx&&musicCtx.state==='suspended') try{musicCtx.resume();}catch(e){}
-    if(_wasMusPlaying&&musicEnabled) musicResume();
+    // Page visible again — resume clock, cancel miss notification
+    dayStartTime=Date.now()-activeSecsAtHide*1000;
+    notifCancelMiss();
+    if(_wasMusPlaying&&musicEnabled) musicStart();
   }
 });
 
@@ -5155,7 +5257,7 @@ let musicEnabled=true; // background music toggle
 let musicVolume=0.7;   // 0.0 – 1.0
 
 function getAudioCtx(){
-  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(!audioCtx||audioCtx.state==='closed') audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==='suspended') audioCtx.resume();
   return audioCtx;
 }
@@ -5379,10 +5481,7 @@ function pcUpdate(){
   set('pc-energy',energy);
   set('pc-hvst',hvst);
   set('pc-earned',totalEarned+'g');
-  // next day countdown
-  const now=new Date();
-  const secLeft=3600-(now.getUTCMinutes()*60+now.getUTCSeconds());
-  set('pc-nextday',Math.floor(secLeft/60).toString().padStart(2,'0')+':'+String(secLeft%60).padStart(2,'0'));
+  set('pc-nextday',getGameTimeStr());
   // skills
   const ids={farming:'farm',foraging:'forage',fishing:'fish',chopping:'chop',mining:'mine'};
   Object.entries(ids).forEach(([sk,id])=>{
@@ -5645,7 +5744,7 @@ function shipQtyConfirm(){
   if(qty<=0)return;
   for(let i=0;i<qty;i++) shipCropOne(shipQtyItemId);
   const item=getItemInfo(shipQtyItemId);
-  info('SHIPPED '+qty+'x '+item.icon+' '+item.name+' → BOX. SELLS AT NEXT HOUR!');
+  info('SHIPPED '+qty+'x '+item.icon+' '+item.name+' → BOX. SELLS TONIGHT!');
   playSound('ship');
   tutHook('firstShip');
   closeShipQty();
@@ -5675,7 +5774,7 @@ function shipAll(){
   entries.forEach(([id,qty])=>{
     for(let i=0;i<qty;i++) shipCropOne(id);
   });
-  info('📦 SHIPPED ALL UNLOCKED ITEMS → BOX. SELLS AT NEXT HOUR!');
+  info('📦 SHIPPED ALL UNLOCKED ITEMS → BOX. SELLS TONIGHT!');
   playSound('ship');
   renderInv();updateInvBadge();updateShipCount();saveGame();
 }
@@ -5716,25 +5815,22 @@ function init(){
   notifInit();
   forgeIngotReady(); // register ingots in ALL_ITEMS_MAP
   if(!townHall.forgeQueue) townHall.forgeQueue=[];
+  if(!townHall.preserveQueue) townHall.preserveQueue=[];
   checkAchievements();
   updateAchBadge();
   // apply axe tier to tree max HP (axeTier takes precedence over skill)
   const axeHpMap=[5,4,3,2];
   treeMaxHp=axeTier>0?axeHpMap[axeTier]:getTreeMaxHp();
   if(treeHp>treeMaxHp) treeHp=treeMaxHp;
-  lastHourUTC=getUTCHourKey();
+  if(tree2Hp>treeMaxHp) tree2Hp=treeMaxHp;
+  if(!dayStartTime) dayStartTime=Date.now();
   clockTick();setInterval(()=>{clockTick();pcUpdate();},1000);
   setInterval(()=>{saveGame();},30000); // autosave every 30 seconds
-  setInterval(wateringTick,30000); // check overdue crops every 30s
+  setInterval(wateringTick,60000); // check overdue crops every 60s
   renderWaterBtn();
   // apply maxEnergy cap
   energy=Math.min(energy,maxEnergy);upEnergy();
-  // break reminder — fires every 60 minutes of open session
-  setInterval(()=>{
-    showToast('GO OUTSIDE! 🌿');
-    notifSend('🌿 Time for a Break!','Step outside and get some fresh air!','break_reminder');
-    info('🌿 TIME TO TAKE A BREAK — GO OUTSIDE FOR A BIT!');
-  },60*60*1000);
+
 
   if(loaded){
     showToast('SAVE LOADED!');
@@ -5743,6 +5839,9 @@ function init(){
   }else{
     info('WELCOME TO FERNHOLLOW FARM!');
   }
+
+  // Prompt notifications on first launch as installed PWA
+  promptStandaloneNotifs();
 }
 
 
@@ -5751,7 +5850,7 @@ function init(){
 // ══════════════════════════════════════
 
 let notifEnabled=false;
-const notifTimers={};
+let notifMissTimer=null;
 
 function notifSupported(){return'Notification'in window;}
 
@@ -5763,8 +5862,12 @@ function notifRequest(){
     const tog=document.getElementById('notif-toggle');
     if(lbl)lbl.textContent=notifEnabled?'🔔 NOTIFICATIONS ON':'🔕 NOTIFICATIONS OFF';
     if(tog)tog.checked=notifEnabled;
-    if(notifEnabled)info('NOTIFICATIONS ENABLED! YOU\'LL BE NOTIFIED WHEN CROPS ARE READY.');
-    else info('NOTIFICATIONS BLOCKED. ENABLE IN BROWSER SETTINGS TO GET ALERTS.');
+    if(notifEnabled){
+      info("NOTIFICATIONS ENABLED! WE'LL REMIND YOU WHEN THE FARM NEEDS YOU.");
+      notifScheduleMiss();
+    }else{
+      info('NOTIFICATIONS BLOCKED. ENABLE IN BROWSER SETTINGS TO GET ALERTS.');
+    }
   });
 }
 
@@ -5777,26 +5880,24 @@ function notifToggle(on){
       return;
     }
     if(Notification.permission==='granted'){
-      // already have permission — just enable
       notifEnabled=true;
       const lbl=document.getElementById('notif-label');
       if(lbl)lbl.textContent='🔔 NOTIFICATIONS ON';
       info('NOTIFICATIONS ENABLED!');
+      notifScheduleMiss();
     }else if(Notification.permission==='denied'){
-      // user blocked — can't do anything
       notifEnabled=false;
       const tog=document.getElementById('notif-toggle');
       if(tog)tog.checked=false;
       info('NOTIFICATIONS BLOCKED — PLEASE ENABLE IN YOUR BROWSER SETTINGS.');
     }else{
-      // not yet asked — request permission
       notifRequest();
     }
   }else{
     notifEnabled=false;
     const lbl=document.getElementById('notif-label');
     if(lbl)lbl.textContent='🔕 NOTIFICATIONS OFF';
-    notifCancelAll();
+    notifCancelMiss();
   }
   saveGame();
 }
@@ -5805,85 +5906,76 @@ function notifSend(title,body,tag){
   if(!notifEnabled||!notifSupported())return;
   if(Notification.permission!=='granted')return;
   try{
-    const n=new Notification(title,{body,tag,renotify:true,icon:''});
+    const n=new Notification(title,{body,tag,renotify:false,icon:''});
     n.onclick=()=>{window.focus();n.close();};
   }catch(e){}
 }
 
-function notifScheduleCrop(tileIndex,cropName,cropIcon,endAt){
-  notifCancelCrop(tileIndex);
-  const delay=endAt-Date.now();
-  if(delay<=0)return;
-  notifTimers['crop_'+tileIndex]=setTimeout(()=>{
-    notifSend(cropIcon+' Crop Ready!',cropName+' is ready to harvest on your farm.','crop_'+tileIndex);
-    delete notifTimers['crop_'+tileIndex];
-  },delay);
+const MISS_DELAY_MS=2*60*60*1000;
+const MISS_MESSAGES=[
+  'Your crops are waiting. The fields look lonely without you.',
+  'The chickens are restless. Time to check on the farm?',
+  'A quiet day on Fernhollow. Its better when you are here.',
+  'The shipping crate is ready. Come collect your earnings!',
+  'Mayor Johnson says the town misses its favourite farmer.',
+  'The Forest Spirit has been asking about you.',
+  'Your farm is doing fine, but better when you are around.',
+];
+
+function notifScheduleMiss(){
+  notifCancelMiss();
+  if(!notifEnabled||!notifSupported())return;
+  notifMissTimer=setTimeout(()=>{
+    notifMissTimer=null;
+    const msg=MISS_MESSAGES[Math.floor(Math.random()*MISS_MESSAGES.length)];
+    notifSend('🌾 Fernhollow Farm Misses You',msg,'farm_miss');
+  },MISS_DELAY_MS);
 }
 
-function notifCancelCrop(tileIndex){
-  if(notifTimers['crop_'+tileIndex]){
-    clearTimeout(notifTimers['crop_'+tileIndex]);
-    delete notifTimers['crop_'+tileIndex];
-  }
+function notifCancelMiss(){
+  if(notifMissTimer){clearTimeout(notifMissTimer);notifMissTimer=null;}
 }
 
-function notifScheduleNewDay(){
-  if(notifTimers['new_day'])clearTimeout(notifTimers['new_day']);
-  // next day fires at the next UTC hour tick
-  const now=new Date();
-  const msToNextHour=(3600-(now.getUTCMinutes()*60+now.getUTCSeconds()))*1000;
-  notifTimers['new_day']=setTimeout(()=>{
-    notifSend('🌅 New Day on Fernhollow Farm','A new day has begun. Check your crops and ship your harvest!','new_day');
-    delete notifTimers['new_day'];
-  },msToNextHour);
-}
-
-function notifScheduleSeason(daysLeft,seasonName,seasonIcon){
-  // 2-day warning
-  if(daysLeft===3){
-    const now=new Date();
-    const msToNextHour=(3600-(now.getUTCMinutes()*60+now.getUTCSeconds()))*1000;
-    if(notifTimers['season_warn'])clearTimeout(notifTimers['season_warn']);
-    notifTimers['season_warn']=setTimeout(()=>{
-      notifSend(seasonIcon+' Season Ending Soon','Only 2 days left in '+seasonName+'! Harvest before crops wilt.','season_warn');
-      delete notifTimers['season_warn'];
-    },msToNextHour);
-  }
-  // new season starting
-  if(daysLeft===1){
-    const now=new Date();
-    const msToNextHour=(3600-(now.getUTCMinutes()*60+now.getUTCSeconds()))*1000;
-    if(notifTimers['season_new'])clearTimeout(notifTimers['season_new']);
-    notifTimers['season_new']=setTimeout(()=>{
-      notifSend('🌱 New Season!','A new season has begun on Fernhollow Farm. New crops are ready to plant!','season_new');
-      delete notifTimers['season_new'];
-    },msToNextHour);
-  }
-}
-
-function notifCancelAll(){
-  Object.keys(notifTimers).forEach(k=>{clearTimeout(notifTimers[k]);delete notifTimers[k];});
-}
+// Stub functions kept for any remaining call sites
+function notifScheduleCrop(){}
+function notifCancelCrop(){}
+function notifScheduleNewDay(){}
+function notifScheduleSeason(){}
+function notifCancelAll(){notifCancelMiss();}
 
 function notifInit(){
   if(!notifSupported())return;
   const tog=document.getElementById('notif-toggle');
   const lbl=document.getElementById('notif-label');
   if(Notification.permission!=='granted') notifEnabled=false;
-  if(tog) tog.checked=notifEnabled;
-  if(lbl) lbl.textContent=notifEnabled?'🔔 NOTIFICATIONS ON':'🔕 NOTIFICATIONS OFF';
-  if(!notifEnabled) return;
-  // reschedule timers that are lost when tab closes/reloads
-  notifScheduleNewDay();
-  if(typeof tiles!=='undefined') tiles.forEach((t,i)=>{
-    if(t.st==='grow'&&t.crop&&t.endAt>Date.now()){
-      notifScheduleCrop(i,t.crop.name,t.crop.icon,t.endAt);
-    }
-  });
-  if(typeof seasonDay!=='undefined'){
-    const daysLeft=currentSeason().daysPerSeason-seasonDay+1;
-    notifScheduleSeason(daysLeft,currentSeason().name,currentSeason().icon);
-  }
+  if(tog)tog.checked=notifEnabled;
+  if(lbl)lbl.textContent=notifEnabled?'🔔 NOTIFICATIONS ON':'🔕 NOTIFICATIONS OFF';
+  if(notifEnabled)notifScheduleMiss();
+}
+
+// ── STANDALONE NOTIFICATION PROMPT ──
+// On first launch as an installed PWA, ask to enable notifications
+const NOTIF_PROMPTED_KEY='hh_notif_prompted';
+
+function promptStandaloneNotifs(){
+  if(!isStandalone()) return;
+  if(!notifSupported()) return;
+  if(notifEnabled) return; // already enabled
+  if(Notification.permission==='denied') return; // already blocked
+  if(localStorage.getItem(NOTIF_PROMPTED_KEY)) return; // already asked
+  // Delay so the user settles in first
+  setTimeout(()=>{
+    localStorage.setItem(NOTIF_PROMPTED_KEY,'1');
+    showNotifPrompt();
+  },4000);
+}
+
+function showNotifPrompt(){
+  // Reuse the info bar + a direct permission request
+  info('🔔 ENABLE NOTIFICATIONS? GET ALERTS WHEN CROPS ARE READY!');
+  // Trigger the browser permission dialog
+  notifRequest();
+  saveGame();
 }
 
 
@@ -5970,7 +6062,9 @@ function scheduleInstallBanner(){
 
 // Heart XP thresholds — ~2 real weeks casual pace (3-4 gifts/day)
 // Total 1,500 XP with favourite gifts, heart 1 in ~2 days, heart 5 in ~2 weeks
-const VIL_HEART_XP=[60,150,300,450,540];
+// Heart XP thresholds — favourite gifts (30 XP/day) reach H5 in ~112 days (1 year)
+// H1@7d H2@20d H3@43d H4@73d H5@112d
+const VIL_HEART_XP=[200,400,700,900,1160];
 
 const VILLAGERS=[
   {
@@ -5988,9 +6082,9 @@ const VILLAGERS=[
     shop:[
       {id:'mv_rod1',name:'BAMBOO ROD',  desc:'+10% rare fish chance.',cost:400, act:'rod',arg:1,heartReq:1},
       {id:'mv_rod2',name:'FIBRE ROD',   desc:'+25% rare fish chance.',cost:1200,act:'rod',arg:2,heartReq:2},
-      {id:'mv_bait',name:'LUCKY BAIT',  desc:'Next catch guaranteed.',cost:80,  act:'bait',arg:1,heartReq:3},
+      {id:'mv_bait',name:'LUCKY BAIT',  desc:'Next cast is a guaranteed catch.',cost:80,  act:'bait',arg:1,heartReq:3},
       {id:'mv_rod3',name:'MASTER ROD',  desc:'+50% rare fish chance.',cost:4000,act:'rod',arg:3,heartReq:4},
-      {id:'mv_net', name:'FISH NET',    desc:'Catch 2 fish per cast.', cost:2000,act:'fishnet',arg:1,heartReq:5},
+      {id:'mv_net', name:'FISH NET',    desc:'Next cast catches 2 fish at once.',cost:2000,act:'fishnet',arg:1,heartReq:5},
     ]
   },
   {
@@ -6005,11 +6099,11 @@ const VILLAGERS=[
     ],
     favourite:{type:'crop',label:'Any crop',icon:'🌿'},
     shop:[
-      {id:'gv_tea',   name:'HERBAL TEA',   desc:'+5 energy.',  cost:15,  act:'energy',arg:5, heartReq:1},
-      {id:'gv_meal',  name:'HEARTY MEAL',  desc:'+15 energy.', cost:40,  act:'energy',arg:15,heartReq:2},
-      {id:'gv_stew',  name:'FARM STEW',    desc:'+25 energy.', cost:70,  act:'energy',arg:25,heartReq:3},
-      {id:'gv_feast', name:'GRAND FEAST',  desc:'+40 energy.', cost:120, act:'energy',arg:40,heartReq:4},
-      {id:'gv_elixir',name:'GOLDEN ELIXIR',desc:'+60 energy.', cost:250, act:'energy',arg:60,heartReq:5},
+      {id:'gv_tea',   name:'HERBAL TEA',   desc:'+5 energy (up to max).',  cost:15,  act:'energy',arg:5, heartReq:1},
+      {id:'gv_meal',  name:'HEARTY MEAL',  desc:'+15 energy (up to max).', cost:40,  act:'energy',arg:15,heartReq:2},
+      {id:'gv_stew',  name:'FARM STEW',    desc:'+25 energy (up to max).', cost:70,  act:'energy',arg:25,heartReq:3},
+      {id:'gv_feast', name:'GRAND FEAST',  desc:'+40 energy (up to max).', cost:120, act:'energy',arg:40,heartReq:4},
+      {id:'gv_elixir',name:'GOLDEN ELIXIR',desc:'+60 energy (up to max).', cost:250, act:'energy',arg:60,heartReq:5},
     ]
   },
   {
@@ -6024,11 +6118,11 @@ const VILLAGERS=[
     ],
     favourite:{type:'gold',label:'Gold coins',icon:'🪙'},
     shop:[
-      {id:'pv_fert2', name:'SUPER FERT',   desc:'Next 3 crops 50% faster.',        cost:80,  act:'fert3',   arg:3,    heartReq:1},
-      {id:'pv_bag1',  name:'SATCHEL',      desc:'Bag capacity: 20 → 40 slots.',    cost:500, act:'bagup',   arg:40,   heartReq:2},
+      {id:'pv_fert2', name:'SUPER FERT',   desc:'Next 3 crops grow 1 day faster.', cost:150, act:'fert3',   arg:3,    heartReq:1},
+      {id:'pv_bag1',  name:'SATCHEL',      desc:'Bag capacity: 30 → 40 slots.',    cost:500, act:'bagup',   arg:40,   heartReq:2},
       {id:'pv_bag2',  name:'LARGE BAG',    desc:'Bag capacity: 40 → 60 slots.',    cost:1200,act:'bagup',   arg:60,   heartReq:3},
       {id:'pv_bag3',  name:'MERCHANT BAG', desc:'Bag capacity: 60 → 80 slots.',    cost:2500,act:'bagup',   arg:80,   heartReq:4},
-      {id:'pv_deed',  name:'GOLDEN DEED',  desc:'Instant +2000g windfall.',         cost:5000,act:'treasure',arg:2000, heartReq:5},
+      {id:'pv_deal',  name:'BULK DEAL',    desc:'Sell your shipping box now at 1.5x value. Free — once per season.', cost:0, act:'bulk_deal', arg:0, heartReq:5},
     ]
   },
   {
@@ -6088,9 +6182,9 @@ const VILLAGERS=[
     shop:[
       {id:'mj_can1',  name:'COPPER CAN',  desc:'Water 2 plots at once.',              cost:300,  act:'watering_can', arg:1, heartReq:1},
       {id:'mj_can2',  name:'IRON CAN',    desc:'Water 4 plots at once.',              cost:800,  act:'watering_can', arg:2, heartReq:2},
-      {id:'mj_fruit1',name:'ANGEL FRUIT', desc:'+10 max energy permanently.',         cost:1500, act:'angel_fruit',  arg:1, heartReq:3},
+      {id:'mj_fruit1',name:'ANGEL FRUIT', desc:'+10 max energy (30 → 40).',           cost:1500, act:'angel_fruit',  arg:1, heartReq:3},
       {id:'mj_can3',  name:'GOLD CAN',    desc:'Water all 6 plots at once.',          cost:2000, act:'watering_can', arg:3, heartReq:4},
-      {id:'mj_fruit2',name:'ANGEL FRUIT', desc:'+10 max energy permanently. (max 50)',cost:3000, act:'angel_fruit',  arg:2, heartReq:5},
+      {id:'mj_fruit2',name:'ANGEL FRUIT', desc:'+10 max energy (40 → 50).',           cost:3000, act:'angel_fruit',  arg:2, heartReq:5},
     ]
   },
   {
@@ -6109,7 +6203,7 @@ const VILLAGERS=[
       {id:'av_pick1',name:'COPPER PICK',   desc:'Floors 1–40. Rocks -1 HP. Needs 5 🟤 copper.',    cost:400, act:'pickaxe_tier',arg:1,oreCost:{id:'copper_ore',qty:5},heartReq:1},
       {id:'av_tonic',name:'MINING TONIC',  desc:'Rocks -1 HP for 5 floors.',                        cost:60,  act:'mine_tonic',  arg:1,heartReq:2},
       {id:'av_pick2',name:'IRON PICK',     desc:'Floors 1–70. Rocks -2 HP. Needs 5 🔩 iron.',       cost:1000,act:'pickaxe_tier',arg:2,oreCost:{id:'iron_ore', qty:5},heartReq:3},
-      {id:'av_grip', name:'IRON GRIP',     desc:'Double damage for 3 floors.',                       cost:80,  act:'mine_grip',   arg:1,heartReq:3},
+      {id:'av_grip', name:'IRON GRIP',     desc:'Double damage for next 3 floors.',                       cost:80,  act:'mine_grip',   arg:1,heartReq:3},
       {id:'av_blast',name:'BLAST POWDER',  desc:'Instantly breaks one rock.',                        cost:120, act:'mine_blast',  arg:1,heartReq:4},
       {id:'av_pick3',name:'GOLD PICK',     desc:'Floors 1–100. Rocks always 1 HP. Needs 3 🟡 gold.',cost:2500,act:'pickaxe_tier',arg:3,oreCost:{id:'gold_ore', qty:3},heartReq:5},
     ]
@@ -6117,6 +6211,83 @@ const VILLAGERS=[
 ];
 
 // villagerState, villagerOpen, mining/fishing/woodcutting state — declared in state block above
+
+// ── SAL SPECIAL STOCK ──
+// Previous season's T2 crop, available every 5 days, 3 per window, at premium price
+const SAL_SPECIAL_CROP={
+  spring: {cropId:'snow-yam',  name:'SNOW YAM',     icon:'⬜', sell:63,  buyPrice:140},  // Winter T2
+  summer: {cropId:'caulifl',   name:'CAULIFLOWER',  icon:'🥦', sell:63,  buyPrice:140},  // Spring T2
+  fall:   {cropId:'radish',    name:'RADISH',       icon:'🌱', sell:63,  buyPrice:140},  // Summer T2
+  winter: {cropId:'bok-choy',  name:'BOK CHOY',     icon:'🥗', sell:63,  buyPrice:140},  // Fall T2
+};
+
+function getSalSpecialCrop(){
+  return SAL_SPECIAL_CROP[currentSeason().id]||null;
+}
+
+function salStockAvailableToday(){
+  // Available on days 5,10,15,20,25 of each season (seasonDay % 5 === 0)
+  return seasonDay>0 && seasonDay%5===0;
+}
+
+function salStockHtml(){
+  const crop=getSalSpecialCrop();
+  if(!crop) return '';
+  const available=salStockAvailableToday();
+  const stock=salStockRemaining;
+  const window5=Math.floor((seasonDay-1)/5);
+  const nextWindow=(window5+1)*5+1;
+  const daysUntil=available?0:nextWindow-seasonDay;
+
+  let statusLine='';
+  let btn='';
+
+  if(!available){
+    statusLine=`<div style="font-size:4px;color:var(--dim)">NEXT DELIVERY IN ${daysUntil} DAY${daysUntil===1?'':'S'}</div>`;
+    btn=`<button class="vil-buy-btn" disabled style="font-size:4px">NOT IN</button>`;
+  }else if(stock<=0){
+    statusLine=`<div style="font-size:4px;color:var(--red)">SOLD OUT — BACK IN 5 DAYS</div>`;
+    btn=`<button class="vil-buy-btn" disabled style="font-size:4px">SOLD OUT</button>`;
+  }else{
+    statusLine=`<div style="font-size:4px;color:var(--green)">${stock} IN STOCK TODAY</div>`;
+    const canAfford=coins>=crop.buyPrice;
+    btn=`<button class="vil-buy-btn ${canAfford?'can-buy':''}" onclick="buySalSpecial();event.stopPropagation()" ${canAfford?'':'disabled'}>${crop.buyPrice}g</button>`;
+  }
+
+  return `<div class="vil-shop-section" style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px">
+    <div class="vil-shop-label" style="color:var(--gold)">▸ SAL\'S RARE STOCK</div>
+    <div style="font-size:4px;color:var(--muted);margin-bottom:4px">Previous season crops — delivered every 5 days.</div>
+    <div class="vil-shop-item">
+      <div class="vil-item-info">
+        <div class="vil-item-name">${crop.icon} ${crop.name}</div>
+        <div class="vil-item-desc">Last season harvest. Sells ${crop.sell}g.</div>
+        ${statusLine}
+      </div>
+      ${btn}
+    </div>
+  </div>`;
+}
+
+function buySalSpecial(){
+  const crop=getSalSpecialCrop();
+  if(!crop){info('SAL HAS NOTHING SPECIAL TODAY.');return;}
+  if(!salStockAvailableToday()){info('SAL\'S DELIVERY ISN\'T DUE YET!');playSound('error');return;}
+  if(salStockRemaining<=0){info('SAL\'S STOCK IS SOLD OUT! BACK IN 5 DAYS.');playSound('error');return;}
+  if(coins<crop.buyPrice){info('NEED '+crop.buyPrice+'g FOR '+crop.name+'!');playSound('error');return;}
+  coins-=crop.buyPrice;upCoins();
+  salStockRemaining--;
+  // Register crop in ALL_ITEMS_MAP if needed
+  const cropDef=ALL_CROPS.find(c=>c.id===crop.cropId);
+  if(cropDef&&!ALL_ITEMS_MAP[crop.cropId]){
+    ALL_ITEMS_MAP[crop.cropId]={icon:crop.icon,name:crop.name,sell:crop.sell};
+  }
+  addToInventory(crop.cropId,1);
+  const stockLeft=salStockRemaining;
+  info('SAL: SOLD YOU 1x '+crop.icon+' '+crop.name+' FOR '+crop.buyPrice+'g! ('+stockLeft+' LEFT TODAY)');
+  playSound('coin');
+  saveGame();
+  renderTownHall(); // refresh in case donating is now possible
+}
 
 function vilInitState(){
   VILLAGERS.forEach(v=>{
@@ -6235,7 +6406,29 @@ function vilBuy(vilId,itemId){
     bagCapacity=it.arg;
     info('👜 BAG UPGRADED! NOW HOLDS '+bagCapacity+' ITEM SLOTS.');
   }
-  else if(it.act==='treasure'){coins+=it.arg;upCoins();info('💰 FOUND '+it.arg+'g!');}
+  else if(it.act==='bulk_deal'){
+    // Refund the 0g cost (nothing was charged), just activate the deal
+    const shipEntries=Object.entries(shipping).filter(([,q])=>q>0);
+    if(shipEntries.length===0){info('NOTHING IN YOUR SHIPPING BOX! ADD ITEMS FIRST.');coins+=it.cost;upCoins();return;}
+    if(salBulkDealUsed){info('BULK DEAL ALREADY USED THIS SEASON!');coins+=it.cost;upCoins();return;}
+    salBulkDealUsed=true;
+    // Pay out shipping box at 1.5x
+    let payout=0;
+    shipEntries.forEach(([id,qty])=>{
+      const item=getItemInfo(id);
+      payout+=Math.floor(item.sell*qty*1.5);
+    });
+    coins+=payout;upCoins();
+    totalEarned+=payout;
+    $('earnedn').textContent=totalEarned;
+    if(payout>=1000) achFlags.big_day=true;
+    shipping={};updateShipCount();renderInv();
+    info('💼 SAL BULK DEAL! SHIPPED '+shipEntries.length+' ITEM'+(shipEntries.length>1?'S':'')+' AT 1.5x — EARNED '+payout+'g!');
+    playSound('coin');
+    showToast('💼 BULK DEAL! +'+payout+'g');
+    pcAddLog('💼 Sal bulk deal: +'+payout+'g');
+    checkAchievements();
+  }
   else if(it.act==='axe_tier'){
     if(axeTier>=it.arg){info('YOU ALREADY HAVE THIS AXE OR BETTER!');coins+=it.cost;upCoins();return;}
     // deduct ore
@@ -6255,8 +6448,8 @@ function vilBuy(vilId,itemId){
   else if(it.act==='wc_instag'){wcInstaGCharges++;info('✨ GROWTH DUST READY! USE IN THE VALLEY TAB.');}
   else if(it.act==='sharpen'){treeMaxHp=Math.max(3,treeMaxHp-2);treeHp=Math.min(treeHp,treeMaxHp);renderActivities();info('🪓 AXE SHARPENED!');}
   else if(it.act==='legendaxe'){treeMaxHp=2;treeHp=Math.min(treeHp,2);renderActivities();info('🪓 LEGEND AXE!');}
-  else if(it.act==='bait'){info('🎣 LUCKY BAIT READY! NEXT CAST GUARANTEED.');}
-  else if(it.act==='fishnet'){info('🎣 FISH NET — NEXT CAST CATCHES 2!');}
+  else if(it.act==='bait'){luckyBaitReady=true;info('🎣 LUCKY BAIT READY! NEXT CAST IS A GUARANTEED CATCH.');}
+  else if(it.act==='fishnet'){fishNetReady=true;info('🎣 FISH NET READY! NEXT CAST CATCHES 2 FISH.');}
   else if(it.act==='pickaxe_tier'){
     if(pickaxeTier>=it.arg){info('YOU ALREADY HAVE THIS PICKAXE OR BETTER!');coins+=it.cost;upCoins();return;}
     // deduct ore
@@ -6283,8 +6476,13 @@ function vilBuy(vilId,itemId){
     renderWaterBtn();
   }
   else if(it.act==='angel_fruit'){
-    if(maxEnergy>=50){info('YOUR ENERGY IS ALREADY AT MAXIMUM (50)!');coins+=it.cost;upCoins();return;}
-    maxEnergy=Math.min(50,maxEnergy+10);
+    // Check this fruit hasn't already been bought (arg=1 → was at 30, arg=2 → was at 40)
+    const expectedBase=it.arg===1?30:40;
+    if(maxEnergy>expectedBase+5){
+      info('YOU ALREADY HAVE THIS ANGEL FRUIT!');
+      coins+=it.cost;upCoins();return;
+    }
+    maxEnergy+=10;
     energy=Math.min(energy+10,maxEnergy);
     upEnergy();
     info('🍎 ANGEL FRUIT EATEN! MAX ENERGY NOW '+maxEnergy+'!');
@@ -6297,6 +6495,11 @@ function vilBuy(vilId,itemId){
 function vilNewDay(){
   vilInitState();
   Object.keys(villagerState).forEach(id=>{villagerState[id].giftedToday=false;});
+  // Reset Sal stock and bulk deal on Day 1 of each season
+  if(seasonDay===1){salStockRemaining=3;salStockWindow=0;salBulkDealUsed=false;}
+  // Restock on new 5-day window
+  const window5=Math.floor((seasonDay-1)/5);
+  if(window5!==salStockWindow){salStockWindow=window5;salStockRemaining=3;}
 }
 
 // ══════════════════════════════════════
@@ -6369,7 +6572,7 @@ function mineEnter(){
   if(mineActive)return;
   mineActive=true;
   mineFloor=mineStartFloor;
-  mineActiveBuffs={tonic:0,grip:false};
+  mineActiveBuffs={tonic:0,grip:0};
   mineRocks=mineGenerateRocks(mineFloor);
   renderMine();
   info('⛏ ENTERED THE MINE AT FLOOR '+mineFloor+'!');
@@ -6378,7 +6581,7 @@ function mineEnter(){
 function mineExit(){
   mineActive=false;
   mineRocks=[];
-  mineActiveBuffs={tonic:0,grip:false};
+  mineActiveBuffs={tonic:0,grip:0};
   renderActivities();
   info('🚪 EXITED THE MINE. CHECKPOINT: FLOOR '+mineCheckpoint+'.');
 }
@@ -6394,7 +6597,7 @@ function mineSwing(rockIdx){
 
   // damage — LV8: rock HP -1 on all floors (on top of pickaxe reduction)
   let dmg=1;
-  if(mineActiveBuffs&&mineActiveBuffs.grip) dmg=2;
+  if(mineActiveBuffs&&mineActiveBuffs.grip>0) dmg=2;
   rock.hp=Math.max(0,rock.hp-dmg);
   playSound('chop');
 
@@ -6433,8 +6636,8 @@ function mineSwing(rockIdx){
       }
     }
 
-    const xpGain=ore.minFloor>=50?3:ore.minFloor>=20?2:1;
-    skillAddXP('mining',xpGain);
+    const xpGain=ore.minFloor>=25?1:0; // shallow floors give no XP, deeper floors give 1
+    if(xpGain>0) skillAddXP('mining',xpGain);
     if(ore.minFloor>=20) achFlags.first_gem=true; // quartz+ counts as gem
     checkAchievements();
     $('mine-result').textContent=resultMsg+'!';
@@ -6446,7 +6649,21 @@ function mineSwing(rockIdx){
   if(allBroken){
     if(mineFloor%10===0){
       mineCheckpoint=mineFloor;
-      $('mine-result').textContent='✦ FLOOR '+mineFloor+' CHECKPOINT REACHED!';
+      if(mineFloor===100){
+        // Floor 100 reward — Angel Fruit (+10 max energy, always)
+        $('mine-result').textContent='✦ FLOOR 100! THE DEEPEST POINT. A GLOWING FRUIT SITS ON THE GROUND...';
+        maxEnergy+=10;
+        energy=Math.min(energy+10,maxEnergy);
+        upEnergy();
+        info('🍎 ANGEL FRUIT FOUND AT THE BOTTOM OF THE MINE! MAX ENERGY NOW '+maxEnergy+'! ✦');
+        playSound('levelup');
+        showToast('🍎 ANGEL FRUIT! MAX ENERGY NOW '+maxEnergy+'!');
+        pcAddLog('🍎 Angel Fruit — max energy now '+maxEnergy);
+        saveGame();
+        checkAchievements();
+      }else{
+        $('mine-result').textContent='✦ FLOOR '+mineFloor+' CHECKPOINT REACHED!';
+      }
     }
   }
   renderMine();
@@ -6470,7 +6687,7 @@ function mineDescend(){
   if(mineActiveBuffs&&mineActiveBuffs.tonic>0){
     mineActiveBuffs.tonic--;
   }
-  mineActiveBuffs.grip=false; // grip lasts 3 floors — track separately
+  if(mineActiveBuffs.grip>0) mineActiveBuffs.grip--; // grip counts down each floor
   mineRocks=mineGenerateRocks(mineFloor);
   skillAddXP('mining',1);
   info('⛏ DESCENDED TO FLOOR '+mineFloor+'!');
@@ -6489,7 +6706,7 @@ function mineUseConsumable(type){
   }else if(type==='grip'){
     if(mineConsumables.grip<=0){info('NO IRON GRIP LEFT!');return;}
     mineConsumables.grip--;
-    mineActiveBuffs.grip=true;
+    mineActiveBuffs.grip=3; // lasts 3 floors
     info('💪 IRON GRIP! DOUBLE DAMAGE THIS FLOOR.');
   }else if(type==='blast'){
     if(mineConsumables.blast<=0){info('NO BLAST POWDER LEFT!');return;}
@@ -6656,12 +6873,13 @@ function renderVillagers(){
         ||(it.act==='pickaxe_tier'&&pickaxeTier>=it.arg)
         ||(it.act==='axe_tier'&&axeTier>=it.arg)
         ||(it.act==='watering_can'&&wateringCanTier>=it.arg)
-        ||(it.act==='angel_fruit'&&maxEnergy>=(it.arg===1?40:50));
+        ||(it.act==='angel_fruit'&&maxEnergy>=(it.arg===1?40:50))
+        ||(it.act==='bulk_deal'&&salBulkDealUsed);
       const btn=owned
-        ?`<span class="vil-buy-btn" style="color:var(--green);border-color:var(--green2)">✓</span>`
+        ?`<span class="vil-buy-btn" style="color:var(--green);border-color:var(--green2)">${it.act==='bulk_deal'?'USED ✓':'✓'}</span>`
         :locked
         ?`<span class="vil-item-lock">❤×${it.heartReq}</span>`
-        :`<button class="vil-buy-btn can-buy" onclick="vilBuy('${v.id}','${it.id}');event.stopPropagation()">${it.cost}g${woodSuffix}${oreSuffix}</button>`;
+        :`<button class="vil-buy-btn can-buy" onclick="vilBuy('${v.id}','${it.id}');event.stopPropagation()">${it.act==='bulk_deal'?'USE':it.cost+'g'+woodSuffix+oreSuffix}</button>`;
       return `<div class="vil-shop-item ${locked?'locked-item':''}"><div class="vil-item-info"><div class="vil-item-name">${it.name}</div><div class="vil-item-desc">${it.desc}</div></div>${btn}</div>`;
     }).join('');
     const card=document.createElement('div');
@@ -6689,6 +6907,7 @@ function renderVillagers(){
           <div class="vil-shop-label">▸ ${v.name}'S SHOP</div>
           <div class="vil-shop-grid">${shopHtml}</div>
         </div>
+        ${v.id==='sal'?salStockHtml():''}
       </div>`;
     list.appendChild(card);
   });
@@ -6703,54 +6922,55 @@ const TH_ROOMS = [
     id: 'great-hall',
     name: 'GREAT HALL',
     icon: '🏛',
-    desc: 'The heart of Fernhollow. Donate crops from multiple seasons, wood and gold to rebuild.',
+    desc: 'The heart of Fernhollow. Restore with gold, wood, cauliflowers and proof of a full spring.',
     completeMsg: 'The Great Hall stands proud! The Forest Spirit has taken up residence.',
     reward: 'forest-spirit',
     requirements: [
-      {type:'gold',        label:'GOLD',               icon:'🪙', needed:500},
-      {type:'wood',        label:'WOOD',               icon:'🪵', needed:30},
-      {type:'crop',        label:'ANY CROP',           icon:'🌿', needed:40},
-      {type:'multiseason', label:'MULTI-SEASON CROPS', icon:'🌸', needed:3},
+      {type:'gold',       label:'GOLD',                    icon:'🪙', needed:200},
+      {type:'wood',       label:'WOOD',                    icon:'🪵', needed:10},
+      {type:'seasoncrop', label:'CAULIFLOWER (Spring T2)',  icon:'🥦', needed:15, cropId:'caulifl', season:'spring'},
     ]
   },
   {
     id: 'kitchen',
     name: 'KITCHEN',
     icon: '🍳',
-    desc: 'Stock the communal kitchen. Donate crops, animal products and fish.',
+    desc: 'Stock the kitchen with summer radishes, animal products and fresh fish.',
     completeMsg: 'The kitchen is open! Cook ingredients into higher-value meals.',
     reward: 'cooking',
     requirements: [
-      {type:'gold',   label:'GOLD',        icon:'🪙', needed:300},
-      {type:'crop',   label:'ANY CROP',    icon:'🌿', needed:50},
-      {type:'animal', label:'ANIMAL PROD', icon:'🥚', needed:20},
-      {type:'fish',   label:'ANY FISH',    icon:'🐟', needed:10},
-    ]
-  },
-  {
-    id: 'storeroom',
-    name: 'STOREROOM',
-    icon: '📦',
-    desc: 'Build the storeroom with ores, wood and gold. Unlocks preserving and crafting.',
-    completeMsg: 'The storeroom is ready! Craft Preserves Jars and Barrels inside.',
-    reward: 'crafting',
-    requirements: [
-      {type:'gold', label:'GOLD',    icon:'🪙', needed:500},
-      {type:'wood', label:'WOOD',    icon:'🪵', needed:50},
-      {type:'ore',  label:'ANY ORE', icon:'🪨', needed:30},
+      {type:'gold',       label:'GOLD',                    icon:'🪙', needed:150},
+      {type:'seasoncrop', label:'RADISH (Summer T2)',       icon:'🌱', needed:15, cropId:'radish', season:'summer'},
+      {type:'animal',     label:'ANIMAL PRODUCTS',         icon:'🥚', needed:8},
+      {type:'fish',       label:'ANY FISH',                icon:'🐟', needed:5},
     ]
   },
   {
     id: 'workshop',
     name: 'WORKSHOP',
     icon: '🔨',
-    desc: 'The forge needs ores, wood and gold. Smelt ores into ingots worth far more.',
+    desc: 'The forge needs ore, wood and any T2 harvest. Unlocks once the Kitchen is complete.',
     completeMsg: 'The forge is lit! Smelt your ores into valuable ingots.',
     reward: 'forge',
     requirements: [
-      {type:'gold', label:'GOLD',    icon:'🪙', needed:800},
-      {type:'wood', label:'WOOD',    icon:'🪵', needed:60},
-      {type:'ore',  label:'ANY ORE', icon:'🪨', needed:60},
+      {type:'gold', label:'GOLD',        icon:'🪙', needed:400},
+      {type:'wood', label:'WOOD',        icon:'🪵', needed:25},
+      {type:'ore',  label:'ANY ORE',     icon:'🪨', needed:25},
+      {type:'crop', label:'ANY T2 CROP', icon:'🌿', needed:5},
+    ]
+  },
+  {
+    id: 'storeroom',
+    name: 'STOREROOM',
+    icon: '📦',
+    desc: 'The final restoration. Needs ore, wood and winter snow yams. Unlocks once the Workshop is complete.',
+    completeMsg: 'The storeroom is ready! Craft Preserves, Jams and Pickles inside.',
+    reward: 'crafting',
+    requirements: [
+      {type:'gold',       label:'GOLD',                    icon:'🪙', needed:500},
+      {type:'wood',       label:'WOOD',                    icon:'🪵', needed:30},
+      {type:'ore',        label:'ANY ORE',                 icon:'🪨', needed:30},
+      {type:'seasoncrop', label:'SNOW YAM (Winter T2)',    icon:'⬜', needed:10, cropId:'snow-yam', season:'winter'},
     ]
   },
 ];
@@ -6779,12 +6999,20 @@ const TH_RECIPES = [
   {id:'feast',       name:'GRAND FEAST', icon:'🎉', energy:60, ingredients:[{type:'crop',qty:3},{type:'fish',qty:2},{type:'animal',qty:2}], sells:200},
 ];
 
-// Preserves/Barrel recipes
+// Preserves — timed, one crop type per jar
+// Sell value = sum of input crop sell prices × multiplier
+// Quality bonus: silver inputs +25%, gold inputs +50%
 const TH_CRAFTS = [
-  {id:'jam',   name:'JAM',   icon:'🍯', inputType:'crop',   inputQty:3, sell:80,  desc:'Any 3 crops → jam'},
-  {id:'wine',  name:'WINE',  icon:'🍷', inputType:'crop',   inputQty:5, sell:160, desc:'Any 5 crops → wine'},
-  {id:'pickle',name:'PICKLE',icon:'🫙', inputType:'crop',   inputQty:2, sell:50,  desc:'Any 2 crops → pickle'},
+  {id:'pickle', name:'PICKLE', icon:'🫙', inputQty:2, days:1,  mult:1.5, desc:'2 of one crop → pickle (1 day)'},
+  {id:'jam',    name:'JAM',    icon:'🍯', inputQty:3, days:3,  mult:2.5, desc:'3 of one crop → jam (3 days)'},
+  {id:'wine',   name:'WINE',   icon:'🍷', inputQty:5, days:24, mult:6.0, desc:'5 of one crop → wine (24 days)'},
 ];
+const PRESERVE_SLOTS=2;
+
+function preserveSellValue(cropSell, quality, qty, mult){
+  const qMult = quality==='gold'?1.5:quality==='silver'?1.25:1.0;
+  return Math.round(cropSell * qty * mult * qMult);
+}
 
 // Forest Spirit shop
 const TH_SPRINKLERS = [
@@ -6807,26 +7035,49 @@ function thCountFish(){
 }
 
 function thCountSeasons(){
-  // count how many distinct seasons' crops are in inventory
-  const seasons=new Set();
-  Object.keys(inventory).forEach(id=>{
-    const base=id.split('|')[0];
-    const crop=ALL_CROPS.find(c=>c.id===base);
-    if(crop&&(inventory[id]||0)>0) seasons.add(crop.season);
+  // count how many seasons the player has harvested crops in (persists across seasons)
+  return Object.values(seasonHarvests).filter(v=>v>0).length;
+}
+
+function thCountSeasonCrop(cropId){
+  // count specific crop in inventory (any quality)
+  let total=0;
+  Object.entries(inventory).forEach(([id,qty])=>{
+    if(id.split('|')[0]===cropId) total+=qty;
   });
-  return seasons.size;
+  return total;
 }
 
 function thInitState(){
   TH_ROOMS.forEach(r=>{
     if(!townHall.rooms[r.id]){
-      townHall.rooms[r.id]={contributions:{gold:0,wood:0,crop:0,animal:0}};
+      townHall.rooms[r.id]={contributions:{gold:0,wood:0,crop:0,animal:0,fish:0,ore:0,seasoncrop:0,seasons:0}};
+    }else{
+      // backfill new keys for old saves
+      const con=townHall.rooms[r.id].contributions;
+      if(con.fish===undefined)con.fish=0;
+      if(con.ore===undefined)con.ore=0;
+      if(con.seasoncrop===undefined)con.seasoncrop=0;
+      if(con.seasons===undefined)con.seasons=0;
     }
   });
 }
 
 function thRoomContrib(roomId,type){
   return (townHall.rooms[roomId]?.contributions[type])||0;
+}
+
+function thRoomReqAvail(req){
+  // how much the player currently has available to donate for this req type
+  if(req.type==='gold') return coins;
+  if(req.type==='wood') return inventory['wood']||0;
+  if(req.type==='crop') return thCountCrops();
+  if(req.type==='animal') return thCountAnimalProducts();
+  if(req.type==='fish') return thCountFish();
+  if(req.type==='ore') return thCountOres();
+  if(req.type==='seasoncrop') return thCountSeasonCrop(req.cropId||'');
+  if(req.type==='seasons') return thCountSeasons();
+  return 0;
 }
 
 function thRoomComplete(roomId){
@@ -6836,7 +7087,9 @@ function thRoomComplete(roomId){
 }
 
 function thRoomUnlocked(idx){
-  return true; // all rooms open simultaneously
+  // Sequential: each room requires the previous to be complete
+  if(idx===0) return true; // Great Hall always available
+  return thRoomComplete(TH_ROOMS[idx-1].id);
 }
 
 function thCompleteCount(){
@@ -6865,7 +7118,12 @@ function thCountAnimalProducts(){
 }
 
 function thDonate(roomIdx){
-  if(!thRoomUnlocked(roomIdx))return;
+  if(!thRoomUnlocked(roomIdx)){
+    const prev=TH_ROOMS[roomIdx-1];
+    info('🔒 COMPLETE '+(prev?prev.name:'THE PREVIOUS ROOM')+' FIRST!');
+    playSound('error');
+    return;
+  }
   const room=TH_ROOMS[roomIdx];
   if(thRoomComplete(room.id)){info('🏛 '+room.name+' IS ALREADY COMPLETE!');return;}
 
@@ -6926,17 +7184,24 @@ function thDonate(roomIdx){
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
         contribs.ore=(contribs.ore||0)+give;toGive-=give;donated=true;
       });
-    } else if(req.type==='multiseason'){
-      // donate by marking distinct seasons represented in current inventory
-      const seasons=new Set();
+    } else if(req.type==='seasoncrop'){
+      // donate specific T2 crop from inventory
+      const cropId=req.cropId||'';
+      let toGive=stillNeeded;
       Object.keys(inventory).forEach(id=>{
-        const base=id.split('|')[0];
-        const crop=ALL_CROPS.find(c=>c.id===base);
-        if(crop&&(inventory[id]||0)>0) seasons.add(crop.season);
+        if(toGive<=0)return;
+        if(id.split('|')[0]!==cropId)return;
+        const give=Math.min(toGive,inventory[id]||0);
+        if(give<=0)return;
+        inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
+        contribs.seasoncrop=(contribs.seasoncrop||0)+give;toGive-=give;donated=true;
       });
-      const currentSeasons=contribs.multiseason||0;
-      const newSeasons=Math.min(stillNeeded,seasons.size-currentSeasons);
-      if(newSeasons>0){contribs.multiseason=(currentSeasons+newSeasons);donated=true;}
+    } else if(req.type==='seasons'){
+      // auto-filled from seasonHarvests — no items consumed
+      const have=thCountSeasons();
+      const already=contribs.seasons||0;
+      const canAdd=Math.min(stillNeeded,have-already);
+      if(canAdd>0){contribs.seasons=already+canAdd;donated=true;}
     }
   });
 
@@ -7017,24 +7282,10 @@ function applySprinkler(){
   tiles.forEach((t,i)=>{
     if(wateredCount>=plots)return;
     if(t.st!=='grow'||!t.crop)return;
-    const needsWater=!t.watered||(t.waterDue>0&&Date.now()>t.waterDue);
+    const needsWater=!t.watered||(t.waterDueDay>0&&day>=t.waterDueDay);
     if(!needsWater)return;
-    // water without energy cost
-    const now=Date.now();
     t.watered=true;
-    t.waterDue=t.origMs>SHORT_CROP_MS?now+WATER_INTERVAL_MS:0;
-    if(!t.timer&&!t.iv){
-      const actualMs=t.origMs/speed;
-      t.endAt=now+actualMs;t.plantedAt=now;
-      t.iv=setInterval(()=>{if(tiles[i].st==='grow')renderTile(i);else{clearInterval(tiles[i].iv);tiles[i].iv=null;}},300);
-      t.timer=setTimeout(()=>{
-        if(tiles[i].st==='grow'){
-          tiles[i].st='ready';
-          if(tiles[i].iv){clearInterval(tiles[i].iv);tiles[i].iv=null;}
-          renderTile(i);info(t.crop.icon+' '+t.crop.name+' READY — TAP TO HARVEST!');
-        }
-      },actualMs);
-    }
+    t.waterDueDay=(t.crop.baseDays>SHORT_CROP_DAYS)?day+2:0;
     renderTile(i);
     wateredCount++;
   });
@@ -7087,44 +7338,116 @@ function thCook(id){
   saveGame();renderTownHall();renderInv();updateInvBadge();
 }
 
-// ── Crafting (Storeroom) ──
+// ── Crafting (Storeroom) — timed, one crop type per jar ──
 function thRewardCrafting(){
-  const rows=TH_CRAFTS.map(c=>{
-    const have=c.inputType==='crop'?thCountCrops():0;
-    const canMake=have>=c.inputQty;
-    const btn=`<button class="th-reward-btn" onclick="thCraft('${c.id}')" ${canMake?'':'disabled'}>CRAFT</button>`;
-    return `<div class="th-reward-row"><div class="th-reward-info"><div class="th-reward-name">${c.icon} ${c.name}</div><div class="th-reward-desc">${c.desc} — sells ${c.sell}g</div></div>${btn}</div>`;
-  }).join('');
-  return `<div class="th-reward"><div class="th-reward-title">🫙 STOREROOM — CRAFT PRESERVES</div><div class="th-reward-grid">${rows}</div></div>`;
+  if(!townHall.preserveQueue) townHall.preserveQueue=[];
+  const queue=townHall.preserveQueue;
+  const slotsUsed=queue.length;
+  const slotsLeft=PRESERVE_SLOTS-slotsUsed;
+
+  // Queue display
+  let queueHtml='';
+  if(queue.length>0){
+    queueHtml='<div style="margin-bottom:6px;">';
+    queue.forEach(job=>{
+      const daysLeft=Math.max(0,job.completesOnDay-day);
+      const pct=Math.round((1-(daysLeft/job.totalDays))*100);
+      queueHtml+=`<div style="background:var(--ink);border:1px solid var(--rim);padding:5px 7px;margin-bottom:3px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-size:6px;color:var(--cream)">${job.craftIcon} ${job.craftName}</span>
+          <span style="font-size:5px;color:var(--gold)">${daysLeft===0?'READY!':daysLeft+' DAY'+(daysLeft===1?'':'S')}</span>
+        </div>
+        <div style="font-size:4px;color:var(--muted);margin-bottom:2px">${job.cropIcon} ${job.cropName} ×${job.qty} → ${job.sellValue}g</div>
+        <div style="height:3px;background:var(--mid);border:1px solid var(--border)"><div style="height:3px;background:var(--green);width:${pct}%"></div></div>
+      </div>`;
+    });
+    queueHtml+='</div>';
+  }else{
+    queueHtml='<div style="font-size:5px;color:var(--dim);margin-bottom:6px;text-align:center;padding:4px 0;">JAR EMPTY — PICK A RECIPE AND A CROP BELOW</div>';
+  }
+
+  // Recipe + crop picker
+  const slotLabel=`<div style="font-size:5px;color:var(--muted);margin-bottom:4px;">JARS: ${slotsUsed}/${PRESERVE_SLOTS} IN USE &nbsp;·&nbsp; 🫙 1 DAY / 🍯 3 DAYS / 🍷 24 DAYS</div>`;
+
+  // For each recipe, show eligible crops in inventory
+  let recipeHtml='';
+  TH_CRAFTS.forEach(recipe=>{
+    const eligible=[];
+    Object.entries(inventory).forEach(([invId,qty])=>{
+      if((qty||0)<=0) return;
+      const parts=invId.split('|');
+      const cropId=parts[0];
+      const quality=parts[1]||'normal';
+      const crop=ALL_CROPS.find(cr=>cr.id===cropId);
+      if(!crop) return;
+      if(qty>=recipe.inputQty){
+        const sv=preserveSellValue(crop.sell,quality,recipe.inputQty,recipe.mult);
+        eligible.push({invId,cropId,cropName:crop.name,cropIcon:crop.icon,quality,qty,sellValue:sv});
+      }
+    });
+
+    const sectionRows=eligible.map(e=>{
+      const canQueue=slotsLeft>0;
+      const qLabel=e.quality!=='normal'?(e.quality==='gold'?' 🥇':' 🥈'):'';
+      const btn=canQueue
+        ?`<button class="th-reward-btn" onclick="thCraft('${recipe.id}','${e.invId}')" style="font-size:4px">JAR IT (${e.sellValue}g)</button>`
+        :`<button class="th-reward-btn" disabled style="font-size:4px">FULL</button>`;
+      return `<div class="th-reward-row"><div class="th-reward-info">
+        <div class="th-reward-name">${e.cropIcon} ${e.cropName}${qLabel} ×${e.qty} in bag</div>
+        <div class="th-reward-desc">${recipe.inputQty} used → ${recipe.icon} ${recipe.name} in ${recipe.days} day${recipe.days>1?'s':''} → ${e.sellValue}g</div>
+      </div>${btn}</div>`;
+    }).join('');
+
+    if(eligible.length>0||sectionRows===''){
+      recipeHtml+=`<div style="font-size:5px;color:var(--gold);margin:6px 0 3px">${recipe.icon} ${recipe.name.toUpperCase()}</div>`;
+      recipeHtml+=sectionRows||`<div style="font-size:4px;color:var(--dim);padding:2px 0">Need ${recipe.inputQty}+ of any single crop.</div>`;
+    }
+  });
+
+  return `<div class="th-reward"><div class="th-reward-title">🫙 STOREROOM — PRESERVES</div>${slotLabel}${queueHtml}${recipeHtml}</div>`;
 }
 
-function thCraft(id){
-  const c=TH_CRAFTS.find(x=>x.id===id);
-  if(!c){return;}
-  if(thCountCrops()<c.inputQty){info('NOT ENOUGH CROPS TO CRAFT THIS!');playSound('error');return;}
-  let toTake=c.inputQty;
-  Object.keys(inventory).forEach(invId=>{
-    if(toTake<=0)return;
-    const base=invId.split('|')[0];
-    if(!ALL_CROPS.some(cr=>cr.id===base))return;
-    const take=Math.min(toTake,inventory[invId]||0);
-    inventory[invId]-=take;if(inventory[invId]<=0)delete inventory[invId];
-    toTake-=take;
+function thCraft(recipeId,invId){
+  const recipe=TH_CRAFTS.find(x=>x.id===recipeId);
+  if(!recipe) return;
+  if(!townHall.preserveQueue) townHall.preserveQueue=[];
+  if(townHall.preserveQueue.length>=PRESERVE_SLOTS){
+    info('STOREROOM IS FULL! WAIT FOR A JAR TO FINISH.');playSound('error');return;
+  }
+  // invId is e.g. 'caulifl' or 'caulifl|silver'
+  const parts=invId.split('|');
+  const cropId=parts[0];
+  const quality=parts[1]||'normal';
+  const crop=ALL_CROPS.find(cr=>cr.id===cropId);
+  if(!crop){info('CROP NOT FOUND!');return;}
+  if((inventory[invId]||0)<recipe.inputQty){
+    info('NOT ENOUGH '+crop.name.toUpperCase()+'! NEED '+recipe.inputQty+'.');playSound('error');return;
+  }
+  // Deduct crops
+  inventory[invId]-=recipe.inputQty;
+  if(inventory[invId]<=0) delete inventory[invId];
+  // Calculate sell value
+  const sellValue=preserveSellValue(crop.sell,quality,recipe.inputQty,recipe.mult);
+  const qLabel=quality==='gold'?' (Gold)':quality==='silver'?' (Silver)':'';
+  const craftName=crop.name+' '+recipe.name+qLabel;
+  const craftIcon=recipe.icon;
+  const itemId=recipe.id+'_'+cropId+(quality!=='normal'?'_'+quality:'');
+  // Register in ALL_ITEMS_MAP
+  if(!ALL_ITEMS_MAP[itemId]) ALL_ITEMS_MAP[itemId]={icon:craftIcon,name:craftName,sell:sellValue};
+  // Queue job
+  townHall.preserveQueue.push({
+    type:recipe.id, cropId, cropName:crop.name, cropIcon:crop.icon,
+    quality, qty:recipe.inputQty, sellValue, craftName, craftIcon,
+    totalDays:recipe.days, completesOnDay:day+recipe.days, itemId
   });
-  if(!ALL_ITEMS_MAP[c.id]) ALL_ITEMS_MAP[c.id]={icon:c.icon,name:c.name,sell:c.sell};
-  addToInventory(c.id,1);
-  info(c.icon+' '+c.name+' CRAFTED! Sells for '+c.sell+'g.');
-  playSound('collect');
+  info(craftIcon+' PRESERVING '+recipe.inputQty+'x '+crop.name.toUpperCase()+qLabel+' → '+craftName+' READY IN '+recipe.days+' DAY'+(recipe.days>1?'S':'')+'! ('+sellValue+'g)');
+  playSound('plant');
   saveGame();renderTownHall();renderInv();updateInvBadge();
 }
 
 // ── Forge — timed smelt queue ──
-const FORGE_SMELT_MS = 60 * 60 * 1000; // base: 1hr copper, 2hr iron, 3hr gold
-const FORGE_SMELT_MS_MAP = {
-  copper_ingot: 1 * 60 * 60 * 1000,
-  iron_ingot:   2 * 60 * 60 * 1000,
-  gold_ingot:   3 * 60 * 60 * 1000,
-};
+// Forge smelt times in in-game days
+const FORGE_SMELT_DAYS_MAP = {copper_ingot:1, iron_ingot:2, gold_ingot:3};
 const FORGE_SLOTS = 3;
 
 function forgeIngotReady(){
@@ -7135,13 +7458,36 @@ function forgeIngotReady(){
   });
 }
 
+function checkPreserveQueue(){
+  if(!thRoomComplete('storeroom')) return;
+  if(!townHall.preserveQueue||!townHall.preserveQueue.length) return;
+  let anyDone=false;
+  townHall.preserveQueue=townHall.preserveQueue.filter(job=>{
+    if(day>=job.completesOnDay){
+      const itemId=job.type+'_'+job.cropId;
+      if(!ALL_ITEMS_MAP[itemId])
+        ALL_ITEMS_MAP[itemId]={icon:job.craftIcon,name:job.craftName,sell:job.sellValue};
+      addToInventory(itemId,1);
+      info(job.craftIcon+' '+job.craftName+' READY FROM THE STOREROOM! SELLS '+job.sellValue+'g.');
+      playSound('build');
+      pcAddLog(job.craftIcon+' '+job.craftName+' preserved ('+job.sellValue+'g)');
+      anyDone=true;
+      return false;
+    }
+    return true;
+  });
+  if(anyDone){
+    saveGame();renderInv();updateInvBadge();
+    if(document.getElementById('th-panel')?.className==='on') renderTownHall();
+  }
+}
+
 function checkForgeQueue(){
   if(!thRoomComplete('workshop')) return;
   if(!townHall.forgeQueue||!townHall.forgeQueue.length) return;
-  const now=Date.now();
   let anyDone=false;
   townHall.forgeQueue=townHall.forgeQueue.filter(job=>{
-    if(now>=job.completesAt){
+    if(day>=job.completesOnDay){
       const ig=TH_INGOTS.find(x=>x.id===job.id);
       if(ig){
         forgeIngotReady();
@@ -7151,63 +7497,51 @@ function checkForgeQueue(){
         pcAddLog('🔥 Forged '+ig.icon+' '+ig.name);
         anyDone=true;
       }
-      return false; // remove completed job
+      return false;
     }
     return true;
   });
   if(anyDone){
     saveGame();renderInv();updateInvBadge();
-    // re-render forge UI if TOWN tab is visible
     if(document.getElementById('th-panel')?.className==='on') renderTownHall();
   }
 }
 
 function thRewardForge(){
   if(!townHall.forgeQueue) townHall.forgeQueue=[];
-  const now=Date.now();
   const queue=townHall.forgeQueue;
   const slotsUsed=queue.length;
   const slotsLeft=FORGE_SLOTS-slotsUsed;
-
-  // Queue display
   let queueHtml='';
   if(queue.length>0){
-    queueHtml=`<div style="margin-bottom:6px;">`;
+    queueHtml='<div style="margin-bottom:6px;">';
     queue.forEach(job=>{
       const ig=TH_INGOTS.find(x=>x.id===job.id);
-      const remMs=Math.max(0,job.completesAt-now);
-      const remSec=Math.ceil(remMs/1000);
-      const remStr=remSec>=60?Math.floor(remSec/60)+'m '+pad2(remSec%60)+'s':remSec+'s';
-      const totalMs=FORGE_SMELT_MS_MAP[job.id]||FORGE_SMELT_MS;
-      const pct=Math.round((1-(remMs/totalMs))*100);
+      const daysLeft=Math.max(0,job.completesOnDay-day);
+      const totalDays=FORGE_SMELT_DAYS_MAP[job.id]||1;
+      const pct=Math.round((1-(daysLeft/totalDays))*100);
       queueHtml+=`<div style="background:var(--ink);border:1px solid var(--rim);padding:5px 7px;margin-bottom:3px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
           <span style="font-size:6px;color:var(--cream)">${ig?ig.icon+' '+ig.name:'?'}</span>
-          <span style="font-size:5px;color:var(--gold)">⏱ ${remStr}</span>
+          <span style="font-size:5px;color:var(--gold)">${daysLeft===0?'READY!':daysLeft+' DAY'+(daysLeft===1?'':'S')}</span>
         </div>
         <div style="height:3px;background:var(--mid);border:1px solid var(--border)"><div style="height:3px;background:var(--gold);width:${pct}%"></div></div>
       </div>`;
     });
-    queueHtml+=`</div>`;
-  } else {
-    queueHtml=`<div style="font-size:5px;color:var(--dim);margin-bottom:6px;text-align:center;padding:4px 0;">FORGE IDLE — QUEUE AN INGOT BELOW</div>`;
+    queueHtml+='</div>';
+  }else{
+    queueHtml='<div style="font-size:5px;color:var(--dim);margin-bottom:6px;text-align:center;padding:4px 0;">FORGE IDLE — QUEUE AN INGOT BELOW</div>';
   }
-
-  // Smelt buttons
   const rows=TH_INGOTS.map(ig=>{
     const haveOre=inventory[ig.oreId]||0;
     const haveCoal=inventory['coal']||0;
     const canQueue=haveOre>=ig.oreQty&&haveCoal>=ig.coalQty&&slotsLeft>0;
     const oreIcon=ig.oreId==='copper_ore'?'🟤':ig.oreId==='iron_ore'?'🔩':'🟡';
+    const totalDays=FORGE_SMELT_DAYS_MAP[ig.id]||1;
     const btn=`<button class="th-reward-btn" onclick="thQueueSmelt('${ig.id}')" ${canQueue?'':'disabled'}>SMELT</button>`;
-    return `<div class="th-reward-row">
-      <div class="th-reward-info">
-        <div class="th-reward-name">${ig.icon} ${ig.name}</div>
-        <div class="th-reward-desc">${ig.oreQty}x ${oreIcon} + ${ig.coalQty}x ⬛ → sells ${ig.sell}g &nbsp;|&nbsp; have: ${haveOre} ore, ${haveCoal} coal</div>
-      </div>${btn}</div>`;
+    return `<div class="th-reward-row"><div class="th-reward-info"><div class="th-reward-name">${ig.icon} ${ig.name}</div><div class="th-reward-desc">${ig.oreQty}x ${oreIcon} + ${ig.coalQty}x ⬛ → sells ${ig.sell}g &nbsp;|&nbsp; ${totalDays} day${totalDays>1?'s':''}</div></div>${btn}</div>`;
   }).join('');
-
-  const slotLabel=`<div style="font-size:5px;color:var(--muted);margin-bottom:4px;">FORGE SLOTS: ${slotsUsed}/${FORGE_SLOTS} IN USE &nbsp;·&nbsp; 🟤 1HR / 🔩 2HR / 🟡 3HR</div>`;
+  const slotLabel=`<div style="font-size:5px;color:var(--muted);margin-bottom:4px;">FORGE SLOTS: ${slotsUsed}/${FORGE_SLOTS} IN USE &nbsp;·&nbsp; 🟤 1 DAY / 🔩 2 DAYS / 🟡 3 DAYS</div>`;
   return `<div class="th-reward"><div class="th-reward-title">🔥 THE FORGE — SMELT INGOTS</div>${slotLabel}${queueHtml}<div class="th-reward-grid">${rows}</div></div>`;
 }
 
@@ -7218,20 +7552,16 @@ function thQueueSmelt(id){
   if(townHall.forgeQueue.length>=FORGE_SLOTS){info('🔥 FORGE IS FULL! WAIT FOR A SLOT TO FREE UP.');playSound('error');return;}
   const haveOre=inventory[ig.oreId]||0;
   const haveCoal=inventory['coal']||0;
-  if(haveOre<ig.oreQty){info('NOT ENOUGH ORE! NEED '+ig.oreQty+'x.');playSound('error');return;}
-  if(haveCoal<ig.coalQty){info('NOT ENOUGH ⬛ COAL! NEED '+ig.coalQty+'x — MINE IT ON FLOORS 1+.');playSound('error');return;}
-  // deduct materials
-  inventory[ig.oreId]-=ig.oreQty;
-  if(inventory[ig.oreId]<=0) delete inventory[ig.oreId];
-  inventory['coal']-=ig.coalQty;
-  if(inventory['coal']<=0) delete inventory['coal'];
-  // queue job
-  townHall.forgeQueue.push({id:ig.id, completesAt:Date.now()+(FORGE_SMELT_MS_MAP[ig.id]||FORGE_SMELT_MS)});
+  if(haveOre<ig.oreQty){info('NOT ENOUGH ORE TO SMELT '+ig.name+'!');playSound('error');return;}
+  if(haveCoal<ig.coalQty){info('NOT ENOUGH COAL TO SMELT '+ig.name+'!');playSound('error');return;}
+  inventory[ig.oreId]-=ig.oreQty; if((inventory[ig.oreId]||0)<=0) delete inventory[ig.oreId];
+  inventory['coal']=(inventory['coal']||0)-ig.coalQty; if((inventory['coal']||0)<=0) delete inventory['coal'];
+  const completesOnDay=day+(FORGE_SMELT_DAYS_MAP[id]||1);
+  townHall.forgeQueue.push({id,completesOnDay});
+  info('🔥 SMELTING '+ig.icon+' '+ig.name+'! READY IN '+(FORGE_SMELT_DAYS_MAP[id]||1)+' DAY(S).');
+  playSound('build');
   achFlags.first_ingot=true;
   checkAchievements();
-  const smeltHrs={copper_ingot:'1 HOUR',iron_ingot:'2 HOURS',gold_ingot:'3 HOURS'};
-  info('🔥 SMELTING '+ig.icon+' '+ig.name+'... READY IN '+(smeltHrs[ig.id]||'?')+'!');
-  playSound('build');
   saveGame();renderTownHall();renderInv();updateInvBadge();
 }
 
@@ -7270,8 +7600,10 @@ function renderTownHall(){
     });
     const pct=totalNeeded>0?Math.round((totalGiven/totalNeeded)*100):0;
 
+    const prevRoom=idx>0?TH_ROOMS[idx-1]:null;
+    const unlockNote=prevRoom&&!unlocked?'Complete '+prevRoom.name+' first':'';
     const badgeClass=complete?'done':(!unlocked?'locked':'active');
-    const badgeText=complete?'✓ DONE':(!unlocked?'🔒 LOCKED':'IN PROGRESS');
+    const badgeText=complete?'✓ DONE':(!unlocked?'🔒 '+unlockNote:'IN PROGRESS');
 
     // Can the player donate anything right now?
     let canDonate=false;
@@ -7280,30 +7612,20 @@ function renderTownHall(){
         const haveC=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):(contribs[req.type]||0));
         const still=req.needed-haveC;
         if(still<=0)return;
-        if(req.type==='gold'&&coins>0)canDonate=true;
-        if(req.type==='wood'&&(inventory['wood']||0)>0)canDonate=true;
-        if(req.type==='crop'&&thCountCrops()>0)canDonate=true;
-        if(req.type==='animal'&&thCountAnimalProducts()>0)canDonate=true;
-        if(req.type==='fish'&&thCountFish()>0)canDonate=true;
-        if(req.type==='ore'&&thCountOres()>0)canDonate=true;
-        if(req.type==='multiseason'&&thCountSeasons()>(contribs.multiseason||0))canDonate=true;
+        const avail=thRoomReqAvail(req);
+        const already=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):req.type==='seasoncrop'?(contribs.seasoncrop||0):req.type==='seasons'?(contribs.seasons||0):(contribs[req.type]||0));
+        if(avail>already||avail>0&&req.type==='seasons')canDonate=true;
       });
     }
 
     // Build requirement rows
     const reqRows=room.requirements.map(req=>{
-      const have=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):contribs[req.type])||0;
+      const have=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):req.type==='seasoncrop'?(contribs.seasoncrop||0):req.type==='seasons'?(contribs.seasons||0):contribs[req.type])||0;
       const done=have>=req.needed;
       const progClass=done?'done':'partial';
       // Show available in inventory
       let avail=0;
-      if(req.type==='gold')avail=coins;
-      else if(req.type==='wood')avail=inventory['wood']||0;
-      else if(req.type==='crop')avail=thCountCrops();
-      else if(req.type==='animal')avail=thCountAnimalProducts();
-      else if(req.type==='fish')avail=thCountFish();
-      else if(req.type==='ore')avail=thCountOres();
-      else if(req.type==='multiseason'){avail=thCountSeasons();}
+      avail=thRoomReqAvail(req);
 
       return `<div class="th-req-row">
         <div class="th-req-left">
@@ -7311,7 +7633,7 @@ function renderTownHall(){
           <span>${req.label}</span>
         </div>
         <div class="th-req-right">
-          <span class="th-req-progress ${progClass}">${have}/${req.needed}${done?' ✓':req.type==='multiseason'?' ('+avail+' seasons in bag)':' (have '+avail+')'}</span>
+          <span class="th-req-progress ${progClass}">${have}/${req.needed}${done?' ✓':req.type==='seasons'?' ('+avail+' seasons harvested)':req.type==='seasoncrop'?' ('+avail+' in bag)':' (have '+avail+')'}</span>
         </div>
       </div>`;
     }).join('');
@@ -7320,6 +7642,8 @@ function renderTownHall(){
     if(complete&&room.reward){rewardHtml=thBuildRewardPanel(room);}
     const bottomContent=complete
       ?`<div class="th-room-complete-msg">✓ ${room.completeMsg}</div>${rewardHtml}`
+      :!unlocked
+      ?`<div class="th-room-desc" style="color:var(--dim);font-style:italic">🔒 ${unlockNote} to unlock this room.</div>`
       :`${reqRows}<button class="th-donate-btn ${canDonate?'has-items':''}" onclick="thDonate(${idx})" ${canDonate?'':'disabled'}>DONATE WHAT I HAVE ▸</button>
          <div class="th-room-desc">${room.desc}</div>`;
 

@@ -1,7 +1,7 @@
 {
   "name": "Fernhollow Farm",
   "short_name": "Fernhollow",
-  "description": "A cozy pixel-art idle farming game. Plant, grow, harvest — the land is yours.",
+  "description": "A cozy pixel-art farming game. Wake at 6am, tend your crops, fish the river, mine 100 floors and chop trees for wood. Befriend 6 villagers, unlock their shops and slowly rebuild Fernhollow's crumbling town hall \u2014 one season at a time. Ship your harvest each night. Your farm, your pace.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
@@ -21,5 +21,8 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["games", "entertainment"]
+  "categories": [
+    "games",
+    "entertainment"
+  ]
 }
