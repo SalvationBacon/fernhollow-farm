@@ -988,6 +988,19 @@ body.pc-mode #farmer{left:22%}
 #save-toast-msg{display:block;letter-spacing:1px}
 #save-toast-sub{display:block;font-size:5px;color:var(--muted);margin-top:4px}
 
+/* ── INSTALL BANNER ── */
+#install-banner{display:none;position:absolute;bottom:0;left:0;right:0;background:var(--deep);border-top:2px solid var(--gold);padding:10px 12px;z-index:40;animation:bannerSlide .4s ease}
+#install-banner.show{display:flex;align-items:center;gap:8px}
+#install-banner-icon{font-size:18px;flex-shrink:0}
+#install-banner-text{flex:1}
+#install-banner-title{font-size:6px;color:var(--gold);margin-bottom:3px}
+#install-banner-sub{font-size:5px;color:var(--muted);line-height:1.6}
+#install-banner-btn{font-family:'Press Start 2P',monospace;font-size:5px;background:var(--lift);border:2px solid var(--green2);color:var(--green);padding:6px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+#install-banner-btn:hover{background:var(--green2);color:#c0f080}
+#install-banner-close{font-family:'Press Start 2P',monospace;font-size:8px;background:none;border:none;color:var(--dim);cursor:pointer;padding:4px;flex-shrink:0;line-height:1}
+#install-banner-close:hover{color:var(--cream)}
+@keyframes bannerSlide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
 /* ── SETTINGS ── */
 #settings-overlay{display:none;position:absolute;inset:0;background:var(--ink);z-index:30;flex-direction:column}
 #settings-overlay.show{display:flex}
@@ -1659,6 +1672,17 @@ body.pc-mode #farmer{left:22%}
     <span id="save-toast-icon">💾</span>
     <span id="save-toast-msg">GAME SAVED!</span>
     <span id="save-toast-sub">PROGRESS STORED</span>
+  </div>
+
+  <!-- INSTALL BANNER -->
+  <div id="install-banner">
+    <div id="install-banner-icon">📲</div>
+    <div id="install-banner-text">
+      <div id="install-banner-title">INSTALL FERNHOLLOW FARM</div>
+      <div id="install-banner-sub">Play offline with notifications — add to your home screen!</div>
+    </div>
+    <button id="install-banner-btn" onclick="installApp()">INSTALL</button>
+    <button id="install-banner-close" onclick="dismissInstallBanner()">✕</button>
   </div>
 
   <!-- BUG REPORT OVERLAY -->
@@ -4615,6 +4639,8 @@ function endTutorial(){
   if(ig) ig.style.pointerEvents='';
   showTab('seeds');
   info('HAPPY FARMING! VISIT THE VALLEY AND TOWN TABS TO EXPLORE!');
+  // prompt PWA install after tutorial
+  setTimeout(scheduleInstallBanner,3000);
 }
 
 // ══════════════════════════════════════════
@@ -5695,6 +5721,7 @@ function init(){
   if(loaded){
     showToast('SAVE LOADED!');
     info('WELCOME BACK, FARMER! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'.');
+    scheduleInstallBanner();
   }else{
     info('WELCOME TO FERNHOLLOW FARM!');
   }
@@ -5841,6 +5868,83 @@ function notifInit(){
   }
 }
 
+
+// ══════════════════════════════════════
+// PWA INSTALL PROMPT
+// ══════════════════════════════════════
+
+const INSTALL_DISMISSED_KEY='hh_install_dismissed';
+let deferredInstallPrompt=null;
+
+// Capture the beforeinstallprompt event (Android Chrome)
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+});
+
+function isStandalone(){
+  return window.matchMedia('(display-mode:standalone)').matches
+    || window.navigator.standalone===true;
+}
+
+function shouldShowInstallBanner(){
+  // don't show if already installed as PWA
+  if(isStandalone()) return false;
+  // don't show if user already dismissed
+  if(localStorage.getItem(INSTALL_DISMISSED_KEY)) return false;
+  return true;
+}
+
+function showInstallBanner(){
+  if(!shouldShowInstallBanner()) return;
+  const banner=document.getElementById('install-banner');
+  if(!banner) return;
+  // detect iOS for different instructions
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sub=document.getElementById('install-banner-sub');
+  const btn=document.getElementById('install-banner-btn');
+  if(isIOS){
+    sub.textContent='Tap Share ⎋ then "Add to Home Screen" for offline play + notifications!';
+    btn.textContent='GOT IT';
+    btn.onclick=()=>dismissInstallBanner();
+  }else if(deferredInstallPrompt){
+    sub.textContent='Play offline with notifications — install as an app!';
+    btn.textContent='INSTALL';
+  }else{
+    sub.textContent='Add to home screen for offline play + notifications!';
+    btn.textContent='GOT IT';
+    btn.onclick=()=>dismissInstallBanner();
+  }
+  banner.classList.add('show');
+}
+
+function installApp(){
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(result=>{
+      deferredInstallPrompt=null;
+      if(result.outcome==='accepted'){
+        localStorage.setItem(INSTALL_DISMISSED_KEY,'installed');
+        showToast('APP INSTALLED! 🌾');
+      }
+      dismissInstallBanner();
+    });
+  }else{
+    dismissInstallBanner();
+  }
+}
+
+function dismissInstallBanner(){
+  const banner=document.getElementById('install-banner');
+  if(banner) banner.classList.remove('show');
+  localStorage.setItem(INSTALL_DISMISSED_KEY,'1');
+}
+
+// Show the banner after tutorial ends or after a short delay for returning players
+function scheduleInstallBanner(){
+  if(!shouldShowInstallBanner()) return;
+  setTimeout(showInstallBanner,5000);
+}
 
 // ══════════════════════════════════════
 // VILLAGER SYSTEM
