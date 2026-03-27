@@ -10,12 +10,13 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## Features
+## v1.0 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
 - **Quality tiers** — Silver 🥈 and Gold 🥇 harvests worth up to 50% more
 - **6 farm plots** — start with 2, unlock all 6 as you earn gold
+- **Daily watering** — all crops need water every day or growth pauses
 - **Fertilizer** — reduce grow time by 1 day per crop
 - **Sprinklers** — auto-water plots after rebuilding the Great Hall
 
@@ -86,6 +87,26 @@ Single HTML file (~7,800 lines). No frameworks, no build step, no server. Vanill
 ## Dev Mode
 
 Settings → Import Save → type `2531` → Import. Speed controls, instant grow, unlimited energy.
+
+---
+
+## Changelog
+
+### v1.0 — Initial release
+- Full game loop: plant, water, harvest, ship, sleep
+- 24 crops across 4 seasons with quality tiers
+- Daily watering required for all crops
+- 5 valley activities: fishing, foraging, woodcutting, mining, cooking
+- 7 villagers with heart system and individual shops
+- Town Hall with 4 seasonal rooms: Great Hall, Kitchen, Workshop, Storeroom
+- Forge (smelting), Preserves (pickles, jams, wines)
+- Animal system: chickens, cows, sheep with auto feeder/collector
+- 5 skills (LV1–10) with unlockable perks
+- 45 achievements across 9 categories
+- Procedural folk music engine
+- Full PWA: offline, installable, autosave, push notification
+- PC/landscape sidebar layout
+- Bug reporting and feature request forms
 
 ## License
 

@@ -154,6 +154,7 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 /* ready state — bounce gently */
 .scene-crop-ready .scene-crop-stem{animation:cropBob .7s ease-in-out infinite alternate}
 @keyframes cropBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+@keyframes houseSleepPulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 /* ── DEV BAR ── */
 #dev-bar{
@@ -498,7 +499,6 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 .th-donate-btn.has-items{border-color:var(--green2);color:var(--green);background:var(--mid)}
 .th-donate-btn.has-items:hover{background:var(--green2);color:#c0f080}
 .th-donate-btn:disabled{opacity:.3;cursor:default}
-.th-req-done-tick{font-size:8px;color:var(--green);flex-shrink:0}
 .th-room-desc{font-size:5px;color:var(--dim);line-height:1.7;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
 .th-room-complete-msg{font-size:5px;color:var(--green);line-height:1.7;margin-top:4px;padding-top:4px;border-top:1px solid var(--green2)}
 .th-reward{margin-top:8px;border-top:2px solid var(--green2);padding-top:8px}
@@ -960,7 +960,6 @@ body.pc-mode #farmer{left:22%}
 #pc-sidebar-title span{color:var(--gold);font-size:9px;letter-spacing:2px}
 
 /* ── FEEDBACK OVERLAYS ── */
-#pause-overlay.show{display:flex!important}
 #bug-overlay,#feat-overlay{
   display:none;position:absolute;inset:0;background:var(--ink);z-index:35;flex-direction:column;
 }
@@ -1134,10 +1133,9 @@ body.pc-mode #farmer{left:22%}
     <span id="hud-title">⚑ FERNHOLLOW FARM</span>
     <div id="hud-right">
       <div class="hstat"><div class="pip b"></div>DAY <span id="dn">1</span></div>
-      <div class="hstat">⚡<span id="en">10</span></div>
+      <div class="hstat"><div class="pip p"></div><span id="en">10</span></div>
       <div class="hstat"><div class="pip g"></div><span id="cn">30</span>g</div>
       <button id="ach-hud-btn" onclick="openAchievements()" style="background:none;border:2px solid #5a3e1b;color:#c8a96e;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1;position:relative">⭐<span id="ach-badge"></span></button>
-      <button onclick="togglePause()" id="pause-hud-btn" style="background:none;border:2px solid #5a3e1b;color:#c8a96e;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1">⏸</button>
       <button onclick="openSettings()" style="background:none;border:2px solid #5a3e1b;color:#c8a96e;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1">⚙</button>
       <button id="dev-hud-btn" onclick="openDev()" style="display:none;background:#1a0808;border:2px solid #6a2010;color:#f09060;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1">🛠</button>
     </div>
@@ -1212,6 +1210,7 @@ body.pc-mode #farmer{left:22%}
         <div class="h-win" id="wr" style="right:3px"></div>
         <div class="h-door"></div>
       </div>
+      <div class="bld-label" id="house-sleep-label" style="color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000">💤 SLEEP</div>
     </div>
     <div id="scene-crops"></div>
     <!-- COOP (left of house) -->
@@ -1697,13 +1696,6 @@ body.pc-mode #farmer{left:22%}
     <button id="install-banner-close" onclick="dismissInstallBanner()">✕</button>
   </div>
 
-  <!-- PAUSE OVERLAY -->
-  <div id="pause-overlay" style="display:none;position:absolute;inset:0;background:rgba(10,8,4,0.88);z-index:60;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-    <div style="font-family:'Press Start 2P',monospace;color:var(--gold);font-size:14px;letter-spacing:3px">⏸ PAUSED</div>
-    <div style="font-family:'Press Start 2P',monospace;color:var(--muted);font-size:6px;line-height:2">DAY CLOCK IS FROZEN</div>
-    <button onclick="togglePause()" style="font-family:'Press Start 2P',monospace;font-size:9px;background:var(--lift);border:2px solid var(--green2);color:var(--green);padding:10px 20px;cursor:pointer;margin-top:8px">▶ RESUME</button>
-  </div>
-
   <!-- BUG REPORT OVERLAY -->
   <div id="bug-overlay">
     <div class="fb-header">
@@ -2154,6 +2146,9 @@ function loadGame(){
     pickaxeTier=d.pickaxeTier||0;
     mineFloor=d.mineFloor||1;
     mineCheckpoint=d.mineCheckpoint||1;
+    // clamp checkpoint to current pickaxe max floor
+    const maxF=pickaxeTier===0?20:pickaxeTier===1?40:pickaxeTier===2?70:100;
+    if(mineCheckpoint>maxF)mineCheckpoint=maxF;
     mineConsumables=d.mineConsumables||{tonic:0,grip:0,blast:0};
     // ensure all keys exist
     mineConsumables.tonic=mineConsumables.tonic||0;
@@ -2387,6 +2382,13 @@ function updateSky(){
   const night=h>=19||h<6,wc=night?'#ffe090':'#a8d4f5';
   document.getElementById('wl').style.background=wc;
   document.getElementById('wr').style.background=wc;
+  // Sleep label: gold pulse in evening, white during day, dim before 8am
+  const sleepLbl=document.getElementById('house-sleep-label');
+  if(sleepLbl){
+    const canSleep=h>=8;
+    sleepLbl.style.color=canSleep?(h>=20?'var(--gold)':'#fff'):'rgba(255,255,255,0.4)';
+    sleepLbl.style.animation=h>=20?'houseSleepPulse 1.4s ease-in-out infinite':'none';
+  }
   // winter snow on ground
   if(currentSeason().id==='winter'){
     document.getElementById('soil-strip').style.background='#c8dce8';
@@ -2428,7 +2430,6 @@ function getGameTimeStr(){
 }
 
 function clockTick(){
-  if(gamePaused) return;
   const sec=getSessionSec();
   const timeEl=document.getElementById('real-time');
   if(timeEl) timeEl.textContent=getGameTimeStr();
@@ -2575,10 +2576,7 @@ function openItemPopup(id, e){
   $('item-popup-name').textContent=item.icon+' '+item.name+' x'+qty;
   // hide eat button for non-food items
   const eatBtn=$('popup-eat-btn');
-  const inedible=id==='wood'||id==='sap'||id.endsWith('_ingot')||id==='jam'||id==='wine'||id==='pickle'
-    ||id.endsWith('_fish')
-    ||id==='stone'||id==='coal'||id==='quartz'||id==='topaz'||id==='ruby'||id==='emerald'
-    ||id==='copper_ore'||id==='iron_ore'||id==='gold_ore';
+  const inedible=id==='wood'||id==='sap'||id.endsWith('_ingot')||id==='jam'||id==='wine'||id==='pickle';
   if(inedible){
     eatBtn.style.display='none';
   }else{
@@ -2973,8 +2971,7 @@ function handleTile(i){
 // ══════════════════════════════════════
 // WATERING SYSTEM (day-based)
 // ══════════════════════════════════════
-// T1–T2 (baseDays<=2): water once only. T3+: re-water every 2 in-game days.
-const SHORT_CROP_DAYS=2;
+// All crops must be watered every day or growth pauses.
 
 function wateringCanPlots(){return [1,2,4,6][wateringCanTier]||1;}
 
@@ -2984,7 +2981,7 @@ function advanceCropDay(){
     if(t.st!=='grow'||!t.crop||!t.watered) return;
     if(t.waterDueDay>0&&day>=t.waterDueDay) return; // overdue — paused
     t.daysGrown=(t.daysGrown||0)+1;
-    if(t.crop.baseDays>SHORT_CROP_DAYS) t.waterDueDay=day+1+2;
+    t.waterDueDay=day+1; // must water again next day
     if(t.daysGrown>=t.growDays){
       t.st='ready';
       if(t.iv){clearInterval(t.iv);t.iv=null;}
@@ -3002,7 +2999,7 @@ function waterTile(i){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
   t.watered=true;
-  t.waterDueDay=(t.crop.baseDays>SHORT_CROP_DAYS)?day+2:0;
+  t.waterDueDay=day+1; // must water again next day
   // Tutorial: instantly ripen the very first watered crop so player can harvest now
   if(tutActive&&TUT_STEPS[tutStep]&&TUT_STEPS[tutStep].waitFor==='firstWater'){
     t.daysGrown=t.growDays;
@@ -3023,7 +3020,6 @@ function doWater(){
   const toWater=needed.slice(0,wateringCanPlots());
   toWater.forEach(({i})=>waterTile(i));
   if(toWater.length>1) info('💧 WATERED '+toWater.length+' CROPS!');
-  playSound('water');
   saveGame();
 }
 
@@ -3110,7 +3106,7 @@ function doBuy(id){
   if(it.act==='plot'){tiles[it.arg].st='empty';renderTile(it.arg);info('PLOT '+(it.arg+1)+' UNLOCKED!');}
   else if(it.act==='energy'){energy=Math.min(maxEnergy,energy+it.arg);upEnergy();info('DRANK COFFEE! +'+it.arg+' ENERGY.');}
   else if(it.act==='fert'){fertilized=getFertilizerCharges();info('FERTILIZER READY! NEXT '+fertilized+' PLANT'+(fertilized>1?'S':'')+' 50% FASTER.');}
-  else if(it.act==='build'){buildings[it.arg]='building';updateSceneBuildings();renderAnimals();info('🚧 '+(it.arg==='coop'?'COOP':'BARN')+' CONSTRUCTION STARTED! READY IN 1 IN-GAME DAY.');}
+  else if(it.act==='build'){buildings[it.arg]='building';updateSceneBuildings();renderAnimals();showAnimalTab();info('🚧 '+(it.arg==='coop'?'COOP':'BARN')+' CONSTRUCTION STARTED! READY IN 1 IN-GAME DAY.');}
   else if(it.act==='autofeeder'){autoFeeder=true;info('AUTO FEEDER INSTALLED! ANIMALS WILL BE FED EACH DAY AUTOMATICALLY.');}
   else if(it.act==='rod'){
     fishingRod=it.arg;
@@ -3133,7 +3129,6 @@ function triggerMayorFirstMeet(){
 }
 
 function showTab(t){
-  playSound('click');
   // highlight correct tab — match by onclick attribute
   document.querySelectorAll('.tab').forEach(b=>{
     const fn=b.getAttribute('onclick')||'';
@@ -3200,38 +3195,38 @@ const FORAGE_ITEMS = {
 };
 
 const FISH_BY_SEASON = {
-  // Sell prices: T1=1g, T2=2g, T3=4g, T4=8g, T5=16g, T6=32g (doubles each tier)
+  // Sell prices: T1=2g, T2=5g, T3=10g, T4=20g, T5=40g, T6=80g
   spring:[
-    {id:'minnow',     name:'MINNOW',     icon:'🐟', sell:5,   difficulty:0.1, tier:1},
-    {id:'sardine',    name:'SARDINE',    icon:'🐠', sell:12,  difficulty:0.25,tier:2},
-    {id:'shad',       name:'SHAD',       icon:'🐟', sell:22,  difficulty:0.4, tier:3},
-    {id:'eel',        name:'EEL',        icon:'🐍', sell:45,  difficulty:0.55,tier:4},
-    {id:'catfish',    name:'CATFISH',    icon:'🐟', sell:90,  difficulty:0.72,tier:5},
-    {id:'legend',     name:'LEGEND',     icon:'🐉', sell:200, difficulty:0.9, tier:6},
+    {id:'minnow',     name:'MINNOW',     icon:'🐟', sell:2,   difficulty:0.1, tier:1},
+    {id:'sardine',    name:'SARDINE',    icon:'🐠', sell:5,   difficulty:0.25,tier:2},
+    {id:'shad',       name:'SHAD',       icon:'🐟', sell:10,   difficulty:0.4, tier:3},
+    {id:'eel',        name:'EEL',        icon:'🐍', sell:20,   difficulty:0.55,tier:4},
+    {id:'catfish',    name:'CATFISH',    icon:'🐟', sell:40,  difficulty:0.72,tier:5},
+    {id:'legend',     name:'LEGEND',     icon:'🐉', sell:80,  difficulty:0.9, tier:6},
   ],
   summer:[
-    {id:'anchovy',    name:'ANCHOVY',    icon:'🐟', sell:5,   difficulty:0.1, tier:1},
-    {id:'red-snapper',name:'RED SNAPPER',icon:'🐠', sell:12,  difficulty:0.25,tier:2},
-    {id:'tilapia',    name:'TILAPIA',    icon:'🐟', sell:22,  difficulty:0.4, tier:3},
-    {id:'pike',       name:'PIKE',       icon:'🐟', sell:45,  difficulty:0.55,tier:4},
-    {id:'pufferfish', name:'PUFFERFISH', icon:'🐡', sell:90,  difficulty:0.72,tier:5},
-    {id:'tuna',       name:'TUNA',       icon:'🐟', sell:200, difficulty:0.9, tier:6},
+    {id:'anchovy',    name:'ANCHOVY',    icon:'🐟', sell:2,   difficulty:0.1, tier:1},
+    {id:'red-snapper',name:'RED SNAPPER',icon:'🐠', sell:5,   difficulty:0.25,tier:2},
+    {id:'tilapia',    name:'TILAPIA',    icon:'🐟', sell:10,   difficulty:0.4, tier:3},
+    {id:'pike',       name:'PIKE',       icon:'🐟', sell:20,   difficulty:0.55,tier:4},
+    {id:'pufferfish', name:'PUFFERFISH', icon:'🐡', sell:40,  difficulty:0.72,tier:5},
+    {id:'tuna',       name:'TUNA',       icon:'🐟', sell:80,  difficulty:0.9, tier:6},
   ],
   fall:[
-    {id:'herring',    name:'HERRING',    icon:'🐟', sell:5,   difficulty:0.1, tier:1},
-    {id:'albacore',   name:'ALBACORE',   icon:'🐟', sell:12,  difficulty:0.25,tier:2},
-    {id:'walleye',    name:'WALLEYE',    icon:'🐡', sell:22,  difficulty:0.4, tier:3},
-    {id:'salmon',     name:'SALMON',     icon:'🐟', sell:45,  difficulty:0.55,tier:4},
-    {id:'tiger-trout',name:'TIGER TROUT',icon:'🐠', sell:90,  difficulty:0.72,tier:5},
-    {id:'woodskip',   name:'WOODSKIP',   icon:'🐟', sell:200, difficulty:0.9, tier:6},
+    {id:'herring',    name:'HERRING',    icon:'🐟', sell:2,   difficulty:0.1, tier:1},
+    {id:'albacore',   name:'ALBACORE',   icon:'🐟', sell:5,   difficulty:0.25,tier:2},
+    {id:'walleye',    name:'WALLEYE',    icon:'🐡', sell:10,   difficulty:0.4, tier:3},
+    {id:'salmon',     name:'SALMON',     icon:'🐟', sell:20,   difficulty:0.55,tier:4},
+    {id:'tiger-trout',name:'TIGER TROUT',icon:'🐠', sell:40,  difficulty:0.72,tier:5},
+    {id:'woodskip',   name:'WOODSKIP',   icon:'🐟', sell:80,  difficulty:0.9, tier:6},
   ],
   winter:[
-    {id:'smelt',      name:'SMELT',      icon:'🐟', sell:5,   difficulty:0.1, tier:1},
-    {id:'crab',       name:'CRAB',       icon:'🦀', sell:12,  difficulty:0.25,tier:2},
-    {id:'squid',      name:'SQUID',      icon:'🦑', sell:22,  difficulty:0.4, tier:3},
-    {id:'lingcod',    name:'LINGCOD',    icon:'🐡', sell:45,  difficulty:0.55,tier:4},
-    {id:'midnight-carp',name:'MID CARP', icon:'🐟', sell:90,  difficulty:0.72,tier:5},
-    {id:'glacierfish',name:'GLACIERFISH',icon:'🧊', sell:200, difficulty:0.9, tier:6},
+    {id:'smelt',      name:'SMELT',      icon:'🐟', sell:2,   difficulty:0.1, tier:1},
+    {id:'crab',       name:'CRAB',       icon:'🦀', sell:5,   difficulty:0.25,tier:2},
+    {id:'squid',      name:'SQUID',      icon:'🦑', sell:10,   difficulty:0.4, tier:3},
+    {id:'lingcod',    name:'LINGCOD',    icon:'🐡', sell:20,   difficulty:0.55,tier:4},
+    {id:'midnight-carp',name:'MID CARP', icon:'🐟', sell:40,  difficulty:0.72,tier:5},
+    {id:'glacierfish',name:'GLACIERFISH',icon:'🧊', sell:80,  difficulty:0.9, tier:6},
   ],
 };
 
@@ -3308,7 +3303,7 @@ function doChop(){
     const woodQty=3+Math.floor(Math.random()*4)+woodBonus;
     const sapChance=Math.random()<getSapChance();
     addToInventory('wood',woodQty);
-    if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
+    if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:2};
     let msg='TREE FELLED! GOT '+woodQty+'x 🪵 WOOD';
     if(sapChance){
       addToInventory('sap',1);
@@ -3347,7 +3342,7 @@ function doGrowthDust(){
   if(tree2Hp>0){woodQty+=3+Math.floor(Math.random()*4)+woodBonus;}
   if(woodQty===0) woodQty=6+woodBonus; // both already stumps, still give wood
   addToInventory('wood',woodQty);
-  if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
+  if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:2};
   treeHp=treeMaxHp;treeRespawnDaysLeft=0;
   tree2Hp=treeMaxHp;tree2RespawnDaysLeft=0;
   skillAddXP('chopping',7);
@@ -3395,7 +3390,7 @@ function doChop2(){
     const woodQty=3+Math.floor(Math.random()*4)+woodBonus;
     const sapChance=Math.random()<getSapChance();
     addToInventory('wood',woodQty);
-    if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
+    if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:2};
     let msg='TREE 2 FELLED! GOT '+woodQty+'x 🪵 WOOD';
     if(sapChance){addToInventory('sap',1);if(!ALL_ITEMS_MAP['sap']) ALL_ITEMS_MAP['sap']={icon:'🫧',name:'SAP',sell:8};msg+=' + 🫧 SAP';}
     tree2RespawnDaysLeft=3;
@@ -3432,8 +3427,8 @@ function startFishing(){
   const season=currentSeason().id;
   const allFish=FISH_BY_SEASON[season]||FISH_BY_SEASON.spring;
   const fishLv=skills.fishing.level;
-  // tier unlock: T1 free, T2 lv2, T3 lv3, T4 lv5, T5 lv7, T6 lv9
-  const tierUnlock=[1,2,3,5,7,9];
+  // tier unlock: T1 free, T2 lv2, T3 lv4, T4 lv6, T5 lv8, T6 lv10
+  const tierUnlock=[1,2,4,6,8,10];
   // base weights: 64,32,16,8,4,2 (halving each tier)
   const baseWeights=[64,32,16,8,4,2];
   // rod bonus: adds flat weight to T4(idx3), T5(idx4), T6(idx5)
@@ -3452,7 +3447,7 @@ function startFishing(){
   fishZonePos=(FISH_BAR_H-fishZoneH)/2;
   fishPos=FISH_BAR_H/2;
   fishVel=0;
-  fishCatch=0;
+  fishCatch=10;
   // Lucky Bait: auto-fill catch bar — fish is caught immediately
   if(luckyBaitReady){
     luckyBaitReady=false;
@@ -3462,7 +3457,7 @@ function startFishing(){
   $('fish-btn').textContent='FISHING...';
   $('fish-btn').disabled=true;
   $('fish-result').textContent='';
-  $('fish-catch-bar').style.width='0%';
+  $('fish-catch-bar').style.width='10%';
   let fishStatusExtra='';
   if(luckyBaitReady) fishStatusExtra=' 🪱 BAIT ACTIVE!';
   if(fishNetReady) fishStatusExtra+=' 🕸 NET ACTIVE!';
@@ -3522,7 +3517,7 @@ function fishFrame(ts){
   const fishCenter=fishPos+FISH_H/2;
   const inZone=fishCenter>=fishZonePos&&fishCenter<=fishZonePos+fishZoneH;
   if(inZone){
-    fishCatch=Math.min(100,fishCatch+dt*14);
+    fishCatch=Math.min(100,fishCatch+dt*30);
   }else{
     // Drain scales with fish difficulty — harder fish escape faster
     const drainMult=fishTarget?0.7+fishTarget.difficulty*0.8:1;
@@ -3539,24 +3534,15 @@ function fishFrame(ts){
   else                       $('fish-status').textContent=fishTarget.icon+' '+fishTarget.name+' — TRACK IT!';
 
   if(fishCatch>=100){endFishing(true);return;}
-  // only fail if completely lost and meter drained to zero
-  if(fishCatch<=0&&!inZone){
-    // give a 1.5s window at zero before failing
-    if(!fishZeroTimer) fishZeroTimer=ts;
-    if(ts-fishZeroTimer>1500){endFishing(false);return;}
-  }else{
-    fishZeroTimer=null;
-  }
+  if(fishCatch<=0){endFishing(false);return;}
 
   fishAnimId=requestAnimationFrame(fishFrame);
 }
-let fishZeroTimer=null;
+let fishZeroTimer=null; // kept for save compatibility, unused
 
 function renderFishBar(){
   const clampedPos=Math.max(0,Math.min(FISH_BAR_H-FISH_H,fishPos));
-  const fishEl=$('fish-icon');
-  fishEl.style.top=Math.round(clampedPos)+'px';
-  if(fishTarget) fishEl.textContent=fishTarget.icon;
+  $('fish-icon').style.top=Math.round(clampedPos)+'px';
   $('fish-zone').style.top=Math.round(fishZonePos)+'px';
 }
 
@@ -3587,8 +3573,7 @@ function endFishing(success){
     info(catchMsg+' ADDED TO BAG.');
     playSound('catch');
     pcAddLog('🎣 Caught '+catchQty+'x '+fishTarget.icon+' '+fishTarget.name);
-    const fishXp=[1,2,2,3,3,4][(fishTarget.tier||1)-1]||1;
-    skillAddXP('fishing',fishXp);
+    skillAddXP('fishing',fishTarget.difficulty>0.6?2:1);
     achFlags.first_catch=true;
     if(fishTarget.difficulty>0.6) achFlags.rare_fish=true;
     checkAchievements();
@@ -3762,24 +3747,15 @@ function renderRpsPips(){
 
 function updateRpsPrizePreview(){
   const items=FORAGE_ITEMS[currentSeason().id]||[];
-  const forageLv=skills.foraging.level;
-  const available=items.filter(i=>forageLv>=(i.skillMin||1));
   const bias=SPIRIT_BIAS[currentSeason().id];
   const tell=`SPIRIT HINT: OFTEN PLAYS ${RPS_ICONS[bias]}`;
-  // Group available items by rarity
-  const hasCommon=available.some(i=>i.rarity==='common');
-  const hasUncommon=available.some(i=>i.rarity==='uncommon');
-  const hasRare=available.some(i=>i.rarity==='rare');
-  // Fallback: if a tier isn't unlocked yet, show best available rarity
-  const bestRarity=hasRare?'rare':hasUncommon?'uncommon':'common';
+  const common=items.find(i=>i.rarity==='common');
+  const uncommon=items.find(i=>i.rarity==='uncommon');
+  const rare=items.find(i=>i.rarity==='rare');
   let lines=[];
-  if(hasCommon)   lines.push('1 WIN  → COMMON FIND');
-  else            lines.push('1 WIN  → '+bestRarity.toUpperCase()+' FIND');
-  if(hasUncommon) lines.push('2 WINS → UNCOMMON FIND');
-  else            lines.push('2 WINS → '+bestRarity.toUpperCase()+' FIND (BEST AVAILABLE)');
-  if(hasRare)     lines.push('3 WINS → RARE FIND ✦');
-  else if(hasUncommon) lines.push('3 WINS → UNCOMMON FIND (BEST AVAILABLE)');
-  else            lines.push('3 WINS → COMMON FIND (BEST AVAILABLE)');
+  if(common)   lines.push('1 WIN  → '+common.icon+' '+common.name+'  ('+common.sell+'g)');
+  if(uncommon) lines.push('2 WINS → '+uncommon.icon+' '+uncommon.name+' ('+uncommon.sell+'g)');
+  if(rare)     lines.push('3 WINS → '+rare.icon+' '+rare.name+' ('+rare.sell+'g) ✦');
   $('rps-prize-preview').textContent=lines.join('\n')+'\n\n'+tell;
 }
 
@@ -3811,6 +3787,7 @@ function endRps(){
   if(rpsPlayerScore===3){
     prize=devFlags.rareForage?available[available.length-1]:pickFromTiers(5,6);
     msg='PERFECT 3-0! THE SPIRIT YIELDS ITS RAREST TREASURE! ✦';
+    skillAddXP('foraging',2);
     achFlags.sweep_spirit=true;
   }else if(rpsPlayerScore===2){
     prize=pickFromTiers(3,4);
@@ -3923,7 +3900,7 @@ function devAddGold(amount){
   devSyncAll();
 }
 function devAddWood(amount){
-  if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:10};
+  if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:2};
   addToInventory('wood',amount);
   updateInvBadge();
   
@@ -3940,27 +3917,6 @@ function devRefillEnergy(){
 }
 
 // ── SETTINGS ──
-// ── PAUSE ──
-let gamePaused=false;
-function togglePause(){
-  gamePaused=!gamePaused;
-  const overlay=document.getElementById('pause-overlay');
-  const btn=document.getElementById('pause-hud-btn');
-  if(gamePaused){
-    // freeze clock same way as visibility hide
-    activeSecsAtHide=getSessionSec();
-    if(musicPlaying) musicStop();
-    overlay.className='show';
-    if(btn) btn.textContent='▶';
-  }else{
-    // resume clock
-    dayStartTime=Date.now()-activeSecsAtHide*1000;
-    if(musicEnabled) musicStart();
-    overlay.className='';
-    if(btn) btn.textContent='⏸';
-  }
-}
-
 function openSettings(){
   renderSaveInfo();
   document.getElementById('import-feedback').textContent='';
@@ -4790,7 +4746,7 @@ const FEEDBACK_EMAIL = 'joshuapaul2531@gmail.com';
 function getFeedbackGameState(){
   const s=currentSeason();
   const lines=[
-    'Version: v0.1',
+    'Version: v1.0',
     'Day: '+day+' | Season: '+s.name+' (Day '+seasonDay+'/'+s.daysPerSeason+')',
     'Coins: '+coins+'g | Energy: '+energy+'/'+maxEnergy,
     'Harvests: '+hvst+' | Earned: '+totalEarned+'g',
@@ -4854,7 +4810,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v0.1 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v1.0 | Day: '+day+' | Season: '+currentSeason().name
   );
   window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+subject+'&body='+body,'_blank');
   closeFeatureRequest();
@@ -4987,9 +4943,8 @@ function getFertilizerCharges(){
 // ── FISHING SKILL PERKS ──
 function getFishZoneSize(baseSz){
   const lv=skills.fishing.level;
-  if(lv>=9) return baseSz+9;
-  if(lv>=5) return baseSz+5;
-  if(lv>=2) return baseSz+2;
+  if(lv>=7) return baseSz+16;
+  if(lv>=4) return baseSz+8;
   return baseSz;
 }
 
@@ -5027,7 +4982,7 @@ function getForageBonus(wins){
 
 function getRpsSpiritBias(){
   // lv5+ gives slight advantage — spirit bias weakens
-  return skills.foraging.level>=5?0.45:0.60;
+  return skills.foraging.level>=5?0.35:0.45;
 }
 
 // ══════════════════════════════════════
@@ -5273,16 +5228,16 @@ const SKILL_META={
   fishing:{
     icon:'🎣', name:'FISHING', color:'#60a8d8',
     perks:[
-      'Small catch zone. Only T1 fish in the water.',
-      'Catch zone slightly larger (+2). T2 fish appear.',
-      'T3 fish now swim in your waters.',
+      'Small catch zone. Fish escape quickly.',
+      'New fish species appear in the water.',
+      'Rare and hard fish reward bonus XP.',
+      'Catch zone grows — easier to keep fish inside. More species unlocked.',
       'Catch meter responds more smoothly.',
-      'Catch zone grows (+5). T4 fish spotted.',
-      'Hard fish more manageable. Elusive species lurk deeper.',
-      'T5 fish appear — rare and difficult to land.',
-      'Catch meter drains slower when fish escapes the zone.',
-      'Catch zone near maximum (+9). T6 legendary fish appear.',
-      'Maximum catch zone. Only the rarest fish remain a challenge. ✦',
+      'Catch zone grows again. Hard fish more manageable. New species spotted.',
+      'Catch zone at a comfortable size for most fish.',
+      'Catch meter drains slower when fish escapes the zone. Elusive species appear.',
+      'Catch zone near maximum. Only legendary fish pose a challenge.',
+      'Maximum catch zone. The rarest fish now swim in your waters. ✦',
     ]
   },
   chopping:{
@@ -5406,8 +5361,6 @@ function playSound(type){
       case 'rpswin':    sfxRpsWin(ctx);    break;
       case 'rpslose':   sfxRpsLose(ctx);   break;
       case 'titlestart':sfxTitleStart(ctx);break;
-      case 'water':     sfxWater(ctx);     break;
-      case 'click':     sfxClick(ctx);     break;
     }
   }catch(e){}
 }
@@ -6187,7 +6140,7 @@ function scheduleInstallBanner(){
 // Total 1,500 XP with favourite gifts, heart 1 in ~2 days, heart 5 in ~2 weeks
 // Heart XP thresholds — H1 quick (day 2-3), then steep curve
 // H1@2d H2@15d H3@42d H4@82d H5@126d (fav gifts)
-const VIL_HEART_XP=[100,300,650,1100,1800];
+const VIL_HEART_XP=[60,400,800,1200,1900];
 
 const VILLAGERS=[
   {
@@ -6455,7 +6408,7 @@ function vilGift(vilId){
   if(s.giftedToday){info('ALREADY GIFTED TO THIS VILLAGER TODAY!');playSound('error');return;}
   const v=VILLAGERS.find(x=>x.id===vilId);
   if(v.favourite.type==='gold'){
-    const donate=Math.min(25,coins);
+    const donate=Math.min(100,coins);
     if(donate<=0){info('NO GOLD TO DONATE TO SAL!');playSound('error');return;}
     coins-=donate;upCoins();
     s.giftedToday=true;
@@ -6797,7 +6750,7 @@ function mineDescend(){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');return;}
   if(!mineRocks.every(r=>r.broken)){info('CLEAR ALL ROCKS FIRST!');return;}
   if(mineFloor>=mineMaxFloor()){
-    $('mine-result').textContent='DEEPEST FLOOR FOR YOUR PICKAXE — UPGRADE TO GO FURTHER!';
+    info('YOU\'VE REACHED THE DEEPEST FLOOR YOUR PICKAXE CAN HANDLE!');
     return;
   }
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
@@ -6957,25 +6910,12 @@ function renderMine(){
   const allBroken=mineRocks.every(r=>r.broken);
   if(ladder){
     ladder.className='mine-ladder'+(allBroken?' show':'');
+    if(nextFloor)nextFloor.textContent=mineFloor+1;
     if(mineFloor>=mineMaxFloor()){
       ladder.innerHTML='<div class="mine-ladder-text">⛏ PICKAXE LIMIT REACHED</div><div class="mine-ladder-sub">UPGRADE YOUR PICKAXE FROM BRAM IN THE 🏛 TOWN TAB</div>';
       ladder.onclick=null;
       ladder.style.cursor='default';
       ladder.style.borderColor='var(--border)';
-    }else{
-      // restore normal descend state (in case pickaxe was just upgraded)
-      if(nextFloor)nextFloor.textContent=mineFloor+1;
-      if(!ladder.querySelector('#mine-descend-btn')){
-        ladder.innerHTML='<div class="mine-ladder-text">⬇ DESCEND TO FLOOR <span id="mine-next-floor">'+(mineFloor+1)+'</span></div><div class="mine-ladder-sub">(-1 ENERGY)</div>';
-        ladder.onclick=mineDescend;
-        ladder.style.cursor='pointer';
-        ladder.style.borderColor='var(--green2)';
-      }else{
-        if(nextFloor)nextFloor.textContent=mineFloor+1;
-        ladder.onclick=mineDescend;
-        ladder.style.cursor='pointer';
-        ladder.style.borderColor='var(--green2)';
-      }
     }
   }
 }
@@ -7366,119 +7306,6 @@ function thDonate(roomIdx){
   }
 }
 
-function thDonateOne(roomIdx, reqType, cropId){
-  if(!thRoomUnlocked(roomIdx)){
-    const prev=TH_ROOMS[roomIdx-1];
-    info('🔒 COMPLETE '+(prev?prev.name:'THE PREVIOUS ROOM')+' FIRST!');
-    playSound('error');
-    return;
-  }
-  const room=TH_ROOMS[roomIdx];
-  if(thRoomComplete(room.id)){info('🏛 '+room.name+' IS ALREADY COMPLETE!');return;}
-
-  const contribs=townHall.rooms[room.id].contributions;
-  const req=room.requirements.find(r=>r.type===reqType&&(reqType!=='seasoncrop'||r.cropId===cropId));
-  if(!req){info('REQUIREMENT NOT FOUND!');return;}
-
-  const already=contribs[reqType]||0;
-  const stillNeeded=req.needed-already;
-  if(stillNeeded<=0){info(req.label.toUpperCase()+' ALREADY FULFILLED! ✓');return;}
-
-  let donated=false;
-
-  if(reqType==='gold'){
-    const give=Math.min(stillNeeded,coins);
-    if(give<=0){info('NOT ENOUGH GOLD! NEED '+(stillNeeded-give)+'g MORE.');playSound('error');return;}
-    coins-=give;contribs.gold+=give;upCoins();donated=true;
-  } else if(reqType==='wood'){
-    const have=inventory['wood']||0;
-    const give=Math.min(stillNeeded,have);
-    if(give<=0){info('NO WOOD IN BAG!');playSound('error');return;}
-    inventory['wood']-=give;
-    if(inventory['wood']<=0)delete inventory['wood'];
-    contribs.wood+=give;donated=true;
-  } else if(reqType==='crop'){
-    let toGive=stillNeeded;
-    Object.keys(inventory).forEach(id=>{
-      if(toGive<=0)return;
-      const base=id.split('|')[0];
-      if(!ALL_CROPS.some(c=>c.id===base))return;
-      const give=Math.min(toGive,inventory[id]);
-      inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
-      contribs.crop+=give;toGive-=give;donated=true;
-    });
-    if(!donated){info('NO CROPS IN BAG!');playSound('error');return;}
-  } else if(reqType==='animal'){
-    let toGive=stillNeeded;
-    Object.keys(inventory).forEach(id=>{
-      if(toGive<=0)return;
-      if(!id.endsWith('_product'))return;
-      const give=Math.min(toGive,inventory[id]);
-      inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
-      contribs.animal+=give;toGive-=give;donated=true;
-    });
-    if(!donated){info('NO ANIMAL PRODUCTS IN BAG!');playSound('error');return;}
-  } else if(reqType==='fish'){
-    let toGive=stillNeeded;
-    Object.keys(inventory).forEach(id=>{
-      if(toGive<=0)return;
-      if(!id.endsWith('_fish'))return;
-      const give=Math.min(toGive,inventory[id]);
-      inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
-      contribs.fish=(contribs.fish||0)+give;toGive-=give;donated=true;
-    });
-    if(!donated){info('NO FISH IN BAG!');playSound('error');return;}
-  } else if(reqType==='ore'){
-    const oreIds=['stone','coal','copper_ore','iron_ore','gold_ore','quartz','topaz','ruby','emerald'];
-    let toGive=stillNeeded;
-    oreIds.forEach(id=>{
-      if(toGive<=0)return;
-      const have=inventory[id]||0;if(!have)return;
-      const give=Math.min(toGive,have);
-      inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
-      contribs.ore=(contribs.ore||0)+give;toGive-=give;donated=true;
-    });
-    if(!donated){info('NO ORE IN BAG!');playSound('error');return;}
-  } else if(reqType==='seasoncrop'){
-    const cId=cropId||'';
-    let toGive=stillNeeded;
-    Object.keys(inventory).forEach(id=>{
-      if(toGive<=0)return;
-      if(id.split('|')[0]!==cId)return;
-      const give=Math.min(toGive,inventory[id]||0);
-      if(give<=0)return;
-      inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
-      contribs.seasoncrop=(contribs.seasoncrop||0)+give;toGive-=give;donated=true;
-    });
-    if(!donated){const crop=ALL_CROPS.find(c=>c.id===cId);info('NO '+(crop?crop.name.toUpperCase():'REQUIRED CROP')+' IN BAG!');playSound('error');return;}
-  } else if(reqType==='seasons'){
-    const have=thCountSeasons();
-    const canAdd=Math.min(stillNeeded,have-already);
-    if(canAdd<=0){info('NOT ENOUGH SEASONS HARVESTED YET!');playSound('error');return;}
-    contribs.seasons=already+canAdd;donated=true;
-  }
-
-  if(!donated){info('🏛 NOTHING TO DONATE FOR THIS REQUIREMENT!');playSound('error');return;}
-
-  playSound('coin');
-  saveGame();
-  renderTownHall();
-  renderInv();
-  updateInvBadge();
-  pcUpdate();
-
-  if(thRoomComplete(room.id)){
-    playSound('build');
-    showToast('🏛 '+room.name+' COMPLETE!');
-    pcAddLog('🏛 Town Hall: '+room.name+' complete!');
-    info('🏛 '+room.name.toUpperCase()+' REBUILT! THE TOWN GROWS STRONGER!');
-    checkAchievements();
-  } else {
-    info('🏛 '+req.label.toUpperCase()+' DONATED TO '+room.name.toUpperCase()+'!');
-    pcAddLog('🏛 Donated '+req.label+' to '+room.name);
-  }
-}
-
 // ══════════════════════════════════════
 // TOWN HALL REWARDS
 // ══════════════════════════════════════
@@ -7534,7 +7361,7 @@ function applySprinkler(){
     const needsWater=!t.watered||(t.waterDueDay>0&&day>=t.waterDueDay);
     if(!needsWater)return;
     t.watered=true;
-    t.waterDueDay=(t.crop.baseDays>SHORT_CROP_DAYS)?day+2:0;
+    t.waterDueDay=day+1; // must water again next day
     renderTile(i);
     wateredCount++;
   });
@@ -7827,8 +7654,8 @@ function renderTownHall(){
   const artEl=$('th-building-art');
   if(artEl){
     if(completedCount===0)artEl.textContent='🏚';
-    else if(completedCount===1)artEl.textContent='🏗';
-    else if(completedCount===2)artEl.textContent='🏗';
+    else if(completedCount===1)artEl.textContent='🏠';
+    else if(completedCount===2)artEl.textContent='🏠';
     else if(completedCount===3)artEl.textContent='🏛';
     else artEl.textContent='🏛';
   }
@@ -7854,26 +7681,35 @@ function renderTownHall(){
     const badgeClass=complete?'done':(!unlocked?'locked':'active');
     const badgeText=complete?'✓ DONE':(!unlocked?'🔒 '+unlockNote:'IN PROGRESS');
 
-    // Build requirement rows with individual donate buttons
+    // Can the player donate anything right now?
+    let canDonate=false;
+    if(unlocked&&!complete){
+      room.requirements.forEach(req=>{
+        const haveC=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):(contribs[req.type]||0));
+        const still=req.needed-haveC;
+        if(still<=0)return;
+        const avail=thRoomReqAvail(req);
+        const already=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):req.type==='seasoncrop'?(contribs.seasoncrop||0):req.type==='seasons'?(contribs.seasons||0):(contribs[req.type]||0));
+        if(avail>already||avail>0&&req.type==='seasons')canDonate=true;
+      });
+    }
+
+    // Build requirement rows
     const reqRows=room.requirements.map(req=>{
       const have=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):req.type==='seasoncrop'?(contribs.seasoncrop||0):req.type==='seasons'?(contribs.seasons||0):contribs[req.type])||0;
       const done=have>=req.needed;
       const progClass=done?'done':'partial';
-      const avail=thRoomReqAvail(req);
-      const canGive=!done&&unlocked&&avail>0;
-      const cropId=req.cropId?`,'${req.cropId}'`:'';
-      const availNote=done?'':req.type==='seasons'?' ('+avail+' seasons harvested)':' (have '+avail+')';
-      const donateBtn=done
-        ?`<span class="th-req-done-tick">✓</span>`
-        :`<button class="th-donate-btn ${canGive?'has-items':''}" onclick="thDonateOne(${idx},'${req.type}'${cropId})" ${canGive&&unlocked?'':'disabled'}>DONATE ▸</button>`;
+      // Show available in inventory
+      let avail=0;
+      avail=thRoomReqAvail(req);
+
       return `<div class="th-req-row">
         <div class="th-req-left">
           <span class="th-req-icon">${req.icon}</span>
           <span>${req.label}</span>
         </div>
-        <div class="th-req-right" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end">
-          <span class="th-req-progress ${progClass}">${have}/${req.needed}${availNote}</span>
-          ${donateBtn}
+        <div class="th-req-right">
+          <span class="th-req-progress ${progClass}">${have}/${req.needed}${done?' ✓':req.type==='seasons'?' ('+avail+' seasons harvested)':req.type==='seasoncrop'?' ('+avail+' in bag)':' (have '+avail+')'}</span>
         </div>
       </div>`;
     }).join('');
@@ -7884,7 +7720,8 @@ function renderTownHall(){
       ?`<div class="th-room-complete-msg">✓ ${room.completeMsg}</div>${rewardHtml}`
       :!unlocked
       ?`<div class="th-room-desc" style="color:var(--dim);font-style:italic">🔒 ${unlockNote} to unlock this room.</div>`
-      :`${reqRows}<div class="th-room-desc">${room.desc}</div>`;
+      :`${reqRows}<button class="th-donate-btn ${canDonate?'has-items':''}" onclick="thDonate(${idx})" ${canDonate?'':'disabled'}>DONATE WHAT I HAVE ▸</button>
+         <div class="th-room-desc">${room.desc}</div>`;
 
     const div=document.createElement('div');
     div.className='th-room'+(complete?' complete':'');
@@ -7926,20 +7763,6 @@ function sfxTitleStart(ctx){
   osc(ctx,'sine',660,0.36,0.3,0.18);
   osc(ctx,'sine',880,0.52,0.4,0.15);
   noise(ctx,0,0.06,0.04);
-}
-
-function sfxWater(ctx){
-  // soft liquid plop — gentle splashing on soil
-  noise(ctx,0,0.08,0.12);
-  osc(ctx,'sine',520,0,0.06,0.1);
-  osc(ctx,'sine',680,0.03,0.08,0.08);
-  noise(ctx,0.06,0.12,0.07);
-  osc(ctx,'sine',420,0.08,0.1,0.06);
-}
-function sfxClick(ctx){
-  // short low tick — clean menu tap
-  noise(ctx,0,0.03,0.12);
-  osc(ctx,'sine',220,0,0.04,0.1);
 }
 
 function titleStart(){
@@ -8023,7 +7846,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v0.1 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v1.0 — FERNHOLLOW FARM</div>
   </div>
 </div>
 
