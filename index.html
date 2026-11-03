@@ -90,6 +90,11 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 }
 #season-bar span,#clock-bar span{font-size:6px;color:var(--muted);white-space:nowrap}
 #season-label,#real-time{color:var(--cream);font-size:6px}
+#status-bar{background:var(--deep);border-bottom:1px solid var(--border);padding:3px 10px;
+  align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;font-size:5px;color:var(--muted)}
+#status-bar span{white-space:nowrap}
+#status-bar .sb-event{color:var(--gold);animation:houseSleepPulse 1.6s ease-in-out infinite}
+#status-bar .sb-buff{color:var(--green)}
 #season-progress-wrap,#day-progress-wrap{
   flex:1;height:3px;background:var(--mid);
 }
@@ -1150,6 +1155,7 @@ body.pc-mode #farmer{left:22%}
     <div id="day-progress-wrap"><div id="day-progress" style="width:0%"></div></div>
     <span id="next-reset" style="font-size:5px">1AM IN 19m</span>
   </div>
+  <div id="status-bar" style="display:none"></div>
   <div id="skills-bar">
     <div class="skill-chip farming" onclick="openSkillOverlay('farming')">
       <div class="skill-icon">🌾</div>
@@ -2042,6 +2048,13 @@ let achUnlocked={};
 let salStockRemaining=3; // how many special crops left in current 5-day window
 let salStockWindow=0;    // which window (seasonDay÷5 floor) was last stocked
 let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
+// ── KITCHEN / EVENTS ──
+let cookBuffs={};     // today's meal buffs {day, fishing, mining, wood, luck} — cleared each new day
+let knownRecipes={};  // recipe ids Hob has taught the player
+let eventsSeen={};    // festival rewards claimed, keyed 'eventId_year'
+let clockFrozenAt=null; // seconds into the day while the clock is frozen (title screen / app hidden)
+let titleScreenOpen=true; // day clock stays frozen until the player taps START/CONTINUE
+const MAX_ENERGY_CAP=50; // 30 base + two Angel Fruits
 
 function defaultState(){
   coins=60;day=1;hvst=0;totalEarned=0;energy=30;speed=1;fertilized=false;
@@ -2078,6 +2091,7 @@ function defaultState(){
   salStockRemaining=3;
   salStockWindow=0;
   salBulkDealUsed=false;
+  cookBuffs={};knownRecipes={};eventsSeen={};
 }
 
 function saveGame(){
@@ -2092,7 +2106,8 @@ function saveGame(){
     mineUnlocked,pickaxeTier,mineFloor,mineCheckpoint,mineConsumables,fishingUnlocked,hasAxe,axeTier,wcSharpenCharges,wcTonicReady,wcInstaGCharges,vilMet,lockedItems,wateringCanTier,maxEnergy,
     luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
-    dayStartTime,dayPenaltyEnergy,
+    daySecs:getSessionSec(),dayPenaltyEnergy,
+    cookBuffs,knownRecipes,eventsSeen,
     salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
@@ -2137,7 +2152,7 @@ function loadGame(){
     autoFeeder=d.autoFeeder||false;
     autoCollect=d.autoCollect||false;
     fishingRod=d.fishingRod||0;
-    bagCapacity=d.bagCapacity||20;
+    bagCapacity=d.bagCapacity||30;
     townHall=d.townHall||{rooms:{}};
     if(!townHall.forgeQueue) townHall.forgeQueue=[];
     if(!townHall.preserveQueue) townHall.preserveQueue=[];
@@ -2168,11 +2183,22 @@ function loadGame(){
     maxEnergy=typeof d.maxEnergy==='number'?d.maxEnergy:30;
     achFlags=d.achFlags||{};
     achUnlocked=d.achUnlocked||{};
+    // Migrate one-time rewards that used to be tracked by maxEnergy alone
+    if(mineCheckpoint>=100) achFlags.mine_fruit=true;
+    if(maxEnergy>=40&&!achFlags.bought_mj_fruit1&&!achFlags.mine_fruit) achFlags.bought_mj_fruit1=true;
+    if(maxEnergy>MAX_ENERGY_CAP) maxEnergy=MAX_ENERGY_CAP; // floor-100 fruit could be farmed past the cap
     salStockRemaining=typeof d.salStockRemaining==='number'?d.salStockRemaining:3;
     salStockWindow=d.salStockWindow||0;
     salBulkDealUsed=d.salBulkDealUsed||false;
-    dayStartTime=d.dayStartTime||Date.now();
+    // Restore how far into the day the player was — the clock only runs while
+    // the game is open, so time spent with the app closed must not count.
+    if(typeof d.daySecs==='number') dayStartTime=Date.now()-Math.max(0,Math.min(DAY_SECS,d.daySecs))*1000;
+    else dayStartTime=Date.now(); // legacy saves stored a timestamp — restart the day clean
     dayPenaltyEnergy=d.dayPenaltyEnergy||false;
+    cookBuffs=d.cookBuffs||{};
+    if(cookBuffs.day!==d.day) cookBuffs={};
+    knownRecipes=d.knownRecipes||{};
+    eventsSeen=d.eventsSeen||{};
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
@@ -2222,6 +2248,7 @@ function applySeasonVisuals(){
   ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background=s.treeColor;});
   ['cl1','cl2','cl3'].forEach(id=>document.getElementById(id).style.background=s.cloudColor);
   updateSeasonBar();
+  updateEventBanner();
 }
 
 function updateSeasonBar(){
@@ -2242,9 +2269,6 @@ function advanceSeason(){
     sel=seasonCrops()[0]||ALL_CROPS[0];
   }
   applySeasonVisuals();
-  // schedule season warning (2 days before end) and new season notification
-  const daysLeft=currentSeason().daysPerSeason-seasonDay+1;
-  notifScheduleSeason(daysLeft,currentSeason().name,currentSeason().icon);
 }
 
 function killOutOfSeasonCrops(){
@@ -2291,6 +2315,89 @@ function showSeasonTransition(){
     [icon,name,sub].forEach(el=>el.style.opacity=0);
     setTimeout(()=>o.className='',600);
   },3200);
+}
+
+// ══════════════════════════════════════
+// SEASONAL FESTIVALS — one special day per season
+// ══════════════════════════════════════
+// Each festival has a same-day effect plus a once-per-year gift handed over by a villager.
+const FESTIVALS=[
+  {id:'blossom', season:'spring', day:14, icon:'🌸', name:'BLOSSOM FAIR',  host:'mayor',
+   effect:'Everything shipped tonight sells for +25%.',
+   lines:['Happy Blossom Fair, farmer! The whole town is out in the square today.','Traders from the valley pay top price on fair day — anything you ship tonight sells for a quarter more.','And a little something from the town, to help your spring along.'],
+   gift:{icon:'🌱',label:'3x Super Fertilizer'}},
+  {id:'derby',   season:'summer', day:14, icon:'🎣', name:'RIVER DERBY',   host:'wren',
+   effect:'Every fish you catch today counts double, with double Fishing XP.',
+   lines:['It\'s Derby day! The river\'s fuller than I\'ve seen it all year.','Every fish you land today counts twice — and you\'ll learn twice as fast.','Here — my lucky bait. Make the first cast count.'],
+   gift:{icon:'🪱',label:'Lucky Bait'}},
+  {id:'supper',  season:'fall',   day:14, icon:'🍂', name:'HARVEST SUPPER',host:'hob',
+   effect:'Gifts to villagers are worth double heart XP today.',
+   lines:['Pull up a chair! The Harvest Supper is the best night of the year.','Folks are in a generous mood — any gift you give today means twice as much to them.','I saved you a bowl. Take it for the road.'],
+   gift:{icon:'🍲',label:'Farm Stew'}},
+  {id:'lantern', season:'winter', day:14, icon:'🏮', name:'LANTERN NIGHT', host:'bram',
+   effect:'Every rock in the mine drops an extra ore today.',
+   lines:['Lantern Night. We hang lights down every shaft so the mine glows like the sky.','The old miners say the rock gives freely tonight — every stone you break drops extra.','Take a couple of these. Blast your way somewhere deep.'],
+   gift:{icon:'💥',label:'2x Blast Powder'}},
+];
+function gameYear(){ return Math.floor((day-1)/(SEASONS.length*28))+1; }
+function getEventToday(){ return FESTIVALS.find(f=>f.season===currentSeason().id&&f.day===seasonDay)||null; }
+function eventActive(id){ const e=getEventToday(); return !!e&&e.id===id; }
+function eventShipMult(){ return eventActive('blossom')?1.25:1; }
+function eventGiftMult(){ return eventActive('supper')?2:1; }
+function nextEventInfo(){
+  // festival later this season, else the first one next season
+  const s=currentSeason();
+  const here=FESTIVALS.find(f=>f.season===s.id&&f.day>seasonDay);
+  if(here) return {fest:here,days:here.day-seasonDay};
+  const ns=SEASONS[(seasonIndex+1)%SEASONS.length];
+  const next=FESTIVALS.find(f=>f.season===ns.id);
+  return next?{fest:next,days:(s.daysPerSeason-seasonDay)+next.day}:null;
+}
+function grantFestivalGift(f){
+  if(f.id==='blossom'){fertilized=(fertilized||0)+3;}
+  else if(f.id==='derby'){luckyBaitReady=true;}
+  else if(f.id==='supper'){registerRecipeItems();addToInventory('farm_stew',1);}
+  else if(f.id==='lantern'){mineConsumables.blast=(mineConsumables.blast||0)+2;}
+}
+// Called each morning (and when the game opens): greet the player on festival days
+function announceEventToday(){
+  updateEventBanner();
+  if(titleScreenOpen||tutActive) return;
+  const f=getEventToday();
+  if(!f){
+    const nx=nextEventInfo();
+    if(nx&&nx.days===1) setTimeout(()=>info('🎪 TOMORROW: '+nx.fest.icon+' '+nx.fest.name+'! '+nx.fest.effect.toUpperCase()),2500);
+    return;
+  }
+  const key=f.id+'_'+gameYear();
+  if(eventsSeen[key]){ info(f.icon+' '+f.name+' TODAY! '+f.effect.toUpperCase()); return; }
+  const host=VILLAGERS.find(v=>v.id===f.host);
+  if(!host) return;
+  showVilDialogue(host,f.lines,f.gift,()=>{
+    eventsSeen[key]=true;
+    grantFestivalGift(f);
+    playSound('levelup');
+    info(f.icon+' '+f.name+'! GOT '+f.gift.icon+' '+f.gift.label.toUpperCase()+'. '+f.effect.toUpperCase());
+    pcAddLog(f.icon+' '+f.name+' — got '+f.gift.label);
+    checkAchievements();saveGame();renderInv();renderActivities();
+  });
+}
+// Thin status strip under the clock: today's festival / countdown + active meal buffs
+function updateEventBanner(){
+  const el=document.getElementById('status-bar');
+  if(!el) return;
+  const parts=[];
+  const f=getEventToday();
+  if(f) parts.push(`<span class="sb-event">${f.icon} ${f.name} TODAY</span>`);
+  else{
+    const nx=nextEventInfo();
+    if(nx&&nx.days<=7) parts.push(`<span>${nx.fest.icon} ${nx.fest.name} IN ${nx.days} DAY${nx.days===1?'':'S'}</span>`);
+  }
+  const buffs=(typeof activeBuffList==='function')?activeBuffList():[];
+  if(buffs.length) parts.push(`<span class="sb-buff">${buffs.map(k=>MEAL_BUFFS[k].icon).join('')} MEAL BUFF</span>`);
+  el.innerHTML=parts.join('<span style="color:var(--dim)"> · </span>');
+  el.style.display=parts.length?'flex':'none';
+  if(f) el.title=f.effect;
 }
 
 // ── SKY ──
@@ -2410,7 +2517,15 @@ const SECS_PER_GAME_MIN = DAY_SECS / DAY_GAME_MINS;      // ~0.526 real secs per
 const PENALTY_CUTOFF_H = 20;   // forced sleep before 8pm triggers penalty
 
 function getSessionSec(){
-  return Math.min(DAY_SECS, Math.floor((Date.now() - dayStartTime) / 1000));
+  if(clockFrozenAt!==null) return clockFrozenAt;
+  return Math.max(0,Math.min(DAY_SECS, Math.floor((Date.now() - dayStartTime) / 1000)));
+}
+// Freeze/unfreeze the day clock (title screen, app in background)
+function freezeClock(){ if(clockFrozenAt===null) clockFrozenAt=getSessionSec(); }
+function unfreezeClock(){
+  if(clockFrozenAt===null) return;
+  dayStartTime=Date.now()-clockFrozenAt*1000;
+  clockFrozenAt=null;
 }
 
 function getGameH(){
@@ -2446,11 +2561,12 @@ function clockTick(){
   checkForgeQueue();
   checkPreserveQueue();
   // Forced sleep at 1am
-  if(sec>=DAY_SECS){
+  if(sec>=DAY_SECS&&clockFrozenAt===null){
     const sumEl=document.getElementById('summary');
     if(!sumEl||!sumEl.className.includes('show')){
-      dayPenaltyEnergy=(getGameH()<PENALTY_CUTOFF_H);
-      doSleep();
+      const sc=document.getElementById('sleep-confirm-overlay');if(sc)sc.remove();
+      info('🌙 1AM — YOU PASSED OUT FROM EXHAUSTION! (-10% ENERGY TOMORROW)');
+      forceSleep(); // staying up until 1am always costs 10% energy next morning
     }
   }
 }
@@ -2576,8 +2692,7 @@ function openItemPopup(id, e){
   $('item-popup-name').textContent=item.icon+' '+item.name+' x'+qty;
   // hide eat button for non-food items
   const eatBtn=$('popup-eat-btn');
-  const inedible=id==='wood'||id==='sap'||id.endsWith('_ingot')||id==='jam'||id==='wine'||id==='pickle';
-  if(inedible){
+  if(!isEdible(id)){
     eatBtn.style.display='none';
   }else{
     eatBtn.style.display='';
@@ -2615,17 +2730,27 @@ function closeItemPopup(){
   $('item-popup').className='';
   popupItemId=null;
 }
+// Only food can be eaten: crops, fish, forage, animal products and cooked meals.
+// (Ores, gems, wood, sap, ingots and preserves used to show an EAT button.)
+function isEdible(id){
+  if(ALL_ITEMS_MAP[id]&&ALL_ITEMS_MAP[id].energy) return true;
+  if(id.endsWith('_fish')||id.endsWith('_forage')||id.endsWith('_product')) return true;
+  return ALL_CROPS.some(c=>c.id===id.split('|')[0]);
+}
 function popupEat(){
   if(!popupItemId)return;
+  if(!isEdible(popupItemId)||!(inventory[popupItemId]>0)){closeItemPopup();return;}
   const item=getItemInfo(popupItemId);
   const gain=getEnergyGain(popupItemId);
   inventory[popupItemId]--;
   if(inventory[popupItemId]<=0) delete inventory[popupItemId];
   energy=Math.min(maxEnergy,energy+gain);upEnergy();
-  info('ATE '+item.icon+' '+item.name+'! +'+gain+' ENERGY.');
+  const meal=ALL_ITEMS_MAP[popupItemId];
+  const buffMsg=meal&&meal.buff?applyMealBuff(meal.buff):'';
+  info('ATE '+item.icon+' '+item.name+'! +'+gain+' ENERGY.'+buffMsg);
   playSound('collect');
   closeItemPopup();
-  renderInv();updateInvBadge();
+  renderInv();updateInvBadge();renderActivities();saveGame();
 }
 function popupShip(){
   if(!popupItemId)return;
@@ -2706,9 +2831,12 @@ function renderShipList(){
 <div class="ship-row-right"><span class="ship-row-gold">${sub}g</span><button class="unship-btn" onclick="unshipCrop('${id}')">✕</button></div>`;
     list.appendChild(row);
   });
-  $('inv-ship-total').textContent='PROJECTED: '+total+'g';
+  const mult=eventShipMult();
+  $('inv-ship-total').textContent='PROJECTED: '+Math.round(total*mult)+'g'+(mult>1?' (🌸 FAIR +25%)':'');
 }
-function getShipTotal(){return Object.entries(shipping).reduce((a,[id,q])=>{const item=getItemInfo(id);return a+(item.sell*q)},0)}
+function getShipBaseTotal(){return Object.entries(shipping).reduce((a,[id,q])=>{const item=getItemInfo(id);return a+(item.sell*q)},0)}
+// Blossom Fair: +25% on everything shipped that night
+function getShipTotal(){return Math.round(getShipBaseTotal()*eventShipMult());}
 
 // ── END OF DAY ──
 function triggerNewDay(shipped,total){
@@ -2734,6 +2862,7 @@ function triggerNewDay(shipped,total){
   }
   showSummary(shipped,total,wasPenalised);
   shipping={};updateShipCount();renderInv();
+  if((townHall.sprinklerTier||0)>0) applySprinkler(); // sprinklers run at dawn, not up to a minute later
   renderWaterBtn();
   animalNewDay();
   vilNewDay();
@@ -2745,8 +2874,10 @@ function triggerNewDay(shipped,total){
   }
   mineFloor=mineCheckpoint;
   mineActiveBuffs={tonic:0,grip:0};
+  cookBuffs={};
   checkAchievements();
   dayStartTime=Date.now();
+  if(clockFrozenAt!==null) clockFrozenAt=0;
   saveGame();
 }
 function showSummary(shipped,total,wasPenalised){
@@ -2766,13 +2897,20 @@ function showSummary(shipped,total,wasPenalised){
       row.innerHTML=`<div class="sl-left"><div class="sl-icon">${item.icon}</div><div class="sl-detail"><div>${item.name} x${qty}</div><div class="sl-sub">${item.sell}g each</div></div></div><div class="sl-right">+${sub}g</div>`;
       lines.appendChild(row);setTimeout(()=>row.style.opacity=1,250+i*300);
     });
+    // festival bonus line (total already includes it)
+    const base=shipped.reduce((a,[id,q])=>a+getItemInfo(id).sell*q,0);
+    if(total>base){
+      const row=document.createElement('div');row.className='sum-line';
+      row.innerHTML=`<div class="sl-left"><div class="sl-icon">🌸</div><div>BLOSSOM FAIR BONUS +25%</div></div><div class="sl-right">+${total-base}g</div>`;
+      lines.appendChild(row);setTimeout(()=>row.style.opacity=1,250+shipped.length*300);
+    }
   }
   const d=250+shipped.length*300+150;
   setTimeout(()=>$('sum-divider').style.opacity=1,d);
   setTimeout(()=>{$('sum-total').style.opacity=1;$('sum-total').textContent='TOTAL: '+total+'g'},d+250);
   setTimeout(()=>{
     const energyAmt=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
-    const penaltyNote=wasPenalised?' ⚠ EARLY SLEEP -10%':'';
+    const penaltyNote=wasPenalised?' ⚠ STAYED UP TILL 1AM -10%':'';
     $('sum-bonus').style.opacity=1;
     $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED';
   },d+500);
@@ -2786,6 +2924,9 @@ function dismissSummary(){
   renderSeeds();
   if(musicEnabled) musicStart();
   info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. HAPPY FARMING!');
+  renderActivities();
+  if(document.getElementById('th-panel').className==='on') renderTownHall();
+  setTimeout(announceEventToday,700);
 }
 
 // ── SPEED ──
@@ -2940,7 +3081,7 @@ function harvestTile(i){
   const tierXp=c.baseDays>=14?18:c.baseDays>=8?11:c.baseDays>=5?7:c.baseDays>=3?4:c.baseDays>=2?2:1;
   const qualBonus=quality==='gold'?2:quality==='silver'?1:0;
   const xpGain=tierXp+qualBonus;
-  skillAddXP('farming',xpGain);
+  skillAddXP('farming',cookBuffs.farm?Math.ceil(xpGain*1.5):xpGain); // Harvest Tart buff
   if(quality==='gold') achFlags.gold_crop=true;
   if(c.baseDays>=14) achFlags.tier6_crop=true;
   tutHook('firstHarvest');
@@ -3330,6 +3471,7 @@ function doChop(){
   }
   renderTreeHp();
   renderActivities();
+  saveGame();
 }
 
 function doGrowthDust(){
@@ -3351,6 +3493,7 @@ function doGrowthDust(){
   playSound('fell');
   renderTreeHp();renderTreeHp2();
   renderActivities();
+  saveGame();
 }
 
 // ── TREE 2 ──
@@ -3448,18 +3591,18 @@ function startFishing(){
   fishPos=FISH_BAR_H/2;
   fishVel=0;
   fishCatch=10;
+  let fishStatusExtra='';
   // Lucky Bait: auto-fill catch bar — fish is caught immediately
   if(luckyBaitReady){
     luckyBaitReady=false;
     fishCatch=100;
+    fishStatusExtra=' 🪱 BAIT ACTIVE!';
   }
   $('fish-minigame').className='show';
   $('fish-btn').textContent='FISHING...';
   $('fish-btn').disabled=true;
   $('fish-result').textContent='';
   $('fish-catch-bar').style.width='10%';
-  let fishStatusExtra='';
-  if(luckyBaitReady) fishStatusExtra=' 🪱 BAIT ACTIVE!';
   if(fishNetReady) fishStatusExtra+=' 🕸 NET ACTIVE!';
   $('fish-status').textContent=fishTarget.icon+' '+fishTarget.name+' — HOLD TO MOVE ZONE UP!'+fishStatusExtra;
   playSound('cast');
@@ -3563,17 +3706,18 @@ function endFishing(success){
   $('fish-minigame').className='';
   $('fish-status').textContent='';
   if(success){
-    const catchQty=fishNetReady?2:1;
+    const derby=eventActive('derby'); // River Derby: catches count double
+    const catchQty=(fishNetReady?2:1)*(derby?2:1);
     fishNetReady=false;
     addToInventory(fishTarget.id+'_fish',catchQty);
     if(!ALL_ITEMS_MAP[fishTarget.id+'_fish'])
       ALL_ITEMS_MAP[fishTarget.id+'_fish']={icon:fishTarget.icon,name:fishTarget.name,sell:fishTarget.sell};
-    const catchMsg=catchQty>1?'CAUGHT 2x '+fishTarget.icon+' '+fishTarget.name+' — NET! 🕸':'CAUGHT '+fishTarget.icon+' '+fishTarget.name+'!';
+    const catchMsg=catchQty>1?'CAUGHT '+catchQty+'x '+fishTarget.icon+' '+fishTarget.name+(derby?' — DERBY! 🎣':' — NET! 🕸'):'CAUGHT '+fishTarget.icon+' '+fishTarget.name+'!';
     $('fish-result').textContent=catchMsg;
     info(catchMsg+' ADDED TO BAG.');
     playSound('catch');
     pcAddLog('🎣 Caught '+catchQty+'x '+fishTarget.icon+' '+fishTarget.name);
-    skillAddXP('fishing',fishTarget.difficulty>0.6?2:1);
+    skillAddXP('fishing',(fishTarget.difficulty>0.6?2:1)*(derby?2:1));
     achFlags.first_catch=true;
     if(fishTarget.difficulty>0.6) achFlags.rare_fish=true;
     checkAchievements();
@@ -3594,14 +3738,6 @@ function renderActivities(){
   if(cb){
     if(!hasAxe){cb.disabled=true;cb.textContent='GET AXE FROM FORD';}
     else{cb.disabled=(energy<=0&&!devFlags.unlimitedEnergy)||treeHp<=0;cb.textContent='🪓 CHOP 1';}
-  }
-  // fishing consumable status
-  const fishConsEl=$('fish-rod-status');
-  if(fishConsEl&&fishingUnlocked){
-    const parts=[];
-    if(luckyBaitReady) parts.push('🪱 BAIT READY');
-    if(fishNetReady) parts.push('🕸 NET READY');
-    if(parts.length) fishConsEl.textContent+='  '+parts.join('  ');
   }
   // woodcutting status
   const wcStatus=$('wc-status');
@@ -3624,7 +3760,11 @@ function renderActivities(){
       rodEl.style.color='var(--dim)';
     }else{
       const rodNames=['🎣 Basic Rod','🎣 Bamboo Rod (+10% rare)','🎣 Fibre Rod (+25% rare)','🎣 Master Rod (+50% rare)'];
-      rodEl.textContent=rodNames[fishingRod]||rodNames[0];
+      const parts=[];
+      if(luckyBaitReady) parts.push('🪱 BAIT READY');
+      if(fishNetReady) parts.push('🕸 NET READY');
+      if(cookBuffs.fishing) parts.push('🥧 ZONE+');
+      rodEl.textContent=(rodNames[fishingRod]||rodNames[0])+(parts.length?'  '+parts.join('  '):'');
       rodEl.style.color=fishingRod>0?'var(--green)':'var(--muted)';
     }
   }
@@ -3772,20 +3912,21 @@ function endRps(){
   const forageLv=skills.foraging.level;
   // filter to items unlocked by skill level
   const available=allItems.filter(i=>forageLv>=(i.skillMin||1));
-  // bucket by tier (sell value ranges matching crop tiers)
-  const getTier=i=>{if(i.sell>=1000)return 6;if(i.sell>=400)return 5;if(i.sell>=150)return 4;if(i.sell>=80)return 3;if(i.sell>=40)return 2;return 1;};
-  // 1 win = tier 1-2, 2 wins = tier 3-4, 3 wins = tier 5-6 (or best available)
+  // Tier = position in the season's list (T1..T6). Previously this bucketed by
+  // crop-sized sell values, so every forage item (1–32g) landed in tier 1.
+  const getTier=i=>allItems.indexOf(i)+1;
+  // 1 win = tier 1-2, 2 wins = tier 3-4, 3 wins = tier 5-6
+  // If the player's skill hasn't unlocked that band yet, give the best item they CAN find below it.
   function pickFromTiers(minTier,maxTier){
     const pool=available.filter(i=>{const t=getTier(i);return t>=minTier&&t<=maxTier;});
-    if(!pool.length){
-      // fallback to highest available
-      return available[available.length-1]||allItems[0];
-    }
-    return weightedRandom(pool);
+    if(pool.length) return weightedRandom(pool);
+    const below=available.filter(i=>getTier(i)<=maxTier);
+    return below[below.length-1]||allItems[0];
   }
   let prize,msg;
   if(rpsPlayerScore===3){
-    prize=devFlags.rareForage?available[available.length-1]:pickFromTiers(5,6);
+    // LV10 perk: a perfect sweep always yields the season's rarest find
+    prize=(devFlags.rareForage||skills.foraging.level>=10)?available[available.length-1]:pickFromTiers(5,6);
     msg='PERFECT 3-0! THE SPIRIT YIELDS ITS RAREST TREASURE! ✦';
     skillAddXP('foraging',2);
     achFlags.sweep_spirit=true;
@@ -3803,7 +3944,7 @@ function endRps(){
   achFlags.first_forage=true;
   const key=prize.id+'_forage';
   if(!ALL_ITEMS_MAP[key]) ALL_ITEMS_MAP[key]={icon:prize.icon,name:prize.name,sell:prize.sell};
-  const bonusItems=getForageBonus(rpsPlayerScore);
+  const bonusItems=getForageBonus(rpsPlayerScore)+(cookBuffs.forage?1:0);
   addToInventory(key,1+bonusItems);
   const bonusStr=bonusItems>0?' (+'+bonusItems+' BONUS!)':'';
   $('forage-result').textContent=msg+' GOT: '+prize.icon+' '+prize.name+bonusStr+'!';
@@ -3843,7 +3984,11 @@ function devToggle(flag,val){
     else info('DEV: UNLIMITED ENERGY OFF.');
   }
   if(flag==='instantGrow'){
-    if(val){tiles.forEach((_,i)=>{if(tiles[i].st==='grow')restartTimer(i)});info('DEV: INSTANT GROW ON.');}
+    if(val){
+      // crops already in the ground finish after one more watered night
+      tiles.forEach((t,i)=>{if(t.st==='grow'){t.growDays=Math.min(t.growDays,(t.daysGrown||0)+1);renderTile(i);}});
+      info('DEV: INSTANT GROW ON.');
+    }
     else info('DEV: INSTANT GROW OFF.');
   }
   if(flag==='rareForage'){
@@ -3997,6 +4142,18 @@ function importSaveData(jsonStr){
     document.getElementById('hvn').textContent=hvst;
     document.getElementById('earnedn').textContent=totalEarned;
     resumeGrowingTiles();
+    // refresh everything else that depends on save state
+    forgeIngotReady();
+    const axeHpMap=[5,4,3,2];
+    treeMaxHp=axeTier>0?axeHpMap[axeTier]:getTreeMaxHp();
+    treeHp=Math.min(treeHp,treeMaxHp);tree2Hp=Math.min(tree2Hp,treeMaxHp);
+    mineActive=false;mineRocks=[];
+    refreshAllSceneCrops();updateAllSkillUI();
+    renderAnimals();updateSceneBuildings();showAnimalTab();
+    renderWaterBtn();renderActivities();renderTownHall();
+    updateAchBadge();pcUpdate();updateEventBanner();
+    if(clockFrozenAt!==null){clockFrozenAt=null;freezeClock();} // re-freeze at the imported time
+    saveGame();
     renderSaveInfo();
     fb.textContent='SAVE IMPORTED! WELCOME BACK, FARMER.';fb.className='feedback-ok';
     showToast('SAVE IMPORTED!');
@@ -4059,6 +4216,9 @@ function doReset(){
   localStorage.removeItem(NOTIF_PROMPTED_KEY);
   notifCancelAll();
 
+  // Abandon any minigame in progress
+  if(fishActive) endFishing(false);
+  rpsActive=false;
   // Reset dev mode
   devMode=false;
   devFlags={unlimitedEnergy:false,instantGrow:false,rareForage:false};
@@ -4071,6 +4231,9 @@ function doReset(){
 
   // Reset all state to defaults
   defaultState();
+  clockFrozenAt=null;titleScreenOpen=true;freezeClock();
+  for(const k in ALL_ITEMS_MAP) delete ALL_ITEMS_MAP[k];
+  forgeIngotReady();
 
   // Rebuild plot DOM
   const p=document.getElementById('plot');p.innerHTML='';
@@ -4095,6 +4258,9 @@ function doReset(){
   renderWaterBtn();
   updateAchBadge();
   pcUpdate();
+  updateEventBanner();
+  const animalTab=document.getElementById('tab-animals');if(animalTab)animalTab.className='tab';
+  showTab('seeds');
 
   document.getElementById('dn').textContent=day;
   document.getElementById('hvn').textContent=hvst;
@@ -4172,7 +4338,10 @@ const ACHIEVEMENTS=[
   {id:'max_hearts',    cat:'🏛 TOWN',      icon:'❤️', name:'BELOVED',           desc:'Max hearts (5) with any villager.',       check:()=>Object.values(villagerState).some(s=>s.hearts>=5)},
   {id:'town_restored', cat:'🏛 TOWN',      icon:'🏛', name:'TOWN RESTORED',     desc:'Complete all 4 Town Hall rooms.',         check:()=>thCompleteCount()>=4},
   {id:'first_ingot',   cat:'🏛 TOWN',      icon:'🔥', name:'FORGEMASTER',       desc:'Smelt your first ingot.',                 check:()=>!!achFlags.first_ingot},
+  {id:'first_meal',    cat:'🏛 TOWN',      icon:'🍳', name:'HOME COOKING',      desc:'Cook your first meal in the Kitchen.',    check:()=>!!achFlags.first_meal},
+  {id:'all_recipes',   cat:'🏛 TOWN',      icon:'👑', name:'MASTER CHEF',       desc:'Cook every Kitchen recipe at least once.',check:()=>TH_RECIPES.every(r=>achFlags['cooked_'+r.id])},
   // SPECIAL
+  {id:'festival_all',  cat:'✦ SPECIAL',    icon:'🎪', name:'FESTIVAL REGULAR',  desc:'Attend all four seasonal festivals.',     check:()=>FESTIVALS.every(f=>Object.keys(eventsSeen).some(k=>k.startsWith(f.id+'_')))},
   {id:'day_100',       cat:'✦ SPECIAL',    icon:'📅', name:'CENTURY FARM',      desc:'Survive 100 in-game days.',               check:()=>day>=100},
   {id:'all_skills_5',  cat:'✦ SPECIAL',    icon:'⭐', name:'JACK OF ALL TRADES', desc:'Reach level 5 in every skill.',           check:()=>Object.values(skills).every(s=>s.level>=5)},
   {id:'all_skills_10', cat:'✦ SPECIAL',    icon:'✦',  name:'MASTER OF ALL',     desc:'Reach level 10 in every skill.',          check:()=>Object.values(skills).every(s=>s.level>=10)},
@@ -4704,7 +4873,7 @@ function musicResume(){
   if(!musicEnabled||!musicPlaying)return;
   musicPaused=false;
   if(musicGain){
-    try{const ctx=getMusicCtx();musicGain.gain.linearRampToValueAtTime(1.0,ctx.currentTime+1.5);}catch(e){}
+    try{const ctx=getMusicCtx();musicGain.gain.linearRampToValueAtTime(musicVolume,ctx.currentTime+1.5);}catch(e){}
   }
   scheduleMusic();
 }
@@ -4721,8 +4890,10 @@ function toggleSound(on){
 let _wasMusPlaying=false;
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
-    // Page hidden — freeze the day clock
+    // Page hidden — freeze the day clock and save, so a closed app never loses time
     activeSecsAtHide=getSessionSec();
+    freezeClock();
+    try{saveGame();}catch(e){}
     // Fully stop music and suspend audio contexts
     _wasMusPlaying=musicPlaying&&!musicPaused;
     if(musicPlaying) musicStop();
@@ -4732,7 +4903,7 @@ document.addEventListener('visibilitychange',()=>{
     notifScheduleMiss();
   }else{
     // Page visible again — resume clock, cancel miss notification
-    dayStartTime=Date.now()-activeSecsAtHide*1000;
+    if(!titleScreenOpen) unfreezeClock();
     notifCancelMiss();
     if(_wasMusPlaying&&musicEnabled) musicStart();
   }
@@ -4746,7 +4917,7 @@ const FEEDBACK_EMAIL = 'joshuapaul2531@gmail.com';
 function getFeedbackGameState(){
   const s=currentSeason();
   const lines=[
-    'Version: v1.0',
+    'Version: v1.1',
     'Day: '+day+' | Season: '+s.name+' (Day '+seasonDay+'/'+s.daysPerSeason+')',
     'Coins: '+coins+'g | Energy: '+energy+'/'+maxEnergy,
     'Harvests: '+hvst+' | Earned: '+totalEarned+'g',
@@ -4784,9 +4955,32 @@ function submitBugReport(){
     '\n\nSTEPS TO REPRODUCE\n'+(steps||'Not provided')+
     '\n\nGAME STATE\n'+state
   );
-  window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+subject+'&body='+body,'_blank');
+  sendFeedback('bug',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeBugReport();
-  showToast('THANKS FOR THE REPORT!');
+}
+
+// Formspree integration — paste your form endpoint here (https://formspree.io → New Form).
+// e.g. 'https://formspree.io/f/abcdwxyz'. Leave blank to fall back to opening an email.
+const FORMSPREE_ENDPOINT='';
+
+function sendFeedback(kind,subjectText,bodyText,subjectEnc,bodyEnc){
+  const viaEmail=()=>{
+    window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+subjectEnc+'&body='+bodyEnc,'_blank');
+    showToast(kind==='bug'?'THANKS FOR THE REPORT!':'THANKS FOR THE IDEA!');
+  };
+  if(!FORMSPREE_ENDPOINT||!navigator.onLine){viaEmail();return;}
+  showToast('SENDING...');
+  fetch(FORMSPREE_ENDPOINT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({_subject:subjectText,type:kind,message:bodyText}),
+  }).then(r=>{
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    showToast(kind==='bug'?'🐛 BUG REPORT SENT — THANKS!':'💡 IDEA SENT — THANKS!');
+  }).catch(()=>{
+    info('COULD NOT SEND ONLINE — OPENING YOUR EMAIL APP INSTEAD.');
+    viaEmail();
+  });
 }
 
 function openFeatureRequest(){
@@ -4810,11 +5004,10 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v1.0 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v1.1 | Day: '+day+' | Season: '+currentSeason().name
   );
-  window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+subject+'&body='+body,'_blank');
+  sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
-  showToast('THANKS FOR THE IDEA!');
 }
 
 function replayTutorial(){
@@ -4889,6 +5082,8 @@ function updateAllSkillUI(){
 function showLevelUp(skillName, newLevel){
   const icons={farming:'🌾',foraging:'🌿',fishing:'🎣',chopping:'🪓',mining:'⛏'};
   info((icons[skillName]||'⭐')+' '+skillName.toUpperCase()+' LEVEL UP! NOW LV'+newLevel+'!');
+  // Woodcutting LV8 perk changes tree HP (only while using the starter axe)
+  if(skillName==='chopping'&&axeTier===0){treeMaxHp=getTreeMaxHp();}
   playSound('levelup');
   // show skill intro tip on the very first level-up ever
   setTimeout(()=>showSkillIntroTip(), 600);
@@ -4943,9 +5138,10 @@ function getFertilizerCharges(){
 // ── FISHING SKILL PERKS ──
 function getFishZoneSize(baseSz){
   const lv=skills.fishing.level;
-  if(lv>=7) return baseSz+16;
-  if(lv>=4) return baseSz+8;
-  return baseSz;
+  const buff=cookBuffs.fishing?8:0; // Angler's Pie meal buff
+  if(lv>=7) return baseSz+16+buff;
+  if(lv>=4) return baseSz+8+buff;
+  return baseSz+buff;
 }
 
 function getFishDrainRate(){
@@ -4960,10 +5156,11 @@ function getTreeMaxHp(){
 
 function getWoodDropBonus(){
   const lv=skills.chopping.level;
-  if(lv>=9) return 3;
-  if(lv>=6) return 2;
-  if(lv>=3) return 1;
-  return 0;
+  const buff=cookBuffs.wood?2:0; // Maple Pancakes meal buff
+  if(lv>=9) return 3+buff;
+  if(lv>=6) return 2+buff;
+  if(lv>=3) return 1+buff;
+  return buff;
 }
 
 function getSapChance(){
@@ -5007,6 +5204,7 @@ function buyAnimal(type){
   const cap=d.building==='coop'?MAX_COOP:MAX_BARN;
   const current=d.building==='coop'?coopCount():barnCount();
   if(current>=cap){info('NO MORE SPACE IN THE '+(d.building.toUpperCase())+'!');return;}
+  if(type!=='chicken'&&animalCount(type)>=2){info('THE BARN ONLY HAS ROOM FOR 2 '+d.name+'S!');return;}
   if(coins<d.cost){info('NEED '+d.cost+'g TO BUY A '+d.name+'!');return;}
   coins-=d.cost;upCoins();
   animals.push({id:Date.now(),type,fed:false,hasProduct:false,daysSinceProduct:0});
@@ -5053,7 +5251,7 @@ function collectAnimal(id){
   updateInvBadge();
   info('COLLECTED '+d.product+' '+d.productName+' FROM '+d.icon+' '+d.name+'! ADDED TO BAG.');
   playSound('collect');
-  tutHook('firstShip');
+  saveGame();
 }
 
 function animalNewDay(){
@@ -5132,12 +5330,13 @@ function renderAnimals(){
     const row=document.createElement('div');
     row.className='animal-row'+((!a.fed&&!a.hasProduct)?' hungry':'');
     let statusText,statusClass;
-    if(a.hasProduct){statusText='🎁 PRODUCT READY!';statusClass='ready';}
+    if(a.hasProduct){statusText=a.fed?'🎁 PRODUCT READY! · FED':'🎁 PRODUCT READY!';statusClass='ready';}
     else if(a.fed){statusText='✓ FED — WAITING';statusClass='';}
     else{statusText='⚠ HUNGRY — TAP FEED';statusClass='hungry';}
     let btns='';
     if(a.hasProduct) btns+=`<button class="animal-btn collect" onclick="collectAnimal(${a.id})">COLLECT</button>`;
-    if(!a.fed&&!a.hasProduct) btns+=`<button class="animal-btn feed" onclick="feedAnimal(${a.id})">FEED 10g</button>`;
+    // feeding is allowed even with an uncollected product (it used to block feeding, stalling production)
+    if(!a.fed) btns+=`<button class="animal-btn feed" onclick="feedAnimal(${a.id})">FEED 10g</button>`;
     row.innerHTML=
       `<div class="animal-icon">${d.icon}</div>`+
       `<div class="animal-info">`+
@@ -5301,8 +5500,9 @@ function openSkillOverlay(skillName){
     const isCurrent=lv===sk.level;
     const isLocked=lv>sk.level;
     row.className='skill-level-row'+(isCurrent?' current':isLocked?' locked':'');
-    const xpNeeded=lv<10?SK_THRESHOLDS[lv-1]:null;
-    const xpStr=lv===1?'Starting level':xpNeeded?'Reach LV'+lv+': '+xpNeeded+' XP total':'MAX LEVEL';
+    // XP to go from the previous level to this one (thresholds reset each level)
+    const xpNeeded=lv>1?SK_THRESHOLDS[lv-2]:null;
+    const xpStr=lv===1?'Starting level':'LV'+(lv-1)+' → LV'+lv+': '+xpNeeded+' XP';
     row.innerHTML=
       `<div class="slr-num${isCurrent?' current':''}">LV${lv}${isCurrent?' ◀':''}</div>`+
       `<div class="slr-content">`+
@@ -5580,9 +5780,8 @@ function pcUpdate(){
         if(a.hasProduct){st='🎁 READY';sc='ready';}
         else if(a.fed){st='✓ FED';sc='';}
         else{st='⚠ HUNGRY';sc='hungry';}
-        const btns=a.hasProduct
-          ?`<button class="pc-animal-btn collect" onclick="collectAnimal(${a.id});pcUpdate()">COLLECT</button>`
-          :!a.fed?`<button class="pc-animal-btn feed" onclick="feedAnimal(${a.id});pcUpdate()">FEED</button>`:'';
+        const btns=(a.hasProduct?`<button class="pc-animal-btn collect" onclick="collectAnimal(${a.id});pcUpdate()">COLLECT</button>`:'')
+          +(!a.fed?`<button class="pc-animal-btn feed" onclick="feedAnimal(${a.id});pcUpdate()">FEED</button>`:'');
         return `<div class="pc-animal-row${sc==='hungry'?' hungry':''}">
           <div class="pc-animal-icon">${d.icon}</div>
           <div class="pc-animal-info">
@@ -5755,21 +5954,13 @@ function openGiftChooser(vilId){
   $('gift-chooser-overlay').className='show';
 }
 
-function vilIsFav(vilId,itemId){
-  const v=VILLAGERS.find(x=>x.id===vilId);if(!v)return false;
-  const fav=v.favourite;
-  if(fav.type==='fish'&&itemId.endsWith('_fish'))return true;
-  if(fav.type==='crop'){const base=itemId.split('|')[0];return ALL_CROPS.some(c=>c.id===base);}
-  if(fav.type==='animal'&&itemId.endsWith('_product'))return true;
-  if(fav.type==='wood'&&itemId==='wood')return true;
-  if(fav.type==='ore'&&(itemId==='stone'||itemId==='coal'||itemId==='copper_ore'||itemId==='iron_ore'))return true;
-  return false;
-}
+function vilIsFav(vilId,itemId){ return vilGiftValue(vilId,itemId)>=30; }
 
 function doGiftItem(vilId,itemId){
   closeGiftChooser();
   const item=getItemInfo(itemId);
-  const xp=vilGiftValue(vilId,itemId);
+  if(!inventory[itemId]){return;}
+  const xp=vilGiftValue(vilId,itemId)*eventGiftMult();
   inventory[itemId]--;
   if(inventory[itemId]<=0) delete inventory[itemId];
   const s=vilGetState(vilId);
@@ -5777,7 +5968,7 @@ function doGiftItem(vilId,itemId){
   vilAddXP(vilId,xp);
   const isFav=vilIsFav(vilId,itemId);
   const v=VILLAGERS.find(x=>x.id===vilId);
-  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+(isFav?'30 XP ⭐ FAVOURITE!':'18 XP'));
+  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+xp+' XP'+(isFav?' ⭐ FAVOURITE!':'')+(eventGiftMult()>1?' 🎉 FESTIVAL BONUS!':''));
   playSound('collect');
   checkAchievements();
   renderInv();updateInvBadge();
@@ -5900,6 +6091,7 @@ function init(){
   if(treeHp>treeMaxHp) treeHp=treeMaxHp;
   if(tree2Hp>treeMaxHp) tree2Hp=treeMaxHp;
   if(!dayStartTime) dayStartTime=Date.now();
+  if(titleScreenOpen) freezeClock();
   clockTick();setInterval(()=>{clockTick();pcUpdate();},1000);
   setInterval(()=>{saveGame();},30000); // autosave every 30 seconds
   setInterval(wateringTick,60000); // check overdue crops every 60s
@@ -6311,9 +6503,9 @@ function salStockHtml(){
   if(!crop) return '';
   const available=salStockAvailableToday();
   const stock=salStockRemaining;
-  const window5=Math.floor((seasonDay-1)/5);
-  const nextWindow=(window5+1)*5+1;
-  const daysUntil=available?0:nextWindow-seasonDay;
+  // deliveries land on season days 5,10,15,20,25 — after day 25 the next one is day 5 of next season
+  const nextDelivery=Math.ceil(seasonDay/5)*5;
+  const daysUntil=available?0:(nextDelivery<=25?nextDelivery-seasonDay:(currentSeason().daysPerSeason-seasonDay)+5);
 
   let statusLine='';
   let btn='';
@@ -6385,6 +6577,14 @@ function vilAddXP(id,xp){
     const vname=VILLAGERS.find(v=>v.id===id)?.name||id;
     showToast('💕 '+vname+' — HEART '+s.hearts+'!');
     pcAddLog('💕 '+vname+' relationship: heart '+s.hearts);
+    if(id==='hob'){
+      const taught=TH_RECIPES.filter(r=>r.hobHeart===s.hearts);
+      if(taught.length){
+        const names=taught.map(r=>r.icon+' '+r.name).join(', ');
+        setTimeout(()=>info('🍳 HOB TAUGHT YOU A NEW RECIPE: '+names+(thRoomComplete('kitchen')?' — COOK IT IN THE KITCHEN!':' — FINISH THE KITCHEN TO COOK IT!')),1900);
+        pcAddLog('🍳 Learned '+names);
+      }
+    }
   }
   if(s.hearts>=5)s.xp=0;
 }
@@ -6398,7 +6598,7 @@ function vilGiftValue(vilId,itemId){
   if(fav.type==='crop'){const base=itemId.split('|')[0];isMatch=ALL_CROPS.some(c=>c.id===base);}
   if(fav.type==='animal'&&itemId.endsWith('_product'))isMatch=true;
   if(fav.type==='wood'&&itemId==='wood')isMatch=true;
-  if(fav.type==='ore'&&(itemId==='stone'||itemId==='coal'||itemId==='copper_ore'||itemId==='iron_ore'||itemId.endsWith('_ingot')))isMatch=true;
+  if(fav.type==='ore'&&(MINE_ORE_TIERS.some(o=>o.id===itemId)||itemId.endsWith('_ingot')))isMatch=true;
   return isMatch?30:18;
 }
 
@@ -6412,7 +6612,7 @@ function vilGift(vilId){
     if(donate<=0){info('NO GOLD TO DONATE TO SAL!');playSound('error');return;}
     coins-=donate;upCoins();
     s.giftedToday=true;
-    vilAddXP(vilId,30);
+    vilAddXP(vilId,30*eventGiftMult());
     info('💰 DONATED '+donate+'g TO SAL! RELATIONSHIP IMPROVED!');
     playSound('coin');saveGame();renderTownHall();return;
   }
@@ -6429,7 +6629,7 @@ function vilGift(vilId){
   inventory[bestId]--;
   if(inventory[bestId]<=0)delete inventory[bestId];
   s.giftedToday=true;
-  vilAddXP(vilId,bestXp);
+  vilAddXP(vilId,bestXp*eventGiftMult());
   const item=getItemInfo(bestId);
   const isFav=bestXp>=30;
   info('🎁 GIFTED '+item.icon+' '+item.name+' TO '+v.name+'!'+(isFav?' FAVOURITE GIFT! 💕':''));
@@ -6442,22 +6642,32 @@ function vilBuy(vilId,itemId){
   const it=v.shop.find(x=>x.id===itemId);if(!it)return;
   const s=vilGetState(vilId);
   if(s.hearts<it.heartReq){info('NEED '+it.heartReq+' ❤ WITH '+v.name+' FIRST!');playSound('error');return;}
+  // All "can't buy" checks happen BEFORE anything is deducted
+  if(vilItemOwned(it)){info(it.act==='bulk_deal'?'BULK DEAL ALREADY USED THIS SEASON!':'YOU ALREADY HAVE '+it.name+'!');playSound('error');return;}
   if(coins<it.cost){info('NEED '+it.cost+'g!');playSound('error');return;}
   if(it.woodCost){
     const w=inventory['wood']||0;
     if(w<it.woodCost){info('NEED '+it.woodCost+'x 🪵 WOOD! HAVE '+w+'.');playSound('error');return;}
-    inventory['wood']-=it.woodCost;
-    if(inventory['wood']<=0)delete inventory['wood'];
-    updateInvBadge();
   }
-  // pre-check ore requirements before spending coins
   if(it.oreCost){
     const haveOre=inventory[it.oreCost.id]||0;
     if(haveOre<it.oreCost.qty){
       const oreInfo=getItemInfo(it.oreCost.id);
-      info('NEED '+it.oreCost.qty+'x '+oreInfo.icon+' '+oreInfo.name+' TO CRAFT THIS AXE!');
+      info('NEED '+it.oreCost.qty+'x '+oreInfo.icon+' '+oreInfo.name+' FOR '+it.name+'!');
       playSound('error');return;
     }
+  }
+  if(it.act==='buyanimal'){
+    const bld={chicken:'coop',cow:'barn',sheep:'barn'}[it.arg];
+    const max={chicken:4,cow:2,sheep:2}[it.arg];
+    if(buildings[bld]!==true){info('BUILD THE '+bld.toUpperCase()+' FIRST!');playSound('error');return;}
+    if(animals.filter(a=>a.type===it.arg).length>=max){info('NO MORE ROOM FOR '+it.arg.toUpperCase()+'S!');playSound('error');return;}
+  }
+  if(it.act==='bulk_deal'&&!Object.values(shipping).some(q=>q>0)){info('NOTHING IN YOUR SHIPPING BOX! ADD ITEMS FIRST.');playSound('error');return;}
+  if(it.woodCost){
+    inventory['wood']-=it.woodCost;
+    if(inventory['wood']<=0)delete inventory['wood'];
+    updateInvBadge();
   }
   coins-=it.cost;upCoins();
   if(it.act==='rod'){fishingRod=it.arg;const rn=['','BAMBOO ROD','FIBRE ROD','MASTER ROD'];info('🎣 '+rn[it.arg]+' EQUIPPED!');}
@@ -6466,27 +6676,19 @@ function vilBuy(vilId,itemId){
   else if(it.act==='autofeeder'){autoFeeder=true;info('AUTO FEEDER INSTALLED!');}
   else if(it.act==='autocollect'){autoCollect=true;info('🐾 AUTO COLLECTOR INSTALLED! PRODUCTS COLLECTED EACH MORNING.');}
   else if(it.act==='buyanimal'){
-    const bldMap={chicken:'coop',cow:'barn',sheep:'barn'};
-    const maxMap={chicken:4,cow:2,sheep:2};
-    const bld=bldMap[it.arg];
-    if(!buildings[bld]||buildings[bld]!==true){info('BUILD THE '+bld.toUpperCase()+' FIRST!');playSound('error');coins+=it.cost;upCoins();return;}
-    if(animals.filter(a=>a.type===it.arg).length>=maxMap[it.arg]){info('NO MORE ROOM FOR '+it.arg.toUpperCase()+'S!');playSound('error');coins+=it.cost;upCoins();return;}
     const newId=animals.length?Math.max(...animals.map(a=>a.id))+1:1;
     animals.push({id:newId,type:it.arg,fed:false,hasProduct:false,daysSinceProduct:0});
     renderAnimals();showAnimalTab();info('🐾 NEW '+it.arg.toUpperCase()+' ADDED!');}
   else if(it.act==='fert'){fertilized=getFertilizerCharges();info('FERTILIZER READY!');}
-  else if(it.act==='fert3'){fertilized=3;info('SUPER FERTILIZER! NEXT 3 CROPS 50% FASTER.');}
+  else if(it.act==='fert3'){fertilized=(fertilized||0)+3;info('SUPER FERTILIZER! NEXT '+fertilized+' CROPS GROW 1 DAY FASTER.');}
   else if(it.act==='allplots'){for(let i=0;i<N;i++){if(tiles[i].st==='locked'){tiles[i].st='empty';renderTile(i);}}info('ALL PLOTS UNLOCKED!');}
   else if(it.act==='bagup'){
-    if(bagCapacity>=it.arg){info('YOU ALREADY HAVE THIS BAG UPGRADE!');coins+=it.cost;upCoins();return;}
     bagCapacity=it.arg;
     info('👜 BAG UPGRADED! NOW HOLDS '+bagCapacity+' ITEM SLOTS.');
   }
   else if(it.act==='bulk_deal'){
     // Refund the 0g cost (nothing was charged), just activate the deal
     const shipEntries=Object.entries(shipping).filter(([,q])=>q>0);
-    if(shipEntries.length===0){info('NOTHING IN YOUR SHIPPING BOX! ADD ITEMS FIRST.');coins+=it.cost;upCoins();return;}
-    if(salBulkDealUsed){info('BULK DEAL ALREADY USED THIS SEASON!');coins+=it.cost;upCoins();return;}
     salBulkDealUsed=true;
     // Pay out shipping box at 1.5x
     let payout=0;
@@ -6506,7 +6708,6 @@ function vilBuy(vilId,itemId){
     checkAchievements();
   }
   else if(it.act==='axe_tier'){
-    if(axeTier>=it.arg){info('YOU ALREADY HAVE THIS AXE OR BETTER!');coins+=it.cost;upCoins();return;}
     // deduct ore
     if(it.oreCost){
       inventory[it.oreCost.id]-=it.oreCost.qty;
@@ -6527,7 +6728,6 @@ function vilBuy(vilId,itemId){
   else if(it.act==='bait'){luckyBaitReady=true;info('🎣 LUCKY BAIT READY! NEXT CAST IS A GUARANTEED CATCH.');}
   else if(it.act==='fishnet'){fishNetReady=true;info('🎣 FISH NET READY! NEXT CAST CATCHES 2 FISH.');}
   else if(it.act==='pickaxe_tier'){
-    if(pickaxeTier>=it.arg){info('YOU ALREADY HAVE THIS PICKAXE OR BETTER!');coins+=it.cost;upCoins();return;}
     // deduct ore
     if(it.oreCost){
       inventory[it.oreCost.id]-=it.oreCost.qty;
@@ -6544,7 +6744,6 @@ function vilBuy(vilId,itemId){
   else if(it.act==='mine_grip'){mineConsumables.grip=(mineConsumables.grip||0)+1;info('💪 IRON GRIP ADDED TO YOUR SUPPLIES!');}
   else if(it.act==='mine_blast'){mineConsumables.blast=(mineConsumables.blast||0)+1;info('💥 BLAST POWDER ADDED TO YOUR SUPPLIES!');}
   else if(it.act==='watering_can'){
-    if(wateringCanTier>=it.arg){info('YOU ALREADY HAVE THIS CAN OR BETTER!');coins+=it.cost;upCoins();return;}
     wateringCanTier=it.arg;
     const canNames=['','COPPER CAN','IRON CAN','GOLD CAN'];
     const plots=[0,2,4,6];
@@ -6552,13 +6751,8 @@ function vilBuy(vilId,itemId){
     renderWaterBtn();
   }
   else if(it.act==='angel_fruit'){
-    // Check this fruit hasn't already been bought (arg=1 → was at 30, arg=2 → was at 40)
-    const expectedBase=it.arg===1?30:40;
-    if(maxEnergy>expectedBase+5){
-      info('YOU ALREADY HAVE THIS ANGEL FRUIT!');
-      coins+=it.cost;upCoins();return;
-    }
-    maxEnergy+=10;
+    achFlags['bought_'+it.id]=true;
+    maxEnergy=Math.min(MAX_ENERGY_CAP,maxEnergy+10);
     energy=Math.min(energy+10,maxEnergy);
     upEnergy();
     info('🍎 ANGEL FRUIT EATEN! MAX ENERGY NOW '+maxEnergy+'!');
@@ -6566,6 +6760,25 @@ function vilBuy(vilId,itemId){
   }
   checkAchievements();
   playSound('coin');saveGame();renderTownHall();
+}
+
+// Is this shop item already owned / used up? Shared by the shop buttons and vilBuy.
+function vilItemOwned(it){
+  switch(it.act){
+    case 'rod':          return fishingRod>=it.arg;
+    case 'build':        return !!buildings[it.arg]; // built or under construction
+    case 'autofeeder':   return autoFeeder;
+    case 'autocollect':  return autoCollect;
+    case 'allplots':     return tiles.every(t=>t.st!=='locked');
+    case 'bagup':        return bagCapacity>=it.arg;
+    case 'pickaxe_tier': return pickaxeTier>=it.arg;
+    case 'axe_tier':     return axeTier>=it.arg;
+    case 'watering_can': return wateringCanTier>=it.arg;
+    // each Angel Fruit can be bought once, and never past the 50 energy cap
+    case 'angel_fruit':  return !!achFlags['bought_'+it.id]||maxEnergy>=MAX_ENERGY_CAP;
+    case 'bulk_deal':    return salBulkDealUsed;
+  }
+  return false;
 }
 
 function vilNewDay(){
@@ -6609,6 +6822,7 @@ function mineRockHp(floor){
   if(pickaxeTier===2) hp=Math.max(1,hp-2);
   if(pickaxeTier===3) hp=Math.max(1,1); // always 1
   if(skills.mining.level>=8) hp=Math.max(1,hp-1);
+  if(cookBuffs.mining) hp=Math.max(1,hp-1); // Miner's Breakfast meal buff
   return hp;
 }
 
@@ -6700,6 +6914,7 @@ function mineSwing(rockIdx){
       addToInventory(finalOre.id,1);
       resultMsg+=' (×2 BONUS!)';
     }
+    if(eventActive('lantern')){ addToInventory(finalOre.id,1); resultMsg+=' 🏮+1'; } // Lantern Night
 
     // LV10: rare extra gem on any break
     if(mineLv>=10&&Math.random()<0.08){
@@ -6721,28 +6936,37 @@ function mineSwing(rockIdx){
     pcAddLog('⛏ Mined '+finalOre.icon+' '+finalOre.name+' (F'+mineFloor+')');
   }
 
-  const allBroken=mineRocks.every(r=>r.broken);
-  if(allBroken){
-    if(mineFloor%10===0){
-      mineCheckpoint=mineFloor;
-      if(mineFloor===100){
-        // Floor 100 reward — Angel Fruit (+10 max energy, always)
-        $('mine-result').textContent='✦ FLOOR 100! THE DEEPEST POINT. A GLOWING FRUIT SITS ON THE GROUND...';
-        maxEnergy+=10;
-        energy=Math.min(energy+10,maxEnergy);
-        upEnergy();
-        info('🍎 ANGEL FRUIT FOUND AT THE BOTTOM OF THE MINE! MAX ENERGY NOW '+maxEnergy+'! ✦');
-        playSound('levelup');
-        showToast('🍎 ANGEL FRUIT! MAX ENERGY NOW '+maxEnergy+'!');
-        pcAddLog('🍎 Angel Fruit — max energy now '+maxEnergy);
-        saveGame();
-        checkAchievements();
-      }else{
-        $('mine-result').textContent='✦ FLOOR '+mineFloor+' CHECKPOINT REACHED!';
-      }
-    }
-  }
+  if(mineRocks.every(r=>r.broken)) mineOnFloorCleared();
   renderMine();
+}
+
+// Called once when the last rock on a floor breaks (by swing or blast powder)
+function mineOnFloorCleared(){
+  if(mineFloor%10!==0) return;
+  if(mineFloor>mineCheckpoint) mineCheckpoint=mineFloor;
+  if(mineFloor===100&&!achFlags.mine_fruit){
+    // Floor 100 reward — one time only. Angel Fruit (+10 max energy) or 2000g if already at the cap.
+    achFlags.mine_fruit=true;
+    $('mine-result').textContent='✦ FLOOR 100! THE DEEPEST POINT. A GLOWING FRUIT SITS ON THE GROUND...';
+    if(maxEnergy<MAX_ENERGY_CAP){
+      maxEnergy=Math.min(MAX_ENERGY_CAP,maxEnergy+10);
+      energy=Math.min(energy+10,maxEnergy);
+      upEnergy();
+      info('🍎 ANGEL FRUIT FOUND AT THE BOTTOM OF THE MINE! MAX ENERGY NOW '+maxEnergy+'! ✦');
+      showToast('🍎 ANGEL FRUIT! MAX ENERGY NOW '+maxEnergy+'!');
+      pcAddLog('🍎 Angel Fruit — max energy now '+maxEnergy);
+    }else{
+      coins+=2000;upCoins();
+      info('🍎 AN ANGEL FRUIT — BUT YOUR ENERGY IS ALREADY MAXED. BRAM BUYS IT FOR 2000g! ✦');
+      showToast('🍎 ANGEL FRUIT SOLD FOR 2000g!');
+      pcAddLog('🍎 Angel Fruit sold for 2000g');
+    }
+    playSound('levelup');
+    saveGame();
+  }else{
+    $('mine-result').textContent='✦ FLOOR '+mineFloor+' CHECKPOINT REACHED!';
+  }
+  checkAchievements();
 }
 
 function mineDescend(){
@@ -6783,7 +7007,7 @@ function mineUseConsumable(type){
     if(mineConsumables.grip<=0){info('NO IRON GRIP LEFT!');return;}
     mineConsumables.grip--;
     mineActiveBuffs.grip=3; // lasts 3 floors
-    info('💪 IRON GRIP! DOUBLE DAMAGE THIS FLOOR.');
+    info('💪 IRON GRIP! DOUBLE DAMAGE FOR THIS FLOOR AND THE NEXT 2.');
   }else if(type==='blast'){
     if(mineConsumables.blast<=0){info('NO BLAST POWDER LEFT!');return;}
     // find first unbroken rock and break it
@@ -6793,11 +7017,10 @@ function mineUseConsumable(type){
     rock.hp=0;rock.broken=true;
     const ore=rock.ore;
     if(!ALL_ITEMS_MAP[ore.id]) ALL_ITEMS_MAP[ore.id]={icon:ore.icon,name:ore.name,sell:ore.sell};
-    addToInventory(ore.id,1);
+    addToInventory(ore.id,eventActive('lantern')?2:1);
     info('💥 BLAST POWDER! INSTANTLY BROKE A ROCK! GOT '+ore.icon+' '+ore.name+'!');
     playSound('fell');
-    const allBroken=mineRocks.every(r=>r.broken);
-    if(allBroken&&mineFloor%10===0) mineCheckpoint=mineFloor;
+    if(mineRocks.every(r=>r.broken)) mineOnFloorCleared();
   }
   renderMine();
 }
@@ -6910,12 +7133,20 @@ function renderMine(){
   const allBroken=mineRocks.every(r=>r.broken);
   if(ladder){
     ladder.className='mine-ladder'+(allBroken?' show':'');
-    if(nextFloor)nextFloor.textContent=mineFloor+1;
+    // Rebuild both states every render — the limit message used to replace the
+    // ladder permanently, so it never came back after a pickaxe upgrade.
     if(mineFloor>=mineMaxFloor()){
-      ladder.innerHTML='<div class="mine-ladder-text">⛏ PICKAXE LIMIT REACHED</div><div class="mine-ladder-sub">UPGRADE YOUR PICKAXE FROM BRAM IN THE 🏛 TOWN TAB</div>';
+      ladder.innerHTML=mineFloor>=100
+        ?'<div class="mine-ladder-text">✦ THE VERY BOTTOM</div><div class="mine-ladder-sub">THERE IS NOWHERE DEEPER TO GO</div>'
+        :'<div class="mine-ladder-text">⛏ PICKAXE LIMIT REACHED</div><div class="mine-ladder-sub">UPGRADE YOUR PICKAXE FROM BRAM IN THE 🏛 TOWN TAB</div>';
       ladder.onclick=null;
       ladder.style.cursor='default';
       ladder.style.borderColor='var(--border)';
+    }else{
+      ladder.innerHTML='<div class="mine-ladder-text">⬇ DESCEND TO FLOOR <span id="mine-next-floor">'+(mineFloor+1)+'</span></div><div class="mine-ladder-sub">COSTS 1 ENERGY</div>';
+      ladder.onclick=mineDescend;
+      ladder.style.cursor='';
+      ladder.style.borderColor='';
     }
   }
 }
@@ -6940,17 +7171,7 @@ function renderVillagers(){
       const locked=s.hearts<it.heartReq;
       const woodSuffix=it.woodCost?` +${it.woodCost}🪵`:'';
       const oreSuffix=it.oreCost?` +${it.oreCost.qty}${getItemInfo(it.oreCost.id).icon}`:'';
-      const owned=(it.act==='rod'&&fishingRod>=it.arg)
-        ||(it.act==='build'&&buildings[it.arg]&&buildings[it.arg]!==false)
-        ||(it.act==='autofeeder'&&autoFeeder)
-        ||(it.act==='autocollect'&&autoCollect)
-        ||(it.act==='allplots'&&tiles.filter(t=>t.st==='locked').length===0)
-        ||(it.act==='bagup'&&bagCapacity>=it.arg)
-        ||(it.act==='pickaxe_tier'&&pickaxeTier>=it.arg)
-        ||(it.act==='axe_tier'&&axeTier>=it.arg)
-        ||(it.act==='watering_can'&&wateringCanTier>=it.arg)
-        ||(it.act==='angel_fruit'&&maxEnergy>=(it.arg===1?40:50))
-        ||(it.act==='bulk_deal'&&salBulkDealUsed);
+      const owned=vilItemOwned(it);
       const btn=owned
         ?`<span class="vil-buy-btn" style="color:var(--green);border-color:var(--green2)">${it.act==='bulk_deal'?'USED ✓':'✓'}</span>`
         :locked
@@ -7032,7 +7253,7 @@ const TH_ROOMS = [
       {type:'gold', label:'GOLD',        icon:'🪙', needed:400},
       {type:'wood', label:'WOOD',        icon:'🪵', needed:25},
       {type:'ore',  label:'ANY ORE',     icon:'🪨', needed:25},
-      {type:'crop', label:'ANY T2 CROP', icon:'🌿', needed:5},
+      {type:'crop', label:'ANY T2 CROP', icon:'🌿', needed:5, tier:2},
     ]
   },
   {
@@ -7066,14 +7287,80 @@ const TH_INGOTS = [
   {id:'gold_ingot',   name:'GOLD INGOT',   icon:'🟡', sell:100, oreId:'gold_ore',   oreQty:3, coalQty:4},
 ];
 
-// Cooking recipes
+// Cooking recipes (Kitchen reward)
+// Ingredient types: crop (opt. minTier / quality), fish (opt. minTier), animal, forage, item (exact id)
+// hobHeart: Hob teaches the recipe at this many hearts (0 = known when the Kitchen opens)
+// buff: lasts until you sleep — fishing (zone +8px), mining (rocks -1 HP), wood (+2 wood/fell),
+//       forage (+1 item on any win), farm (+50% farming XP), all (every buff)
 const TH_RECIPES = [
-  {id:'veg_soup',    name:'VEG SOUP',    icon:'🥣', energy:12, ingredients:[{type:'crop', qty:2}],                   sells:30},
-  {id:'fish_meal',   name:'FISH MEAL',   icon:'🍽', energy:20, ingredients:[{type:'fish', qty:1},{type:'crop',qty:1}], sells:50},
-  {id:'farm_stew',   name:'FARM STEW',   icon:'🍲', energy:35, ingredients:[{type:'crop',qty:3},{type:'animal',qty:1}],sells:90},
-  {id:'smoked_fish', name:'SMOKED FISH', icon:'🐟', energy:25, ingredients:[{type:'fish', qty:2}],                   sells:65},
-  {id:'feast',       name:'GRAND FEAST', icon:'🎉', energy:60, ingredients:[{type:'crop',qty:3},{type:'fish',qty:2},{type:'animal',qty:2}], sells:200},
+  {id:'veg_soup',    name:'VEG SOUP',     icon:'🥣', energy:12, sells:30,  hobHeart:0, ingredients:[{type:'crop',qty:2}]},
+  {id:'fish_meal',   name:'FISH MEAL',    icon:'🍽', energy:20, sells:50,  hobHeart:0, ingredients:[{type:'fish',qty:1},{type:'crop',qty:1}]},
+  {id:'smoked_fish', name:'SMOKED FISH',  icon:'🐟', energy:25, sells:65,  hobHeart:0, ingredients:[{type:'fish',qty:2}]},
+  {id:'farm_stew',   name:'FARM STEW',    icon:'🍲', energy:35, sells:90,  hobHeart:1, ingredients:[{type:'crop',qty:3},{type:'animal',qty:1}]},
+  {id:'forager_salad',name:"FORAGER'S SALAD",icon:'🥗',energy:15,sells:45, hobHeart:1, buff:'forage', ingredients:[{type:'forage',qty:2},{type:'crop',qty:1}]},
+  {id:'maple_pancakes',name:'MAPLE PANCAKES',icon:'🥞',energy:18,sells:75, hobHeart:2, buff:'wood', ingredients:[{type:'item',id:'sap',qty:1},{type:'item',id:'chicken_product',qty:1},{type:'crop',qty:1}]},
+  {id:'anglers_pie', name:"ANGLER'S PIE", icon:'🥧', energy:30, sells:120, hobHeart:3, buff:'fishing', ingredients:[{type:'fish',qty:2},{type:'item',id:'cow_product',qty:1},{type:'crop',qty:1}]},
+  {id:'miners_breakfast',name:"MINER'S BREAKFAST",icon:'🍳',energy:30,sells:110,hobHeart:3, buff:'mining', ingredients:[{type:'item',id:'chicken_product',qty:2},{type:'item',id:'coal',qty:1},{type:'crop',qty:1}]},
+  {id:'feast',       name:'GRAND FEAST',  icon:'🎉', energy:60, sells:200, hobHeart:4, ingredients:[{type:'crop',qty:3},{type:'fish',qty:2},{type:'animal',qty:2}]},
+  {id:'harvest_tart',name:'HARVEST TART', icon:'🥮', energy:40, sells:260, hobHeart:4, buff:'farm', ingredients:[{type:'crop',qty:1,minTier:4},{type:'item',id:'sap',qty:1},{type:'item',id:'cow_product',qty:1}]},
+  {id:'golden_banquet',name:'GOLDEN BANQUET',icon:'👑',energy:60,sells:600,hobHeart:5, buff:'all', ingredients:[{type:'crop',qty:1,quality:'gold'},{type:'fish',qty:1,minTier:5},{type:'item',id:'sheep_product',qty:1},{type:'item',id:'sap',qty:2}]},
 ];
+const MEAL_BUFFS={
+  fishing:{icon:'🎣',label:'BIGGER FISHING ZONE'},
+  mining: {icon:'⛏', label:'ROCKS -1 HP'},
+  wood:   {icon:'🪓',label:'+2 WOOD PER FELL'},
+  forage: {icon:'🌿',label:'+1 FORAGE ITEM ON A WIN'},
+  farm:   {icon:'🌾',label:'+50% FARMING XP'},
+};
+// fish id → tier, for "T5+ fish" ingredients
+const FISH_TIER={};
+Object.values(FISH_BY_SEASON).forEach(list=>list.forEach(f=>{FISH_TIER[f.id+'_fish']=f.tier;}));
+
+function registerRecipeItems(){
+  // recipe definitions are authoritative — refresh saved entries so old meals pick up buffs
+  TH_RECIPES.forEach(r=>{ALL_ITEMS_MAP[r.id]={icon:r.icon,name:r.name,sell:r.sells,energy:r.energy,buff:r.buff||null};});
+}
+function recipeKnown(r){ return (vilGetState('hob').hearts||0)>=(r.hobHeart||0); }
+
+function ingMatches(ing,invId){
+  if(ing.type==='item') return invId===ing.id;
+  if(ing.type==='crop'){
+    const [base,q]=invId.split('|');
+    const crop=ALL_CROPS.find(c=>c.id===base);
+    if(!crop) return false;
+    if(ing.minTier&&cropTier(crop)<ing.minTier) return false;
+    if(ing.quality&&q!==ing.quality) return false;
+    return true;
+  }
+  if(ing.type==='fish') return invId.endsWith('_fish')&&(!ing.minTier||(FISH_TIER[invId]||0)>=ing.minTier);
+  if(ing.type==='animal') return invId.endsWith('_product');
+  if(ing.type==='forage') return invId.endsWith('_forage');
+  return false;
+}
+function ingLabel(ing){
+  if(ing.type==='item'){const it=getItemInfo(ing.id);return ing.qty+'x '+it.icon+' '+it.name;}
+  if(ing.type==='crop') return ing.qty+'x '+(ing.quality==='gold'?'🥇 GOLD ':'')+(ing.minTier?'T'+ing.minTier+'+ ':'')+'CROP';
+  if(ing.type==='fish') return ing.qty+'x '+(ing.minTier?'T'+ing.minTier+'+ ':'')+'FISH';
+  if(ing.type==='animal') return ing.qty+'x ANIMAL PRODUCT';
+  if(ing.type==='forage') return ing.qty+'x FORAGE';
+  return '';
+}
+// Inventory ids usable for an ingredient, cheapest first (locked items are never cooked)
+function ingCandidates(ing){
+  return Object.keys(inventory)
+    .filter(id=>(inventory[id]||0)>0&&!lockedItems[id]&&ingMatches(ing,id))
+    .sort((a,b)=>(getItemInfo(a).sell-getItemInfo(b).sell)||((FISH_TIER[a]||0)-(FISH_TIER[b]||0)));
+}
+function ingHave(ing){ return ingCandidates(ing).reduce((s,id)=>s+inventory[id],0); }
+
+function applyMealBuff(buff){
+  if(!buff) return '';
+  if(cookBuffs.day!==day) cookBuffs={day};
+  const keys=buff==='all'?Object.keys(MEAL_BUFFS):[buff];
+  keys.forEach(k=>cookBuffs[k]=true);
+  updateEventBanner();
+  return ' '+keys.map(k=>MEAL_BUFFS[k].icon).join('')+' '+(buff==='all'?'EVERY BUFF':MEAL_BUFFS[buff].label)+' UNTIL YOU SLEEP!';
+}
 
 // Preserves — timed, one crop type per jar
 // Sell value = sum of input crop sell prices × multiplier
@@ -7147,7 +7434,7 @@ function thRoomReqAvail(req){
   // how much the player currently has available to donate for this req type
   if(req.type==='gold') return coins;
   if(req.type==='wood') return inventory['wood']||0;
-  if(req.type==='crop') return thCountCrops();
+  if(req.type==='crop') return thCountCrops(req.tier);
   if(req.type==='animal') return thCountAnimalProducts();
   if(req.type==='fish') return thCountFish();
   if(req.type==='ore') return thCountOres();
@@ -7173,14 +7460,20 @@ function thCompleteCount(){
 }
 
 // Count how many crop items are in inventory (all non-wood, non-sap, non-fish, non-forage, non-product)
-function thCountCrops(){
+// Crop tier 1–6 = position within its season's list
+function cropTier(crop){
+  const s=SEASONS.find(x=>x.id===crop.season);
+  return s?s.crops.indexOf(crop.id)+1:0;
+}
+// Is this inventory id a crop (optionally of a given tier)?
+function invIsCrop(id,tier){
+  const crop=ALL_CROPS.find(c=>c.id===id.split('|')[0]);
+  return !!crop&&(!tier||cropTier(crop)===tier);
+}
+function thCountCrops(tier){
   let total=0;
   Object.entries(inventory).forEach(([id,qty])=>{
-    if(!id)return;
-    // crop ids never contain '_' suffix except quality
-    const base=id.split('|')[0];
-    const isCrop=ALL_CROPS.some(c=>c.id===base);
-    if(isCrop) total+=qty;
+    if(id&&invIsCrop(id,tier)) total+=qty;
   });
   return total;
 }
@@ -7226,8 +7519,8 @@ function thDonate(roomIdx){
       let toGive=stillNeeded;
       Object.keys(inventory).forEach(id=>{
         if(toGive<=0)return;
-        const base=id.split('|')[0];
-        if(!ALL_CROPS.some(c=>c.id===base))return;
+        if(lockedItems[id])return; // never donate locked items
+        if(!invIsCrop(id,req.tier))return;
         const give=Math.min(toGive,inventory[id]);
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
         contribs.crop+=give;toGive-=give;donated=true;
@@ -7370,48 +7663,79 @@ function applySprinkler(){
 
 // ── Cooking ──
 function thRewardCooking(){
+  const hobHearts=vilGetState('hob').hearts||0;
+  const buffLine=activeBuffList().length
+    ?`<div style="font-size:5px;color:var(--green);margin-bottom:5px">TODAY: ${activeBuffList().map(k=>MEAL_BUFFS[k].icon+' '+MEAL_BUFFS[k].label).join(' · ')}</div>`:'';
   const rows=TH_RECIPES.map(r=>{
+    const known=recipeKnown(r);
+    if(!known){
+      return `<div class="th-reward-row" style="opacity:.55"><div class="th-reward-info"><div class="th-reward-name">🔒 ${r.name}</div><div class="th-reward-desc">HOB TEACHES THIS AT ❤×${r.hobHeart} (YOU: ❤×${hobHearts})</div></div><button class="th-reward-btn" disabled>???</button></div>`;
+    }
     const canMake=thCanCook(r);
+    const ingDesc=r.ingredients.map(i=>{
+      const ok=ingHave(i)>=i.qty;
+      return `<span style="color:${ok?'var(--green)':'var(--muted)'}">${ingLabel(i)}</span>`;
+    }).join(' + ');
+    const buff=r.buff?` · ${r.buff==='all'?'✦ EVERY BUFF':MEAL_BUFFS[r.buff].icon+' '+MEAL_BUFFS[r.buff].label}`:'';
+    const isNew=!achFlags['cooked_'+r.id]?' <span style="color:var(--gold)">NEW</span>':'';
     const btn=`<button class="th-reward-btn" onclick="thCook('${r.id}')" ${canMake?'':'disabled'}>COOK</button>`;
-    const ingDesc=r.ingredients.map(i=>`${i.qty} ${i.type}`).join('+');
-    return `<div class="th-reward-row"><div class="th-reward-info"><div class="th-reward-name">${r.icon} ${r.name}</div><div class="th-reward-desc">${ingDesc} → +${r.energy}⚡ or sell ${r.sells}g</div></div>${btn}</div>`;
+    return `<div class="th-reward-row"><div class="th-reward-info"><div class="th-reward-name">${r.icon} ${r.name}${isNew}</div><div class="th-reward-desc">${ingDesc}<br>→ +${r.energy}⚡ or sell ${r.sells}g${buff}</div></div>${btn}</div>`;
   }).join('');
-  return `<div class="th-reward"><div class="th-reward-title">🍳 KITCHEN — COOK MEALS</div><div class="th-reward-grid">${rows}</div></div>`;
+  const learnt=TH_RECIPES.filter(recipeKnown).length;
+  return `<div class="th-reward"><div class="th-reward-title">🍳 KITCHEN — ${learnt}/${TH_RECIPES.length} RECIPES</div>
+    <div style="font-size:4px;color:var(--muted);margin-bottom:5px">Eat meals from your BAG. Buff meals last until you sleep. Befriend Hob to learn more recipes.</div>
+    ${buffLine}<div class="th-reward-grid">${rows}</div></div>`;
 }
 
+function activeBuffList(){ return cookBuffs.day===day?Object.keys(MEAL_BUFFS).filter(k=>cookBuffs[k]):[]; }
+
 function thCanCook(recipe){
+  if(!recipeKnown(recipe)) return false;
+  // an item can't count twice (e.g. a gold crop for both "gold crop" and "any crop")
+  const used={};
   return recipe.ingredients.every(ing=>{
-    if(ing.type==='crop')return thCountCrops()>=ing.qty;
-    if(ing.type==='fish')return thCountFish()>=ing.qty;
-    if(ing.type==='animal')return thCountAnimalProducts()>=ing.qty;
-    return false;
+    let need=ing.qty;
+    for(const id of ingCandidates(ing)){
+      const free=inventory[id]-(used[id]||0);
+      const take=Math.min(need,free);
+      if(take>0){used[id]=(used[id]||0)+take;need-=take;}
+      if(need<=0) break;
+    }
+    return need<=0;
   });
 }
 
 function thCook(id){
   const r=TH_RECIPES.find(x=>x.id===id);
   if(!r||!thCanCook(r)){info('NOT ENOUGH INGREDIENTS TO COOK THIS!');playSound('error');return;}
-  // Deduct ingredients
-  r.ingredients.forEach(ing=>{
+  // Most specific ingredients first, so "any crop" doesn't eat the gold crop the banquet needs
+  const order=[...r.ingredients].sort((a,b)=>(b.quality||b.minTier||b.type==='item'?1:0)-(a.quality||a.minTier||a.type==='item'?1:0));
+  order.forEach(ing=>{
     let toTake=ing.qty;
-    Object.keys(inventory).forEach(invId=>{
+    ingCandidates(ing).forEach(invId=>{
       if(toTake<=0)return;
-      let match=false;
-      if(ing.type==='crop'){const base=invId.split('|')[0];match=ALL_CROPS.some(c=>c.id===base);}
-      if(ing.type==='fish')match=invId.endsWith('_fish');
-      if(ing.type==='animal')match=invId.endsWith('_product');
-      if(!match)return;
       const take=Math.min(toTake,inventory[invId]||0);
       inventory[invId]-=take;if(inventory[invId]<=0)delete inventory[invId];
       toTake-=take;
     });
   });
-  // Add cooked meal to inventory
-  if(!ALL_ITEMS_MAP[r.id]) ALL_ITEMS_MAP[r.id]={icon:r.icon,name:r.name,sell:r.sells,energy:r.energy};
-  addToInventory(r.id,1);
-  info(r.icon+' '+r.name+' COOKED! +'+r.energy+' energy when eaten or sells for '+r.sells+'g.');
+  registerRecipeItems();
+  // meals stack in an existing slot even when the bag is full; otherwise need a free slot
+  const slots=Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;
+  if(!inventory[r.id]&&slots>=bagCapacity){
+    // bag full — eat it on the spot rather than lose it
+    energy=Math.min(maxEnergy,energy+r.energy);upEnergy();
+    info(r.icon+' BAG FULL — YOU ATE THE '+r.name+' RIGHT AWAY! +'+r.energy+'⚡'+applyMealBuff(r.buff));
+  }else{
+    addToInventory(r.id,1);
+    info(r.icon+' '+r.name+' COOKED! EAT IT FROM YOUR BAG (+'+r.energy+'⚡'+(r.buff?' + BUFF':'')+') OR SHIP IT FOR '+r.sells+'g.');
+  }
+  achFlags.first_meal=true;
+  achFlags['cooked_'+r.id]=true;
+  checkAchievements();
   playSound('collect');
-  saveGame();renderTownHall();renderInv();updateInvBadge();
+  pcAddLog(r.icon+' Cooked '+r.name);
+  saveGame();renderTownHall();renderInv();updateInvBadge();renderActivities();
 }
 
 // ── Crafting (Storeroom) — timed, one crop type per jar ──
@@ -7527,11 +7851,21 @@ const FORGE_SMELT_DAYS_MAP = {copper_ingot:1, iron_ingot:2, gold_ingot:3};
 const FORGE_SLOTS = 3;
 
 function forgeIngotReady(){
-  // called once at startup to register ingots in ALL_ITEMS_MAP
+  // called at startup to register ingots (plus ores and wood/sap, so shop costs
+  // like "+5🟤" show the right icon before the player has ever mined one)
   TH_INGOTS.forEach(ig=>{
     if(!ALL_ITEMS_MAP[ig.id])
       ALL_ITEMS_MAP[ig.id]={icon:ig.icon,name:ig.name,sell:ig.sell};
   });
+  MINE_ORE_TIERS.forEach(o=>{
+    if(!ALL_ITEMS_MAP[o.id]) ALL_ITEMS_MAP[o.id]={icon:o.icon,name:o.name,sell:o.sell};
+  });
+  if(!ALL_ITEMS_MAP['wood']) ALL_ITEMS_MAP['wood']={icon:'🪵',name:'WOOD',sell:2};
+  if(!ALL_ITEMS_MAP['sap'])  ALL_ITEMS_MAP['sap']={icon:'🫧',name:'SAP',sell:8};
+  Object.entries(ANIMAL_DATA).forEach(([type,d])=>{
+    if(!ALL_ITEMS_MAP[type+'_product']) ALL_ITEMS_MAP[type+'_product']={icon:d.product,name:d.productName,sell:d.productSell};
+  });
+  registerRecipeItems();
 }
 
 function checkPreserveQueue(){
@@ -7540,7 +7874,8 @@ function checkPreserveQueue(){
   let anyDone=false;
   townHall.preserveQueue=townHall.preserveQueue.filter(job=>{
     if(day>=job.completesOnDay){
-      const itemId=job.type+'_'+job.cropId;
+      // use the job's own id so silver/gold jars don't merge into the normal-quality item
+      const itemId=job.itemId||(job.type+'_'+job.cropId+(job.quality&&job.quality!=='normal'?'_'+job.quality:''));
       if(!ALL_ITEMS_MAP[itemId])
         ALL_ITEMS_MAP[itemId]={icon:job.craftIcon,name:job.craftName,sell:job.sellValue};
       addToInventory(itemId,1);
@@ -7767,15 +8102,16 @@ function sfxTitleStart(ctx){
 
 function titleStart(){
   playSound('titlestart');
+  titleScreenOpen=false;
+  unfreezeClock();
   const ts=document.getElementById('title-screen');
   ts.classList.add('fade-out');
   setTimeout(()=>{
     ts.classList.add('hidden');
-    // if new player show letter, otherwise just go straight in
-    const hasSave=!!localStorage.getItem(SAVE_KEY);
-    if(!hasSave){
-      setTimeout(showLetter,200);
-    }
+    // showLetter() only opens for players who haven't started the tutorial yet
+    // (checking for a save here failed if the 30s autosave ran on the title screen)
+    setTimeout(showLetter,200);
+    setTimeout(announceEventToday,1200);
   },600);
 }
 
@@ -7846,7 +8182,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v1.0 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v1.1 — FERNHOLLOW FARM</div>
   </div>
 </div>
 

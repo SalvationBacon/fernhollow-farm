@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fernhollow-v14';
+const CACHE_NAME = 'fernhollow-v15';
 const ASSETS = [
   './',
   './index.html',
