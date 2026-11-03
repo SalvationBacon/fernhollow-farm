@@ -10,7 +10,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## v1.2 — What's in the game
+## v1.3 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
@@ -28,7 +28,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ### 🌲 The Valley
 - 🎣 **Fishing** — hold-and-release minigame with 24 seasonal fish, rod upgrades, Lucky Bait and Fish Net
-- 🌿 **Foraging** — rock-paper-scissors vs the Forest Spirit for seasonal loot
+- 🌿 **Foraging** — dig the forest floor for buried treasures; colours show how close you are and a ✨ shimmer means something rare is near
 - 🪓 **Woodcutting** — two independent trees, axe upgrades, growth dust
 - ⛏ **Mining** — 100 floors of ore, gems and checkpoints. Reach the bottom for an Angel Fruit.
 
@@ -107,6 +107,12 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 ---
 
 ## Changelog
+
+### v1.3 — Hot & Cold foraging
+- Foraging is now a dig minigame: 5 finds are buried in a 5×5 patch, each empty dig shows how close the nearest find is, and a ✨ shimmer means the rare find is near
+- Foraging perks give extra digs, a wider shimmer, paired rare finds and a guaranteed rarest find at level 10
+- Forager's Salad now gives +1 dig
+- Rock Paper Scissors removed
 
 ### v1.2 — Pixel art & music
 - All emoji replaced with custom pixel art: items, crops, fish, ores, meals, villagers, menus and achievements

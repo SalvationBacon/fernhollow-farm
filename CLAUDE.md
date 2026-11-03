@@ -4,7 +4,7 @@
 Single HTML file farming game. No frameworks, vanilla JS only. Pixel aesthetic, Press Start 2P font.
 Working file: `index.html` — only build file (~8,550 lines).
 Hosted as PWA on GitHub Pages: https://salvationbacon.github.io/fernhollow-farm/
-Current version: **v1.2** (shown on title screen and in feature requests).
+Current version: **v1.3** (shown on title screen and in feature requests).
 
 ---
 
@@ -13,7 +13,7 @@ Current version: **v1.2** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v16` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v17` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -22,7 +22,7 @@ Current version: **v1.2** (shown on title screen and in feature requests).
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v16` → `fernhollow-v17`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v17` → `fernhollow-v18`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -188,7 +188,7 @@ Internal key → Display: `farming`→FARMING🌾 · `foraging`→FORAGING🌿 �
 
 XP rates:
 - Farming: T1=1, T2=2, T3=4, T4=7, T5=11, T6=18 per harvest + quality bonus (+1 silver, +2 gold); ×1.5 with Harvest Tart buff
-- Foraging: 1/round win, 2/sweep bonus
+- Foraging: 1 per find, 3 for the rare find, +2 for digging up all 5
 - Fishing: 1 normal, 2 rare (difficulty>0.6); ×2 on River Derby
 - Woodcutting: 2/chop, 5/fell, 7/growth dust
 - Mining: 1xp/rock (ores with minFloor ≥25 only), 1/descend
@@ -197,7 +197,7 @@ XP rates:
 LV2 silver crops(×1.25) · LV3 more silver · LV4 gold(×1.5) · LV5 fert lasts 2 crops · LV6 more gold · LV7 mostly silver/gold · LV8 double yield 35% · LV9 gold dominant · LV10 near-perfect+10% sell bonus ✦
 
 ### Foraging Perks
-LV3 +1 item on 2+ wins · LV5 spirit bias 45%→35% · LV7 +1 more item on a 3-0 · LV10 a 3-0 sweep always gives the season's rarest item ✦
+LV3 +1 dig (6) · LV5 rare shimmer range 2→3 · LV7 +1 dig (7) · LV9 rare finds come in pairs · LV10 the rare find is always the season's rarest ✦
 Skill also gates which items can drop (`skillMin`: T1=1, T2=2, T3=4, T4=6, T5=8, T6=10).
 
 ### Fishing Perks
@@ -218,9 +218,13 @@ Gated behind meeting Wren. 2 energy/cast. Hold=zone rises, release=falls. Keep f
 6 fish/season tiers 1–6 (sell 2/5/10/20/40/80g). Tier unlock by Fishing level: T1 1, T2 2, T3 4, T4 6, T5 8, T6 10.
 `fishingRod` 0–3 adds weight to T4–T6. Lucky Bait: next cast auto-catches. Fish Net: next catch yields 2 fish.
 
-### Foraging (RPS)
-2 energy. Best of 3 vs Forest Spirit. Seasonal bias. Item tier = position in the season list (`getTier`).
-1 win → T1–2 · 2 wins → T3–4 · 3 wins → T5–6. If the band isn't unlocked by skill yet, the best item below it drops.
+### Foraging (Hot & Cold dig) — replaced Rock Paper Scissors in v1.3
+2 energy. A 5×5 patch (`digGrid`) hides 5 finds from `forageBuildPrizes()`: 1 rare (T5–6), 2 uncommon (T3–4),
+2 common (T1–2). Item tier = position in the season's `FORAGE_ITEMS` list; if a band isn't unlocked by skill yet,
+the best item below it is used. Digs: `forageDigCount()` = 5 (+1 LV3, +1 LV7, +1 Forager's Salad).
+Each empty dig shows its step distance to the nearest *still-buried* find (`digClue`, colours `.d1`–`.d5`) and ✨ when
+the rare find is within `forageShimmerRange()` (2, or 3 at LV5). Hints refresh as finds are dug. The hunt ends when digs
+run out or all 5 are found (`endDig`), revealing what was left. Dev flag `rareForage` outlines the rare cell.
 
 ### Woodcutting
 Gated behind Ford. 1 energy/swing. Two independent trees. Tree HP by axe tier (basic=5, copper=4, iron=3, gold=2).
@@ -287,7 +291,7 @@ Meals are eaten from the BAG. Buff meals last until you sleep (`cookBuffs`, clea
 | 🍽 Fish Meal | 0 | 1 fish + 1 crop | 20 | 50 | — |
 | 🐟 Smoked Fish | 0 | 2 fish | 25 | 65 | — |
 | 🍲 Farm Stew | 1 | 3 crop + 1 animal | 35 | 90 | — |
-| 🥗 Forager's Salad | 1 | 2 forage + 1 crop | 15 | 45 | +1 forage item on a win |
+| 🥗 Forager's Salad | 1 | 2 forage + 1 crop | 15 | 45 | +1 dig when foraging |
 | 🥞 Maple Pancakes | 2 | 1 sap + 1 egg + 1 crop | 18 | 75 | +2 wood per fell |
 | 🥧 Angler's Pie | 3 | 2 fish + 1 milk + 1 crop | 30 | 120 | fishing zone +8px |
 | 🍳 Miner's Breakfast | 3 | 2 egg + 1 coal + 1 crop | 30 | 110 | rocks -1 HP |
@@ -295,7 +299,7 @@ Meals are eaten from the BAG. Buff meals last until you sleep (`cookBuffs`, clea
 | 🥮 Harvest Tart | 4 | 1 T4+ crop + 1 sap + 1 milk | 40 | 260 | +50% farming XP |
 | 👑 Golden Banquet | 5 | 1 gold crop + 1 T5+ fish + 1 wool + 2 sap | 60 | 600 | all buffs |
 
-Buff hooks: `getFishZoneSize`, `mineRockHp`, `getWoodDropBonus`, `endRps`, `harvestTile`.
+Buff hooks: `getFishZoneSize`, `mineRockHp`, `getWoodDropBonus`, `forageDigCount`, `harvestTile`.
 
 ### Forge / Smelting (Workshop reward)
 3 slots, timed in in-game days:
@@ -630,6 +634,7 @@ Stub functions kept for old call sites: `notifScheduleCrop()`, `notifCancelCrop(
 - Sleep confirm popup
 - Network-first SW (auto-updates for players)
 - **v1.1:** Cooking depth (11 recipes, Hob teaches, meal buffs) · Sap has a use (cooking) · Seasonal festivals · Formspree feedback integration (needs endpoint) · bug-fix pass
+- **v1.3:** Foraging is now a Hot & Cold dig minigame (Rock Paper Scissors removed)
 - **v1.2:** Custom pixel art for every icon and the whole farm scene · multi-song music engine · bug report removed · scene layout fix (coop/barn/crops)
 
 ### Long Term

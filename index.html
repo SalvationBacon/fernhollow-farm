@@ -375,38 +375,31 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #fish-catch-bar{height:6px;background:var(--blue);width:0%}
 #fish-status{font-size:6px;color:var(--cream);text-align:center;min-height:12px;line-height:1.8}
 
-/* ── FORAGE RPS ── */
+/* ── FORAGE: HOT & COLD DIG ── */
 #forage-minigame{display:none;background:var(--ink);border:2px solid var(--green2);padding:8px;margin-top:6px}
 #forage-minigame.show{display:block}
-#rps-arena{background:var(--deep);border:1px solid var(--rim);padding:8px;margin-bottom:6px}
-#rps-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-#rps-round-label{font-size:6px;color:var(--green)}
-#rps-score{font-size:6px;color:var(--gold)}
-#rps-spirits{display:flex;justify-content:space-around;align-items:center;margin-bottom:6px;gap:4px}
-.rps-side{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;background:var(--mid);border:1px solid var(--rim);padding:6px 4px}
-.rps-label{font-size:5px;color:var(--muted);margin-bottom:2px}
-.rps-sprite{font-size:32px;line-height:1;min-height:30px;display:flex;align-items:center;justify-content:center}
-.rps-sprite.shake{animation:rpsShake .25s ease}
-@keyframes rpsShake{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
-#rps-vs{font-size:8px;color:var(--dim);flex-shrink:0}
-#rps-taunt{font-size:5px;color:var(--green);text-align:center;min-height:10px;margin-bottom:4px;font-style:italic;line-height:1.6}
-#rps-round-msg{font-size:7px;text-align:center;min-height:14px;margin-bottom:4px;line-height:1.8}
-#rps-pip-row{display:flex;gap:4px;justify-content:center;margin-bottom:6px}
-.rps-pip{width:10px;height:10px;border:1px solid var(--rim);background:var(--mid)}
-.rps-pip.win{background:var(--green);border-color:var(--green2)}
-.rps-pip.lose{background:var(--red);border-color:#802020}
-.rps-pip.draw{background:var(--gold);border-color:#907010}
-#rps-choices{display:flex;gap:4px;margin-bottom:5px}
-.rps-btn{
-  flex:1;font-family:'Press Start 2P',monospace;font-size:24px;
-  padding:8px 4px;cursor:pointer;
-  border:2px solid var(--green2);background:var(--mid);text-align:center;
-  transition:border-color .12s;
-}
-.rps-btn:hover{border-color:var(--green);background:var(--lift)}
-.rps-btn:active{transform:scale(.93)}
-.rps-btn:disabled{opacity:.35;cursor:default}
-#rps-prize-preview{font-size:5px;color:var(--muted);text-align:center;line-height:2;white-space:pre}
+#dig-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:6px}
+#dig-left{color:var(--gold)}
+#dig-found{color:var(--green)}
+#dig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:6px}
+.dig-cell{position:relative;height:38px;border:2px solid #3a2510;background:#6a4820;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:8px;color:#1a1208;
+  box-shadow:inset 2px 2px 0 #8a6030,inset -2px -2px 0 #4a3010;transition:transform .08s}
+.dig-cell:active{transform:scale(.93)}
+.dig-cell.dug{cursor:default;box-shadow:inset 2px 2px 0 rgba(0,0,0,.25)}
+.dig-cell.found{background:#3a6a20;border-color:var(--green2);font-size:16px}
+.dig-cell.found.rare{background:#6a4a10;border-color:var(--gold);animation:glow .9s infinite alternate}
+.dig-cell.missed{background:#2e2010;opacity:.55;font-size:14px;cursor:default}
+.dig-cell .dig-shine{position:absolute;top:1px;right:2px;font-size:7px}
+.dig-cell.d1{background:#e04030;color:#fff}
+.dig-cell.d2{background:#f09030}
+.dig-cell.d3{background:#e8c040}
+.dig-cell.d4{background:#60a8d8}
+.dig-cell.d5{background:#2a5cb0;color:#c8e0ff}
+#dig-legend{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;font-size:5px;color:var(--muted);margin-bottom:4px}
+#dig-legend span{display:inline-flex;align-items:center;gap:2px}
+#dig-legend i{display:inline-block;width:7px;height:7px;border:1px solid #1a1208}
+#dig-hint{font-size:5px;color:var(--muted);text-align:center;line-height:1.8}
 
 /* ── SKILLS ── */
 #skills-bar{background:var(--ink);border-bottom:1px solid var(--border);padding:4px 10px;display:flex;gap:6px;overflow-x:auto}
@@ -1279,35 +1272,17 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
         <span class="act-title">🌿 FORAGE</span>
         <span class="act-energy-cost">COSTS 2 ENERGY</span>
       </div>
-      <div class="act-desc">Challenge the forest spirit to Rock Paper Scissors. Win more rounds = rarer finds!</div>
-      <button class="act-btn forage" id="forage-btn" onclick="startForageMini()">🌿 CHALLENGE THE SPIRIT</button>
+      <div class="act-desc">The Forest Spirit buries treasures in the forest floor. Dig for them: colours tell you how close the nearest find is. ✨ means something rare is nearby!</div>
+      <button class="act-btn forage" id="forage-btn" onclick="startForageMini()">🌿 DIG FOR FINDS</button>
       <div id="forage-minigame">
-        <div id="rps-arena">
-          <div id="rps-header">
-            <span id="rps-round-label">ROUND 1 OF 3</span>
-            <span id="rps-score">0 — 0</span>
-          </div>
-          <div id="rps-spirits">
-            <div class="rps-side">
-              <div class="rps-label">YOU</div>
-              <div class="rps-sprite" id="rps-player-sprite">❓</div>
-            </div>
-            <div id="rps-vs">VS</div>
-            <div class="rps-side">
-              <div class="rps-label">SPIRIT</div>
-              <div class="rps-sprite" id="rps-spirit-sprite">🌲</div>
-            </div>
-          </div>
-          <div id="rps-pip-row"></div>
-          <div id="rps-taunt"></div>
-          <div id="rps-round-msg"></div>
-          <div id="rps-choices">
-            <button class="rps-btn" id="rps-r" onclick="rpsPlay('rock')" title="Rock">🪨</button>
-            <button class="rps-btn" id="rps-p" onclick="rpsPlay('paper')" title="Paper">📄</button>
-            <button class="rps-btn" id="rps-s" onclick="rpsPlay('scissors')" title="Scissors">✂️</button>
-          </div>
-          <div id="rps-prize-preview"></div>
+        <div id="dig-header"><span id="dig-left">5 DIGS LEFT</span><span id="dig-found">FOUND 0/5</span></div>
+        <div id="dig-grid"></div>
+        <div id="dig-legend">
+          <span><i style="background:#e04030"></i>HOT 1</span><span><i style="background:#f09030"></i>2</span>
+          <span><i style="background:#e8c040"></i>3</span><span><i style="background:#60a8d8"></i>4</span>
+          <span><i style="background:#2a5cb0"></i>COLD 5+</span><span>✨ RARE NEAR</span>
         </div>
+        <div id="dig-hint"></div>
       </div>
       <div class="act-result" id="forage-result"></div>
     </div>
@@ -1439,8 +1414,8 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
         </div>
         <div class="dev-toggle-row">
           <div class="dev-toggle-info">
-            <div class="dev-toggle-label">ALWAYS FORAGE RARE</div>
-            <div class="dev-toggle-sub">Foraging always finds the rarest item</div>
+            <div class="dev-toggle-label">SHOW RARE FIND</div>
+            <div class="dev-toggle-sub">Outlines where the rare forage find is buried</div>
           </div>
           <label class="toggle-switch"><input type="checkbox" id="dev-rare-forage" onchange="devToggle('rareForage',this.checked)"><span class="toggle-slider"></span></label>
         </div>
@@ -4089,7 +4064,7 @@ function renderActivities(){
   renderTreeHp();
   renderTreeHp2();
   const noEnergy=energy<2&&!devFlags.unlimitedEnergy;
-  const fb=$('forage-btn');if(fb)fb.disabled=noEnergy;
+  const fb=$('forage-btn');if(fb)fb.disabled=noEnergy||digActive;
   const cb=$('chop-btn');
   if(cb){
     if(!hasAxe){cb.disabled=true;cb.textContent='GET AXE FROM FORD';}
@@ -4127,187 +4102,143 @@ function renderActivities(){
   renderMine();
 }
 
-// ── FORAGE RPS MINIGAME ──
-const RPS_MOVES=['rock','paper','scissors'];
-const RPS_ICONS={rock:'🪨',paper:'📄',scissors:'✂️'};
-// Season biases — spirit slightly favours one move, observant players can exploit
-const SPIRIT_BIAS={spring:'rock',summer:'paper',fall:'scissors',winter:'rock'};
-const SPIRIT_TAUNTS={
-  idle:['THE FOREST SPIRIT AWAITS...','CHOOSE WISELY, FARMER.','THE WOODS ARE WATCHING.'],
-  win: ['HA! THE FOREST WINS!','NATURE CANNOT BE BEATEN!','FOOLISH FARMER!','TRY HARDER!'],
-  lose:['...you fought well.','THE FOREST BOWS... FOR NOW.','WELL PLAYED, FARMER.','IMPRESSIVE.'],
-  draw:['A TIE. INTERESTING.','WE ARE EVENLY MATCHED.','THE FOREST IS PATIENT.'],
-};
-let rpsActive=false,rpsRound=0,rpsPlayerScore=0,rpsSpiritScore=0,rpsHistory=[];
+// ── FORAGE: HOT & COLD DIG ──
+// A 5×5 patch of forest floor hides 5 finds: 1 rare (T5–6), 2 uncommon (T3–4), 2 common (T1–2).
+// Each empty dig is coloured by its distance (in steps) to the nearest find still buried, and shows ✨
+// when the rare find is within forageShimmerRange(). Hints update as finds are dug up.
+const DIG_SIZE=5;
+let digActive=false,digGrid=[],digLeft=0,digTotal=0;
+
+function forageDigCount(){
+  const lv=skills.foraging.level;
+  return 5+(lv>=3?1:0)+(lv>=7?1:0)+(cookBuffs.forage?1:0); // Forager's Salad: +1 dig
+}
+function forageShimmerRange(){ return skills.foraging.level>=5?3:2; }
+
+// Pick the 5 hidden finds for this season, respecting skill-gated items (skillMin)
+function forageBuildPrizes(){
+  const all=FORAGE_ITEMS[currentSeason().id]||FORAGE_ITEMS.spring;
+  const lv=skills.foraging.level;
+  const available=all.filter(i=>lv>=(i.skillMin||1));
+  const tier=i=>all.indexOf(i)+1;
+  // best item in a tier band, or the best one below it if the band isn't unlocked yet
+  const band=(lo,hi)=>{
+    const pool=available.filter(i=>tier(i)>=lo&&tier(i)<=hi);
+    if(pool.length) return weightedRandom(pool);
+    const below=available.filter(i=>tier(i)<=hi);
+    return below[below.length-1]||all[0];
+  };
+  const rare=lv>=10?available[available.length-1]:band(5,6); // LV10: always the season's rarest
+  return [{it:rare,rare:true},{it:band(3,4)},{it:band(3,4)},{it:band(1,2)},{it:band(1,2)}];
+}
 
 function startForageMini(){
   if(energy<2&&!devFlags.unlimitedEnergy){info('NEED 2 ENERGY TO FORAGE!');return}
-  if(rpsActive)return;
+  if(digActive)return;
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-2);upEnergy();}
-  rpsActive=true;rpsRound=0;rpsPlayerScore=0;rpsSpiritScore=0;rpsHistory=[];
+  digActive=true;
+  digTotal=digLeft=forageDigCount();
+  digGrid=Array(DIG_SIZE*DIG_SIZE).fill(0).map(()=>({prize:null,dug:false}));
+  // scatter the prizes on distinct cells
+  const cells=[...digGrid.keys()].sort(()=>Math.random()-0.5);
+  forageBuildPrizes().forEach((pz,i)=>{digGrid[cells[i]].prize=pz;});
   $('forage-minigame').className='show';
   $('forage-btn').disabled=true;
-  $('forage-btn').textContent='CHALLENGING...';
+  $('forage-btn').textContent='DIGGING...';
   $('forage-result').textContent='';
-  $('rps-player-sprite').textContent='❓';
-  $('rps-spirit-sprite').textContent='🌲';
-  $('rps-round-msg').textContent='CHOOSE YOUR MOVE!';
-  $('rps-round-msg').style.color='var(--cream)';
-  const tauntList=SPIRIT_TAUNTS.idle;
-  $('rps-taunt').textContent=tauntList[Math.floor(Math.random()*tauntList.length)];
-  updateRpsHeader();
-  renderRpsPips();
-  updateRpsPrizePreview();
-  setRpsEnabled(true);
-  info('CHALLENGE THE FOREST SPIRIT! WIN 2 OF 3 ROUNDS FOR BETTER LOOT.');
+  renderDig();
+  info('DIG FOR WILD FINDS! RED = HOT (CLOSE), BLUE = COLD. ✨ MEANS THE RARE FIND IS NEARBY.');
 }
 
-function spiritChoose(){
-  const bias=SPIRIT_BIAS[currentSeason().id];
-  // bias chance reduces at foraging lv5+ (spirit gets weaker)
-  if(Math.random()<getRpsSpiritBias()) return bias;
-  return RPS_MOVES[Math.floor(Math.random()*3)];
+function digDist(a,b){
+  return Math.abs(a%DIG_SIZE-b%DIG_SIZE)+Math.abs(Math.floor(a/DIG_SIZE)-Math.floor(b/DIG_SIZE));
+}
+// distance from cell i to the nearest buried find, and whether the buried rare is within shimmer range
+function digClue(i){
+  let near=99,shine=false;
+  digGrid.forEach((c,j)=>{
+    if(!c.prize||c.dug) return;
+    const d=digDist(i,j);
+    if(d<near) near=d;
+    if(c.prize.rare&&d<=forageShimmerRange()) shine=true;
+  });
+  return {near,shine};
 }
 
-function rpsPlay(playerMove){
-  if(!rpsActive)return;
-  setRpsEnabled(false);
-  const spiritMove=devFlags.rareForage?'rock':spiritChoose();
-  $('rps-player-sprite').textContent=RPS_ICONS[playerMove];
-  $('rps-spirit-sprite').textContent='🤔';
-  setTimeout(()=>{
-    $('rps-spirit-sprite').textContent=RPS_ICONS[spiritMove];
-    $('rps-spirit-sprite').className='rps-sprite shake';
-    $('rps-player-sprite').className='rps-sprite shake';
-    setTimeout(()=>{
-      $('rps-spirit-sprite').className='rps-sprite';
-      $('rps-player-sprite').className='rps-sprite';
-    },300);
-    const outcome=rpsOutcome(playerMove,spiritMove);
-    rpsHistory.push(outcome);
-    rpsRound++;
-    if(outcome==='win'){
-      rpsPlayerScore++;
-      $('rps-round-msg').style.color='#7fba60';
-      $('rps-round-msg').textContent='YOU WIN THIS ROUND! 😄';
-      setTaunt('lose');
-      skillAddXP('foraging',1);
-      playSound('rpswin');
-    }else if(outcome==='lose'){
-      rpsSpiritScore++;
-      $('rps-round-msg').style.color='#e06060';
-      $('rps-round-msg').textContent='SPIRIT WINS THIS ROUND! 😈';
-      setTaunt('win');
-      playSound('rpslose');
+function renderDig(){
+  const g=$('dig-grid');if(!g)return;
+  g.innerHTML='';
+  const ended=!digActive;
+  digGrid.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='dig-cell';
+    if(c.dug&&c.prize){
+      el.className+=' dug found'+(c.prize.rare?' rare':'');
+      el.textContent=c.prize.it.icon;
+    }else if(c.dug){
+      const {near,shine}=digClue(i);
+      el.className+=' dug'+(near<99?' d'+Math.min(near,5):'');
+      el.textContent=near<99?(near>=5?'5+':near):'';
+      if(shine){const sh=document.createElement('span');sh.className='dig-shine';sh.textContent='✨';el.appendChild(sh);}
+    }else if(ended&&c.prize){
+      el.className+=' missed';el.textContent=c.prize.it.icon; // show what was left behind
     }else{
-      $('rps-round-msg').style.color='#c8a96e';
-      $('rps-round-msg').textContent='A DRAW — NO WINNER! 😐';
-      setTaunt('draw');
+      if(devFlags.rareForage&&c.prize&&c.prize.rare) el.style.outline='2px dashed var(--gold)';
+      el.onclick=()=>forageDig(i);
     }
-    updateRpsHeader();
-    renderRpsPips();
-    if(rpsRound>=3) setTimeout(endRps,1000);
-    else setTimeout(()=>{
-      $('rps-player-sprite').textContent='❓';
-      $('rps-spirit-sprite').textContent='🌲';
-      setRpsEnabled(true);
-    },900);
-  },450);
+    g.appendChild(el);
+  });
+  const found=digGrid.filter(c=>c.dug&&c.prize).length;
+  $('dig-left').textContent=digLeft+' DIG'+(digLeft===1?'':'S')+' LEFT';
+  $('dig-found').textContent='FOUND '+found+'/5';
+  const rareGot=digGrid.some(c=>c.dug&&c.prize&&c.prize.rare);
+  $('dig-hint').textContent=ended?'':(rareGot?'RARE FIND DUG UP! KEEP DIGGING FOR THE REST.':
+    'HIDDEN: 1 RARE ✨ · 2 UNCOMMON · 2 COMMON — '+(forageShimmerRange())+'-STEP SHIMMER RANGE');
 }
 
-function rpsOutcome(p,s){
-  if(p===s)return 'draw';
-  if((p==='rock'&&s==='scissors')||(p==='paper'&&s==='rock')||(p==='scissors'&&s==='paper'))return 'win';
-  return 'lose';
-}
-
-function setTaunt(type){
-  const list=SPIRIT_TAUNTS[type];
-  $('rps-taunt').textContent=list[Math.floor(Math.random()*list.length)];
-}
-
-function updateRpsHeader(){
-  const left=3-rpsRound;
-  $('rps-round-label').textContent=rpsRound>=3?'DONE!':`ROUND ${rpsRound+1} OF 3`;
-  $('rps-score').textContent='YOU '+rpsPlayerScore+' — '+rpsSpiritScore+' SPIRIT';
-}
-
-function renderRpsPips(){
-  const row=$('rps-pip-row');row.innerHTML='';
-  for(let i=0;i<3;i++){
-    const pip=document.createElement('div');
-    pip.className='rps-pip'+(rpsHistory[i]?' '+rpsHistory[i]:'');
-    row.appendChild(pip);
-  }
-}
-
-function updateRpsPrizePreview(){
-  const items=FORAGE_ITEMS[currentSeason().id]||[];
-  const bias=SPIRIT_BIAS[currentSeason().id];
-  const tell=`SPIRIT HINT: OFTEN PLAYS ${RPS_ICONS[bias]}`;
-  const common=items.find(i=>i.rarity==='common');
-  const uncommon=items.find(i=>i.rarity==='uncommon');
-  const rare=items.find(i=>i.rarity==='rare');
-  let lines=[];
-  if(common)   lines.push('1 WIN  → '+common.icon+' '+common.name+'  ('+common.sell+'g)');
-  if(uncommon) lines.push('2 WINS → '+uncommon.icon+' '+uncommon.name+' ('+uncommon.sell+'g)');
-  if(rare)     lines.push('3 WINS → '+rare.icon+' '+rare.name+' ('+rare.sell+'g) ✦');
-  $('rps-prize-preview').textContent=lines.join('\n')+'\n\n'+tell;
-}
-
-function setRpsEnabled(on){
-  ['rps-r','rps-p','rps-s'].forEach(id=>{const b=$(id);if(b)b.disabled=!on;});
-}
-
-function endRps(){
-  rpsActive=false;
-  $('forage-minigame').className='';
-  $('forage-btn').disabled=false;
-  $('forage-btn').textContent='🌿 CHALLENGE THE SPIRIT';
-  const allItems=FORAGE_ITEMS[currentSeason().id]||[];
-  const forageLv=skills.foraging.level;
-  // filter to items unlocked by skill level
-  const available=allItems.filter(i=>forageLv>=(i.skillMin||1));
-  // Tier = position in the season's list (T1..T6). Previously this bucketed by
-  // crop-sized sell values, so every forage item (1–32g) landed in tier 1.
-  const getTier=i=>allItems.indexOf(i)+1;
-  // 1 win = tier 1-2, 2 wins = tier 3-4, 3 wins = tier 5-6
-  // If the player's skill hasn't unlocked that band yet, give the best item they CAN find below it.
-  function pickFromTiers(minTier,maxTier){
-    const pool=available.filter(i=>{const t=getTier(i);return t>=minTier&&t<=maxTier;});
-    if(pool.length) return weightedRandom(pool);
-    const below=available.filter(i=>getTier(i)<=maxTier);
-    return below[below.length-1]||allItems[0];
-  }
-  let prize,msg;
-  if(rpsPlayerScore===3){
-    // LV10 perk: a perfect sweep always yields the season's rarest find
-    prize=(devFlags.rareForage||skills.foraging.level>=10)?available[available.length-1]:pickFromTiers(5,6);
-    msg='PERFECT 3-0! THE SPIRIT YIELDS ITS RAREST TREASURE! ✦';
-    skillAddXP('foraging',2);
-    achFlags.sweep_spirit=true;
-  }else if(rpsPlayerScore===2){
-    prize=pickFromTiers(3,4);
-    msg='2-1 VICTORY! THE FOREST RESPECTS YOUR SKILL.';
-  }else if(rpsPlayerScore===1){
-    prize=pickFromTiers(1,2);
-    msg='1 WIN — THE SPIRIT GIVES A SMALL OFFERING.';
+function forageDig(i){
+  if(!digActive||digLeft<=0) return;
+  const c=digGrid[i];
+  if(!c||c.dug) return;
+  c.dug=true;digLeft--;
+  if(c.prize){
+    const pz=c.prize.it;
+    const key=pz.id+'_forage';
+    if(!ALL_ITEMS_MAP[key]) ALL_ITEMS_MAP[key]={icon:pz.icon,name:pz.name,sell:pz.sell};
+    const qty=c.prize.rare&&skills.foraging.level>=9?2:1; // LV9: rare finds come in pairs
+    addToInventory(key,qty);
+    skillAddXP('foraging',c.prize.rare?3:1);
+    achFlags.first_forage=true;
+    if(c.prize.rare){achFlags.sweep_spirit=true;playSound('levelup');}
+    else playSound('rpswin');
+    const msg=(c.prize.rare?'✨ RARE FIND! ':'FOUND ')+pz.icon+' '+pz.name+(qty>1?' ×'+qty:'')+'!';
+    $('forage-result').textContent=msg;info(msg);
+    pcAddLog('🌿 Foraged '+pz.icon+' '+pz.name+(qty>1?' x'+qty:''));
+    checkAchievements();
   }else{
-    $('forage-result').textContent='0-3... THE SPIRIT LAUGHS. NOTHING FOUND.';
-    info('THE FOREST SPIRIT DEFEATED YOU. NO LOOT TODAY.');
-    return;
+    playSound('plant');
+    const {near,shine}=digClue(i);
+    $('forage-result').textContent=near<99?(near===1?'RIGHT NEXT TO SOMETHING! ':near<=2?'WARM... ':'COLD. ')+(shine?'✨ SOMETHING RARE GLINTS NEARBY!':''):'';
   }
-  achFlags.first_forage=true;
-  const key=prize.id+'_forage';
-  if(!ALL_ITEMS_MAP[key]) ALL_ITEMS_MAP[key]={icon:prize.icon,name:prize.name,sell:prize.sell};
-  const bonusItems=getForageBonus(rpsPlayerScore)+(cookBuffs.forage?1:0);
-  addToInventory(key,1+bonusItems);
-  const bonusStr=bonusItems>0?' (+'+bonusItems+' BONUS!)':'';
-  $('forage-result').textContent=msg+' GOT: '+prize.icon+' '+prize.name+bonusStr+'!';
-  if(rpsPlayerScore>0)playSound('forage');
-  pcAddLog('🌿 Foraged '+prize.icon+' '+prize.name+(bonusItems>0?' x'+(1+bonusItems):''));
-  info(msg+(bonusItems>0?' FORAGING SKILL BONUS: +'+bonusItems+' EXTRA!':''));
-  checkAchievements();
+  const allFound=digGrid.every(cell=>!cell.prize||cell.dug);
+  if(digLeft<=0||allFound) endDig(allFound);
+  else renderDig();
+}
+
+function endDig(allFound){
+  digActive=false;
+  $('forage-btn').disabled=false;
+  $('forage-btn').textContent='🌿 DIG FOR FINDS';
+  const found=digGrid.filter(c=>c.dug&&c.prize);
+  if(allFound){skillAddXP('foraging',2);playSound('levelup');}
+  const summary=found.length===0?'NOTHING THIS TIME... THE FINDS LEFT BEHIND ARE SHOWN.'
+    :(allFound?'YOU FOUND EVERYTHING! +2 BONUS XP. ':'FOUND '+found.length+'/5. ')+found.map(c=>c.prize.it.icon).join(' ');
+  $('forage-result').textContent=summary;
+  info('🌿 FORAGING DONE — '+summary);
+  renderDig();
+  setTimeout(()=>{if(!digActive)$('forage-minigame').className='';},2600);
+  renderActivities();
+  saveGame();
 }
 
 // ── DEV TOOLS ──
@@ -4348,7 +4279,7 @@ function devToggle(flag,val){
     else info('DEV: INSTANT GROW OFF.');
   }
   if(flag==='rareForage'){
-    info(val?'DEV: RARE FORAGE ON — ALWAYS FINDS RAREST ITEM.':'DEV: RARE FORAGE OFF.');
+    info(val?'DEV: RARE FIND OUTLINED WHEN FORAGING.':'DEV: RARE FIND HIDDEN.');
   }
   devSyncAll();
 }
@@ -4574,7 +4505,8 @@ function doReset(){
 
   // Abandon any minigame in progress
   if(fishActive) endFishing(false);
-  rpsActive=false;
+  digActive=false;
+  {const fm=document.getElementById('forage-minigame');if(fm)fm.className='';}
   // Reset dev mode
   devMode=false;
   devFlags={unlimitedEnergy:false,instantGrow:false,rareForage:false};
@@ -4662,8 +4594,8 @@ const ACHIEVEMENTS=[
   {id:'earn_25000',    cat:'🪙 ECONOMY',   icon:'💰', name:'TYCOON',            desc:'Earn 25,000g total from shipping.',       check:()=>totalEarned>=25000},
   {id:'big_day',       cat:'🪙 ECONOMY',   icon:'💰', name:'BUMPER HARVEST',    desc:'Earn 1,000g in a single day payout.',    check:()=>!!achFlags.big_day},
   // FORAGING
-  {id:'first_forage',  cat:'🌿 FORAGING',  icon:'🌿', name:'FOREST FRIEND',     desc:'Win your first foraging session.',        check:()=>!!achFlags.first_forage},
-  {id:'sweep_spirit',  cat:'🌿 FORAGING',  icon:'✊', name:'SPIRIT CRUSHER',    desc:'Win 3-0 against the Forest Spirit.',      check:()=>!!achFlags.sweep_spirit},
+  {id:'first_forage',  cat:'🌿 FORAGING',  icon:'🌿', name:'FOREST FRIEND',     desc:'Dig up your first forage find.',        check:()=>!!achFlags.first_forage},
+  {id:'sweep_spirit',  cat:'🌿 FORAGING',  icon:'✨', name:'TREASURE HUNTER',   desc:'Dig up the rare find while foraging.',      check:()=>!!achFlags.sweep_spirit},
   {id:'forage_lv5',    cat:'🌿 FORAGING',  icon:'🌿', name:"NATURE'S CHOSEN",   desc:'Reach Foraging level 5.',                 check:()=>skills.foraging.level>=5},
   {id:'forage_lv10',   cat:'🌿 FORAGING',  icon:'🌿', name:'SPIRIT MASTER',     desc:'Reach Foraging level 10.',                check:()=>skills.foraging.level>=10},
   // FISHING
@@ -4805,7 +4737,7 @@ function showSkillIntroTip(){
       <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cream);line-height:1.9;white-space:pre-wrap;">Skills grow as you play and unlock powerful perks!
 
 🌾 FARMING — harvest crops
-🌿 FORAGING — win at Rock Paper Scissors
+🌿 FORAGING — dig up wild finds
 🎣 FISHING — reel in catches
 🪓 WOODCUTTING — chop down trees
 ⛏ MINING — break rocks underground
@@ -4823,7 +4755,7 @@ const TAB_TIPS={
   },
   valley:{
     title:'🌲 THE VALLEY',
-    body:'Four activities await here:\n\n🌿 FORAGE — play Rock Paper Scissors vs the Forest Spirit for wild items.\n\n🎣 FISH — hold to raise your zone, release to drop. Head to TOWN to unlock.\n\n🪓 CHOP — swing your axe to fell trees for wood. Head to TOWN to unlock.\n\n⛏ MINE — descend 100 floors for rare ores. Head to TOWN to unlock.\n\nActivities cost energy. Restock by eating food from your BAG!',
+    body:'Four activities await here:\n\n🌿 FORAGE — dig the forest floor for wild finds. Colours tell you when you are close!\n\n🎣 FISH — hold to raise your zone, release to drop. Head to TOWN to unlock.\n\n🪓 CHOP — swing your axe to fell trees for wood. Head to TOWN to unlock.\n\n⛏ MINE — descend 100 floors for rare ores. Head to TOWN to unlock.\n\nActivities cost energy. Restock by eating food from your BAG!',
   },
   town:{
     title:'🏛 WELCOME TO TOWN',
@@ -5371,7 +5303,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v1.2 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v1.3 | Day: '+day+' | Season: '+currentSeason().name
   );
   sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
@@ -5534,20 +5466,7 @@ function getSapChance(){
   return skills.chopping.level>=5?0.6:0.4;
 }
 
-// ── FORAGING SKILL PERKS ──
-function getForageBonus(wins){
-  // extra items based on wins and foraging level
-  const lv=skills.foraging.level;
-  let bonus=0;
-  if(wins>=2&&lv>=3) bonus+=1;
-  if(wins>=3&&lv>=7) bonus+=1;
-  return bonus;
-}
-
-function getRpsSpiritBias(){
-  // lv5+ gives slight advantage — spirit bias weakens
-  return skills.foraging.level>=5?0.35:0.45;
-}
+// ── FORAGING SKILL PERKS ── see forageDigCount() / forageShimmerRange() / forageBuildPrizes()
 
 // ══════════════════════════════════════
 // ANIMAL SYSTEM
@@ -5787,16 +5706,16 @@ const SKILL_META={
   foraging:{
     icon:'🌿', name:'FORAGING', color:'#7ec850',
     perks:[
-      'Standard RPS rewards. Win more rounds for rarer loot.',
-      'You start to read the spirit\'s patterns.',
-      '2-win matches reward a bonus item.',
-      'The spirit\'s moves become more predictable.',
-      'Spirit bias weakens — easier to counter consistently.',
-      'Forage item quality improves across all wins.',
-      '3-win sweeps reward an extra bonus item.',
-      'The spirit struggles against experienced foragers.',
-      'Rare items appear more often in win rewards.',
-      'Perfect 3-0 sweep always yields a jackpot rare item. ✦',
+      '5 digs per hunt. Colours show how close the nearest find is.',
+      'Tier 2 finds start turning up.',
+      '+1 dig per hunt (6 digs).',
+      'Tier 3 finds start turning up.',
+      'The rare-find shimmer ✨ reaches 3 steps instead of 2.',
+      'Tier 4 finds start turning up.',
+      '+1 dig per hunt (7 digs).',
+      'Tier 5 rare finds start turning up.',
+      'Rare finds come in pairs — dig one up, get two.',
+      'The rare find is always the season\'s rarest treasure. ✦',
     ]
   },
   fishing:{
@@ -7684,7 +7603,7 @@ const MEAL_BUFFS={
   fishing:{icon:'🎣',label:'BIGGER FISHING ZONE'},
   mining: {icon:'⛏', label:'ROCKS -1 HP'},
   wood:   {icon:'🪓',label:'+2 WOOD PER FELL'},
-  forage: {icon:'🌿',label:'+1 FORAGE ITEM ON A WIN'},
+  forage: {icon:'🌿',label:'+1 DIG WHEN FORAGING'},
   farm:   {icon:'🌾',label:'+50% FARMING XP'},
 };
 // fish id → tier, for "T5+ fish" ingredients
@@ -8539,7 +8458,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v1.2 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v1.3 — FERNHOLLOW FARM</div>
   </div>
 </div>
 
