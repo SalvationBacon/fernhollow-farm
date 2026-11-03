@@ -2,9 +2,9 @@
 
 ## Overview
 Single HTML file farming game. No frameworks, vanilla JS only. Pixel aesthetic, Press Start 2P font.
-Working file: `index.html` — only build file (~8,200 lines).
+Working file: `index.html` — only build file (~8,550 lines).
 Hosted as PWA on GitHub Pages: https://salvationbacon.github.io/fernhollow-farm/
-Current version: **v1.1** (shown on title screen and in feedback reports).
+Current version: **v1.2** (shown on title screen and in feature requests).
 
 ---
 
@@ -13,7 +13,7 @@ Current version: **v1.1** (shown on title screen and in feedback reports).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v15` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v16` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -22,7 +22,7 @@ Current version: **v1.1** (shown on title screen and in feedback reports).
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v15` → `fernhollow-v16`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v16` → `fernhollow-v17`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -74,6 +74,20 @@ Mobile: `width:100%;max-width:420px` centred via `body{display:flex;justify-cont
 PC/Landscape: 220px sidebar + 420px game column
 **Important:** `#pc-wrap` and `#pc-right` use `display:contents` on mobile — do not add flex wrappers around them
 
+### Pixel Art
+All art is custom pixel art drawn in code — **no emoji are shown to the player**.
+- The first `<script>` in `index.html` holds the art: `PX_PAL` (palette letters → colours), `PX_SPRITES`
+  (rows of palette letters, `.` = transparent, or a recolour `{base, map, flipY}`) and `PX_EMOJI` (emoji → sprite).
+- **Game code keeps writing emoji in strings.** A MutationObserver (`pxStart` → `pxScan`/`pxText`) swaps every
+  emoji in on-screen text for `<img class="px">` of its sprite. Text inside `<option>`, `<textarea>`, `<input>` is skipped.
+- **Adding a new emoji anywhere? Give it a sprite in `PX_SPRITES` and an entry in `PX_EMOJI`**, or it will show as a
+  raw emoji. Arrows/ticks/`▸ ✦ ✕ ✓` are text glyphs and stay as text.
+- Inline icons render on a 12×12 canvas, displayed at `max(12px, 1.35em)` so they're never smaller than 1:1.
+- Scene sprites are `<img class="pxs" data-px="name">`, drawn at 2× by `pxSetSprite(el, name, scale)`.
+  Variants swapped at runtime: `farmhouse[_snow][_night]`, `tree / tree_spring / tree_fall / tree_winter`,
+  `sun_big / sun_set`, `farmer / farmer_step` (step frame + `scaleX(-1)` facing when walking).
+- Helpers: `pxURL(name, square)` (cached data URL), `pxSize(name)`, `pxSetSprite(el, name, scale)`.
+
 ---
 
 ## Layout
@@ -82,7 +96,10 @@ HUD (Title | Day | Energy | Gold | ⭐ Achievements | ⚙ Settings | 🛠 Dev)
 Season bar · Clock bar
 Status bar (#status-bar — festival today/countdown + active meal buff; hidden when empty)
 Skills bar (Farming | Foraging | Fishing | Woodcutting | Mining — tappable)
-Scene (sky/sun/moon/stars/clouds/trees/house/coop/barn/shipping crate/farmer/crops)
+Scene (sky/sun/moon/stars/clouds/trees/house/coop/barn/shipping crate/farmer/crops) — all pixel sprites
+  Positions are % of scene width so nothing clips/overlaps at any width:
+  tree 1% | coop 9% | crate 33% | house 52% (centred) | barn right 9% | tree right 1%
+  Crops `SCENE_CROP_X=[5,16,27,61,72,83]` (%). Farmer walks to the crop being worked (`moveFarmer`).
 Farm plot (3×2 grid)
 Info bar
 Tabs: SEEDS | BAG | VALLEY | ANIMALS (hidden until building) | TOWN
@@ -239,6 +256,8 @@ Item ID conventions: crops:`parsnip` · quality:`parsnip|silver` · forage:`dand
 | 🐄 Cow | Barn | 800g | 🥛 Milk | 60g | 1/day |
 | 🐑 Sheep | Barn | 1000g | 🧶 Wool | 90g | 1/2 days |
 
+Buildings go `false → 'building' → true` (built overnight in `animalNewDay`). The ANIMALS tab shows an
+"under construction" row and only offers animals once the building is `true`.
 Coop: 4 chickens max. Barn: 2 cows + 2 sheep max (enforced in `buyAnimal` and `vilBuy`). Feed: 10g/animal/day.
 Animals can be fed even while a product is waiting. Auto Feeder + Auto Collector available from Bess.
 Sheep are bought from the ANIMALS tab (not in Bess's shop).
@@ -341,8 +360,22 @@ Pop: 3s toast on unlock.
 Web Audio API. `playSound('type')`: plant · harvest · coin · chop · fell · cast · catch · forage · collect · levelup · ship · newday · build · error · rpswin · rpslose · sleep · titlestart
 
 ### Music Engine
-Procedural folk music — pentatonic pluck engine with bass, day/night volume dynamics.
-`musicStart()` · `musicStop()` · `musicPause()` · `musicResume()` (resumes to `musicVolume`).
+Song library `SONGS` — 10 original simple melodies, written as `"NOTE/beats"` tokens (`r` = rest) for `mel` and `bass`
+(both must total the same beats). Each song has `pool` (`spring|summer|fall|winter|night`), `bpm`, `inst`
+(`pluck|flute|bell|chip`) and optional `hats:true` (soft hi-hat on off-beats).
+- A song plays `SONG_LOOPS` (2) times, then `pickSong()` chooses another from the current pool
+  (night = 7pm–6am, otherwise the season), never repeating the same song back-to-back.
+- Look-ahead scheduler (`scheduleMusic`, every 250ms, 1.2s ahead on the AudioContext clock).
+- Night volume ×0.7 (`musicTargetVol()`). Settings shows `♪ NOW PLAYING: <song>` (`#music-now`).
+- `musicStart()` · `musicStop()` · `musicPause()` · `musicResume()` (restarts the current song) · `setMusicVolume()`
+
+| Pool | Songs |
+|---|---|
+| Spring | Morning Fields (pluck) · Blossom Path (flute) |
+| Summer | Sunny Rows (chip + hats) · River Glint (pluck) |
+| Fall | Harvest Waltz (3/4 pluck) · Amber Lane (flute) |
+| Winter | Frost Window (bell) · Hearthside (pluck) |
+| Night | Starlit Barn (bell) · Fireflies (flute) |
 
 ### Visibility Change Handler
 On hide: freeze clock, save, `musicStop()`, close both AudioContexts, set to null, schedule miss notification.
@@ -390,7 +423,7 @@ State: `salBulkDealUsed` — resets on season Day 1.
 
 ---
 
-## Feedback (Bug Report / Feature Request)
+## Feedback (Feature Request only — bug reports were removed in v1.2)
 `sendFeedback()` POSTs JSON to `FORMSPREE_ENDPOINT` when set (e.g. `https://formspree.io/f/xxxxxxx`).
 If the constant is blank, the request fails, or the device is offline, it falls back to a `mailto:` to `FEEDBACK_EMAIL`.
 
@@ -411,7 +444,7 @@ If the constant is blank, the request fails, or the device is offline, it falls 
   Ownership for villager shops lives in `vilItemOwned(it)`.
 
 ### Key Helper Functions
-`formatTime(days)` · `getItemInfo(id)` · `isEdible(id)` · `cropTier(crop)` · `pcAddLog(msg)` · `pcUpdate()` · `addToInventory(id,qty)` · `checkAchievements()` · `renderActivities()` · `renderTownHall()` · `vilToggleOpen(id)` · `vilItemOwned(it)` · `upCoins()` · `upEnergy()` · `showTabTip(key)` · `showAchPop(a)` · `scheduleInstallBanner()` · `getGameH()` · `getGameTimeStr()` · `freezeClock()` · `unfreezeClock()` · `doSleep()` · `forceSleep()` · `triggerNewDay(shipped,total)` · `forgeIngotReady()` (registers ingots, ores, wood, sap, animal products and meals in `ALL_ITEMS_MAP`)
+`formatTime(days)` · `getItemInfo(id)` · `isEdible(id)` · `cropTier(crop)` · `pcAddLog(msg)` · `pcUpdate()` · `addToInventory(id,qty)` · `checkAchievements()` · `renderActivities()` · `renderTownHall()` · `vilToggleOpen(id)` · `vilItemOwned(it)` · `upCoins()` · `upEnergy()` · `showTabTip(key)` · `showAchPop(a)` · `scheduleInstallBanner()` · `getGameH()` · `getGameTimeStr()` · `freezeClock()` · `unfreezeClock()` · `doSleep()` · `forceSleep()` · `triggerNewDay(shipped,total)` · `forgeIngotReady()` (registers ingots, ores, wood, sap, animal products and meals in `ALL_ITEMS_MAP`) · `pxURL(name)` · `pxSetSprite(el,name)` · `moveFarmer(i)`
 
 ### Key Render Functions
 | Function | Trigger |
@@ -597,6 +630,7 @@ Stub functions kept for old call sites: `notifScheduleCrop()`, `notifCancelCrop(
 - Sleep confirm popup
 - Network-first SW (auto-updates for players)
 - **v1.1:** Cooking depth (11 recipes, Hob teaches, meal buffs) · Sap has a use (cooking) · Seasonal festivals · Formspree feedback integration (needs endpoint) · bug-fix pass
+- **v1.2:** Custom pixel art for every icon and the whole farm scene · multi-song music engine · bug report removed · scene layout fix (coop/barn/crops)
 
 ### Long Term
 - Ads for season skipping (needs an ad network account)

@@ -106,33 +106,21 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 #sky{position:absolute;inset:0}
 #stars{position:absolute;inset:0;opacity:0}
 .star{position:absolute;background:#fff;border-radius:50%}
-#sun{position:absolute;width:18px;height:18px;background:#ffe44d;border:2px solid #c89808}
-#moon{position:absolute;width:14px;height:14px;background:#d0d8e8;border:2px solid #8898b8;border-radius:50%}
-.cloud{position:absolute}
+/* pixel art — sprites are drawn by pxURL(); .px = inline icon (swapped from emoji), .pxs = scene sprite */
+img.px{width:max(12px,1.35em);height:max(12px,1.35em);image-rendering:pixelated;image-rendering:crisp-edges;
+  vertical-align:-0.25em;display:inline-block;pointer-events:none;-webkit-user-drag:none}
+img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-webkit-user-drag:none}
+#sun,#moon{position:absolute;pointer-events:none}
+.cloud{position:absolute;pointer-events:none;transform-origin:left top}
 .ground{position:absolute;bottom:0;left:0;right:0;height:46px;border-top:3px solid #3a5c1e}
 .soil-strip{position:absolute;bottom:0;left:0;right:0;height:18px;border-top:2px solid var(--soil2);background:#6a4820}
-/* trees */
-.tree{position:absolute;bottom:44px}
-.tree-t{width:18px;height:18px;border:2px solid #1b4a10}
-.tree-b{width:8px;height:11px;background:#5a3010;border:2px solid #3a1a08;margin:0 auto}
-/* house */
-.house{position:absolute;bottom:44px;left:52%;transform:translateX(-50%)}
-.h-roof{width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-bottom:14px solid #b03020;margin-left:-2px}
-.h-wall{width:36px;height:26px;background:#d8a858;border:2px solid #a07828;position:relative}
-.h-door{width:8px;height:12px;background:#6a3808;border:1px solid #3a1a00;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
-.h-win{width:7px;height:7px;border:2px solid #4888a8;position:absolute;top:4px}
-/* farmer */
-#farmer{position:absolute;bottom:44px;transition:left .3s ease}
-.f-hat{width:12px;height:4px;background:var(--gold);border:2px solid #907010}
-.f-head{width:10px;height:8px;background:#e8a860;border:2px solid #b07030;margin-left:1px}
-.f-body{width:10px;height:10px;background:#4878c0;border:2px solid #285098;margin-left:1px}
-.f-legs{display:flex;gap:1px;margin-left:1px}
-.f-leg{width:4px;height:6px;background:#282848;border:1px solid #101020}
-/* ship box */
-#ship-box{position:absolute;bottom:44px;left:138px;cursor:pointer;transition:transform .12s}
+/* scene layout — percentages so nothing clips or overlaps at any width:
+   tree 1% | coop 9% | farmer 19–43% | crate 33% | house 52% | barn right 9% | tree right 1% */
+.tree{position:absolute;bottom:42px}
+.house{position:absolute;bottom:43px;left:52%;transform:translateX(-50%)}
+#farmer{position:absolute;bottom:43px;transition:left .3s ease;z-index:2}
+#ship-box{position:absolute;bottom:43px;left:33%;cursor:pointer;transition:transform .12s}
 #ship-box:active{transform:scale(.9)}
-.sb-lid{width:22px;height:6px;background:#a87840;border:2px solid var(--border);border-bottom:none;margin-bottom:-1px}
-.sb-body{width:22px;height:16px;background:#7a5028;border:2px solid var(--border);position:relative}
 .sb-count{position:absolute;top:-6px;right:-5px;background:var(--red);border:1px solid #802020;color:#fff;font-size:6px;width:12px;height:12px;display:none;align-items:center;justify-content:center;border-radius:50%}
 /* scene crop sprites — pixel-art rows on soil strip */
 .scene-crop{
@@ -198,8 +186,8 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 .animal-btn.buy{background:var(--mid);border-color:var(--rim);color:var(--muted)}
 .animal-btn.buy:hover{background:var(--lift)}
 /* Scene buildings */
-#scene-coop{position:absolute;bottom:44px;left:34px;display:none}
-#scene-barn{position:absolute;bottom:44px;right:34px;display:none}
+#scene-coop{position:absolute;bottom:43px;left:9%;display:none}
+#scene-barn{position:absolute;bottom:43px;right:9%;display:none}
 .bld-label{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:5px;white-space:nowrap}
 
 /* ── FARM PLOT ── */
@@ -702,40 +690,15 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 .ts-star{position:absolute;background:#fff;border-radius:50%}
 #ts-ground{position:absolute;bottom:0;left:0;right:0;height:50px;background:#2a4a18;border-top:3px solid #3a6020}
 #ts-soil{position:absolute;bottom:0;left:0;right:0;height:20px;background:#6a4820;border-top:2px solid #3a2510}
-/* moon hidden — title is always daytime */
-#ts-moon{display:none}
-/* sun on title screen */
-#ts-sun-title{position:absolute;width:20px;height:20px;background:#ffe44d;border:2px solid #c89808;top:16px;right:36px}
-.ts-tree{position:absolute;bottom:48px}
-.ts-tree-t{width:16px;height:16px;border:2px solid #1b4a10;background:#3a8a20}
-.ts-tree-b{width:7px;height:10px;background:#5a3010;border:2px solid #3a1a08;margin:0 auto}
-/* house */
-#ts-house{position:absolute;bottom:48px;left:50%;transform:translateX(-50%)}
-.ts-h-roof{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:12px solid #b03020;margin-left:-2px}
-.ts-h-wall{width:32px;height:24px;background:#d8a858;border:2px solid #a07828;position:relative}
-.ts-h-door{width:7px;height:10px;background:#6a3808;border:1px solid #3a1a00;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
-.ts-h-win{width:6px;height:6px;border:2px solid #4888a8;position:absolute;top:4px;background:#a8d4f5}
-/* coop */
-#ts-coop{position:absolute;bottom:48px;left:28px}
-.ts-coop-roof{width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:8px solid #c49838;margin-left:-2px}
-.ts-coop-wall{width:22px;height:18px;background:#b07830;border:2px solid #7a5020}
-/* barn */
-#ts-barn{position:absolute;bottom:48px;right:28px}
-.ts-barn-roof{width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:12px solid #a02828;margin-left:-2px}
-.ts-barn-wall{width:30px;height:22px;background:#c03030;border:2px solid #801818}
-/* ship box */
-#ts-box{position:absolute;bottom:48px;left:50%;margin-left:28px}
-.ts-box-lid{width:18px;height:5px;background:#a87840;border:2px solid var(--border);border-bottom:none}
-.ts-box-body{width:18px;height:13px;background:#7a5028;border:2px solid var(--border)}
-/* farmer */
-#ts-farmer{position:absolute;bottom:48px;left:50%;margin-left:-34px}
-.ts-f-hat{width:12px;height:4px;background:var(--gold);border:2px solid #907010}
-.ts-f-head{width:10px;height:8px;background:#e8a860;border:2px solid #b07030;margin-left:1px}
-.ts-f-body{width:10px;height:10px;background:#4878c0;border:2px solid #285098;margin-left:1px}
-.ts-f-legs{display:flex;gap:1px;margin-left:1px}
-.ts-f-leg{width:4px;height:6px;background:#282848;border:1px solid #101020}
-/* moon in title */
-#ts-moon{position:absolute;width:14px;height:14px;background:#d0d8e8;border:2px solid #8898b8;border-radius:50%;top:14px;right:30px}
+/* title scene — pixel sprites (always daytime) */
+#ts-sun-title{position:absolute;top:14px;right:12%}
+.ts-cloud{position:absolute}
+.ts-tree{position:absolute;bottom:47px}
+#ts-house{position:absolute;bottom:47px;left:50%;transform:translateX(-50%)}
+#ts-coop{position:absolute;bottom:47px;left:10%}
+#ts-barn{position:absolute;bottom:47px;right:11%}
+#ts-box{position:absolute;bottom:47px;left:50%;margin-left:30px}
+#ts-farmer{position:absolute;bottom:47px;left:50%;margin-left:-46px}
 /* logo area */
 #ts-logo-area{padding:18px 16px 0;text-align:center;width:100%}
 #ts-logo-icon{font-size:30px;margin-bottom:8px;line-height:1}
@@ -911,25 +874,12 @@ body.pc-mode #footer{padding-left:16px;padding-right:16px}
 body.pc-mode .act-section{margin-bottom:8px}
 body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
 /* Wider scene crop positions */
-body.pc-mode .scene-crop:nth-child(1){left:50px!important}
-body.pc-mode .scene-crop:nth-child(2){left:100px!important}
-body.pc-mode .scene-crop:nth-child(3){left:150px!important}
-body.pc-mode .scene-crop:nth-child(4){left:calc(55% + 20px)!important}
-body.pc-mode .scene-crop:nth-child(5){left:calc(55% + 70px)!important}
-body.pc-mode .scene-crop:nth-child(6){left:calc(55% + 120px)!important}
 
 /* Default: hide sidebar, normal layout */
 #pc-wrap{display:contents}
 #pc-left{display:none}
 #pc-right{display:contents}
 /* Landscape scene elements — reposition using % when game fills width */
-body.pc-mode .house{left:50%;transform:translateX(-50%)}
-body.pc-mode #scene-barn{right:6%}
-body.pc-mode #scene-coop{left:8%}
-body.pc-mode .tree:first-of-type{left:2%}
-body.pc-mode .tree:last-of-type{right:2%}
-body.pc-mode #ship-box{left:30%}
-body.pc-mode #farmer{left:22%}
 /* PC sidebar panels */
 .pc-panel{padding:10px 12px;border-bottom:1px solid var(--border)}
 .pc-panel-title{color:var(--muted);font-size:8px;letter-spacing:2px;margin-bottom:7px}
@@ -965,10 +915,10 @@ body.pc-mode #farmer{left:22%}
 #pc-sidebar-title span{color:var(--gold);font-size:9px;letter-spacing:2px}
 
 /* ── FEEDBACK OVERLAYS ── */
-#bug-overlay,#feat-overlay{
+#feat-overlay{
   display:none;position:absolute;inset:0;background:var(--ink);z-index:35;flex-direction:column;
 }
-#bug-overlay.show,#feat-overlay.show{display:flex}
+#feat-overlay.show{display:flex}
 .fb-header{background:var(--deep);border-bottom:2px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .fb-header-left{display:flex;align-items:center;gap:8px}
 .fb-title{color:var(--gold);font-size:8px;letter-spacing:1px}
@@ -1201,68 +1151,47 @@ body.pc-mode #farmer{left:22%}
 
   <div id="scene">
     <div id="sky"></div><div id="stars"></div>
-    <div id="sun"></div><div id="moon"></div>
-    <div class="cloud" id="cl1" style="width:34px;height:12px;top:12px;left:22px;position:absolute"></div>
-    <div class="cloud" id="cl2" style="width:22px;height:9px;top:20px;left:46px;position:absolute"></div>
-    <div class="cloud" id="cl3" style="width:40px;height:14px;top:8px;left:198px;position:absolute"></div>
+    <img id="sun" class="pxs" data-px="sun_big" alt="">
+    <img id="moon" class="pxs" data-px="moon_big" alt="">
+    <img class="cloud pxs" id="cl1" data-px="cloud" alt="" style="top:10px;left:5%">
+    <img class="cloud pxs" id="cl2" data-px="cloud" alt="" style="top:24px;left:22%;transform:scale(.7)">
+    <img class="cloud pxs" id="cl3" data-px="cloud" alt="" style="top:8px;left:52%">
     <div class="ground" id="ground"></div>
     <div class="soil-strip" id="soil-strip"></div>
-    <div class="tree" style="left:5px"><div class="tree-t" id="tree-t1"></div><div class="tree-b"></div></div>
-    <div class="tree" style="right:7px"><div class="tree-t" id="tree-t2"></div><div class="tree-b"></div></div>
+    <img class="tree pxs" id="tree-t1" data-px="tree" alt="" style="left:1%">
+    <img class="tree pxs" id="tree-t2" data-px="tree" alt="" style="right:1%">
     <div class="house" onclick="clickHouse()" style="cursor:pointer" title="Tap to sleep">
-      <div class="h-roof"></div>
-      <div class="h-wall">
-        <div class="h-win" id="wl" style="left:3px"></div>
-        <div class="h-win" id="wr" style="right:3px"></div>
-        <div class="h-door"></div>
-      </div>
+      <img id="house-img" class="pxs" data-px="farmhouse" alt="Farmhouse">
       <div class="bld-label" id="house-sleep-label" style="color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000">💤 SLEEP</div>
     </div>
     <div id="scene-crops"></div>
     <!-- COOP (left of house) -->
     <div id="scene-coop">
-      <!-- Construction state -->
       <div id="scene-coop-building" style="display:none">
-        <div style="font-size:14px;text-align:center;line-height:1">🚧</div>
-        <div style="width:30px;height:18px;background:#5a4020;border:2px solid #3a2810;display:flex;align-items:center;justify-content:center">
-        </div>
-        <div class="bld-label" style="color:#c87828">BUILDING</div>
+        <img class="pxs" data-px="site" alt="Coop under construction">
+        <div class="bld-label" style="color:#f0a040">BUILDING</div>
       </div>
-      <!-- Built state -->
       <div id="scene-coop-built" style="display:none">
-        <div style="width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:10px solid #d4a848;margin-left:-2px"></div>
-        <div style="width:30px;height:24px;background:#b8843a;border:2px solid #7a5020;position:relative;display:flex;align-items:center;justify-content:center">
-          <div style="position:absolute;bottom:2px;left:2px;width:6px;height:8px;background:#7a5020;border:1px solid #3a2808"></div>
-        </div>
-        <div class="bld-label" style="color:#d4a848">COOP</div>
+        <img class="pxs" data-px="coop" alt="Coop">
+        <div class="bld-label" style="color:#f8e048">COOP</div>
       </div>
     </div>
     <!-- BARN (right of house) -->
     <div id="scene-barn">
-      <!-- Construction state -->
       <div id="scene-barn-building" style="display:none">
-        <div style="font-size:14px;text-align:center;line-height:1">🚧</div>
-        <div style="width:38px;height:22px;background:#5a4020;border:2px solid #3a2810;display:flex;align-items:center;justify-content:center">
-        </div>
-        <div class="bld-label" style="color:#c87828">BUILDING</div>
+        <img class="pxs" data-px="site" alt="Barn under construction">
+        <div class="bld-label" style="color:#f0a040">BUILDING</div>
       </div>
-      <!-- Built state -->
       <div id="scene-barn-built" style="display:none">
-        <div style="width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:14px solid #a02828;margin-left:-2px"></div>
-        <div style="width:42px;height:30px;background:#c83030;border:2px solid #801818;position:relative;display:flex;align-items:center;justify-content:center">
-          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:10px;height:14px;background:#801818;border:1px solid #501010"></div>
-        </div>
-        <div class="bld-label" style="color:#e05050">BARN</div>
+        <img class="pxs" data-px="barn" alt="Barn">
+        <div class="bld-label" style="color:#ff7060">BARN</div>
       </div>
     </div>
     <div id="ship-box" onclick="showTab('inv')">
-      <div class="sb-lid"></div>
-      <div class="sb-body"><div class="sb-count" id="ship-count"></div></div>
+      <img class="pxs" data-px="crate" alt="Shipping crate">
+      <div class="sb-count" id="ship-count"></div>
     </div>
-    <div id="farmer" style="left:80px">
-      <div class="f-hat"></div><div class="f-head"></div><div class="f-body"></div>
-      <div class="f-legs"><div class="f-leg"></div><div class="f-leg"></div></div>
-    </div>
+    <img id="farmer" class="pxs" data-px="farmer" alt="Farmer" style="left:19%">
   </div>
   <div id="dev-bar">
     <span id="speed-label" style="display:none">SPEED:</span>
@@ -1702,33 +1631,6 @@ body.pc-mode #farmer{left:22%}
     <button id="install-banner-close" onclick="dismissInstallBanner()">✕</button>
   </div>
 
-  <!-- BUG REPORT OVERLAY -->
-  <div id="bug-overlay">
-    <div class="fb-header">
-      <div class="fb-header-left"><span class="fb-title">🐛 REPORT A BUG</span></div>
-      <button class="fb-close" onclick="closeBugReport()">✕ CLOSE</button>
-    </div>
-    <div class="fb-body">
-      <div class="fb-section">
-        <div class="fb-label">▸ WHAT WENT WRONG?</div>
-        <div class="fb-desc">Describe what happened and what you expected instead.</div>
-        <textarea class="fb-input" id="bug-desc" placeholder="e.g. Tapping the parsnip tile crashed the game..."></textarea>
-      </div>
-      <div class="fb-section">
-        <div class="fb-label">▸ HOW TO REPRODUCE</div>
-        <div class="fb-desc">What steps led to the bug? (Optional but very helpful)</div>
-        <textarea class="fb-input" id="bug-steps" placeholder="1. Plant a parsnip&#10;2. Wait 1 minute&#10;3. Tap to harvest..."></textarea>
-      </div>
-      <div class="fb-section">
-        <div class="fb-label">▸ YOUR GAME STATE</div>
-        <div class="fb-desc">Auto-attached to your report so we can reproduce it.</div>
-        <div class="fb-state-box" id="bug-state">Loading...</div>
-      </div>
-      <button class="fb-submit" onclick="submitBugReport()">📧 SEND BUG REPORT</button>
-      <div class="fb-note">Opens your email app with a pre-filled report.<br>No account needed.</div>
-    </div>
-  </div>
-
   <!-- FEATURE REQUEST OVERLAY -->
   <div id="feat-overlay">
     <div class="fb-header">
@@ -1745,14 +1647,14 @@ body.pc-mode #farmer{left:22%}
         <div class="fb-label">▸ CATEGORY</div>
         <div class="fb-desc">What area of the game does this relate to?</div>
         <select class="fb-select" id="feat-category">
-          <option value="farming">🌱 Farming &amp; Crops</option>
-          <option value="valley">🌲 The Valley (fishing, foraging, mining, woodcutting)</option>
-          <option value="town">🏛 Town Hall &amp; Villagers</option>
-          <option value="animals">🐾 Animals</option>
-          <option value="ui">🎮 UI &amp; Controls</option>
-          <option value="progression">⭐ Progression &amp; Balance</option>
-          <option value="multiplayer">👥 Multiplayer &amp; Social</option>
-          <option value="other">💬 Other</option>
+          <option value="farming">Farming &amp; Crops</option>
+          <option value="valley">The Valley (fishing, foraging, mining, woodcutting)</option>
+          <option value="town">Town Hall &amp; Villagers</option>
+          <option value="animals">Animals</option>
+          <option value="ui">UI &amp; Controls</option>
+          <option value="progression">Progression &amp; Balance</option>
+          <option value="multiplayer">Multiplayer &amp; Social</option>
+          <option value="other">Other</option>
         </select>
       </div>
       <div class="fb-section">
@@ -1869,18 +1771,13 @@ body.pc-mode #farmer{left:22%}
             oninput="setMusicVolume(this.value)">
           <span id="music-vol-label" style="font-size:4px;color:var(--cream);min-width:24px;text-align:right">70%</span>
         </div>
+        <div id="music-now" style="font-size:4px;color:var(--gold);margin-top:6px">♪ MUSIC STARTS WHEN YOU TAP</div>
       </div>
 
       <div class="settings-section">
         <div class="settings-section-title">▸ TUTORIAL</div>
         <div class="settings-desc">Replay Grandpa's letter and the guided tutorial from the beginning.</div>
         <button class="sett-btn export" onclick="replayTutorial()">📜 REPLAY TUTORIAL</button>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-section-title">▸ REPORT A BUG</div>
-        <div class="settings-desc">Found something broken? Let us know and we'll fix it fast.</div>
-        <button class="sett-btn import" onclick="openBugReport()">🐛 REPORT A BUG</button>
       </div>
 
       <div class="settings-section">
@@ -1906,6 +1803,452 @@ body.pc-mode #farmer{left:22%}
   </div>
 </div>
 
+<script>
+// ══════════════════════════════════════
+// PIXEL ART — custom sprites for every icon in the game
+// ══════════════════════════════════════
+// Sprites are rows of palette letters ('.' = transparent). A sprite can also be a recolour
+// of another: {base:'name', map:{from:to}, flipY:true}. Every emoji the game prints is swapped
+// for its sprite automatically (see pxScan / PX_EMOJI), so game code can keep using emoji.
+const PX_PAL={
+  k:'#24160a', w:'#fffef0', W:'#d4d0c4', g:'#8c8a84', G:'#4c4a46',
+  r:'#e04030', R:'#902018', p:'#f890a8', P:'#c03870',
+  o:'#f09030', O:'#a85818', y:'#f8e048', Y:'#c89810',
+  l:'#98e050', e:'#50a830', E:'#24601a',
+  b:'#60b0f0', B:'#2a5cb0', c:'#b8ecff',
+  v:'#a060d8', V:'#5c2c88',
+  n:'#b07838', N:'#603814', t:'#f0c890', T:'#c08850', s:'#fff0c8', m:'#7a5028',
+};
+const PX_SPRITES={
+  // ── UI ──
+  coin:{r:['..kkkkkk..','.kyyyyyyk.','kyywyyyyYk','kywyyYyyYk','kyyyYyyyYk','kyyyYyyyYk','kyyyYyyyYk','kyyyyyyYYk','.kYYYYYYk.','..kkkkkk..']},
+  star:{r:['....kk....','...kyyk...','...kyyk...','kkkyyyykkk','kyyywyyyyk','.kyyyyyyk.','..kyyyyk..','.kyyyyyyk.','kyyk..kyyk','kkk....kkk']},
+  bolt:{r:['....kkkk..','...kyyyk..','...kyyk...','..kyyk....','.kyyyyykk.','.kkkyyyyk.','...kyyk...','..kyyk....','..kyk.....','..kk......']},
+  heart:{r:['.kkk..kkk.','krrrkkrrrk','krwrrrrrrk','krrrrrrrrk','krrrrrrrRk','.krrrrrRk.','..krrrRk..','...krRk...','....kk....']},
+  heart_pink:{base:'heart',map:{r:'p',R:'P'}},
+  heart_purple:{base:'heart',map:{r:'v',R:'V'}},
+  heart_empty:{r:['.kkk..kkk.','kgggkkgggk','kg..gg..gk','kg......gk','kg......gk','.kg....gk.','..kg..gk..','...kggk...','....kk....']},
+  drop:{r:['....kk....','...kbbk...','...kbbk...','..kbbbbk..','.kbcbbbbk.','.kbcbbbbk.','.kbbbbbBk.','.kbbbbBBk.','..kbBBBk..','...kkkk...']},
+  drops:{r:['..k.....k.','.kbk...kbk','kcbbk.kcbk','kbbBk.kbBk','.kkk...kk.','....k.....','...kbk....','..kcbbk...','..kbbBk...','...kkk....']},
+  amber:{base:'drop',map:{b:'o',c:'y',B:'O'}},
+  question:{r:['..kkkkk...','.kyyyyyk..','kyykkyyk..','.kk.kyyk..','...kyyk...','...kyk....','...kkk....','...kyk....','...kkk....']},
+  warn:{r:['....kk....','...kyyk...','...kyyk...','..kykkyk..','..kykkyk..','.kyykkyyk.','.kyyyyyyk.','kyyykkyyyk','kyyyyyyyyk','kkkkkkkkkk']},
+  up:{r:['...kk...','..kssk..','.kssssk.','kssssssk','kkksskkk','..kssk..','..kssk..','..kssk..','..kkkk..']},
+  down:{base:'up',flipY:true},
+  ff:{r:['s...s...','ss..ss..','sss.sss.','ssssssss','sss.sss.','ss..ss..','s...s...']},
+  gear:{r:['...kkkk...','.kkWWWWkk.','.kWWggWWk.','kWWgkkgWWk','kWgk..kgWk','kWgk..kgWk','kWWgkkgWWk','.kWWggWWk.','.kkWWWWkk.','...kkkk...']},
+  lock:{r:['..kkkkk...','.kWkkkWk..','.kWk.kWk..','kkkkkkkkk.','kyyyyyyYk.','kyyykyyYk.','kyyykyyYk.','kyYYYYYYk.','kkkkkkkkk.']},
+  unlock:{r:['..kkkkk...','.kWkkkWk..','.kWk......','kkkkkkkkk.','kyyyyyyYk.','kyyykyyYk.','kyyykyyYk.','kyYYYYYYk.','kkkkkkkkk.']},
+  gift:{r:['..kk..kk..','.kyykkyyk.','kkkkyykkkk','krrryyrrrk','kkkkyykkkk','krrryyrrRk','krrryyrrRk','krrryyrrRk','kkkkkkkkkk']},
+  medal_gold:{r:['kbk....kbk','.kbk..kbk.','..kbkkbk..','...kkkk...','..kyyyyk..','.kyywyyYk.','.kyyyyyYk.','.kyyyyYYk.','..kYYYYk..','...kkkk...']},
+  medal_silver:{base:'medal_gold',map:{y:'W',Y:'g'}},
+  box:{r:['.kkkkkkkk.','knnnyynnnk','kkkkkkkkkk','knnnyynnNk','knnnnnnnNk','knnnnnnnNk','knnnnnnnNk','kNNNNNNNNk','kkkkkkkkkk']},
+  townhall:{r:['....kkk....','..kkWWWkk..','kkWWWWWWWkk','kkkkkkkkkkk','..kW.kW.kW.','..kW.kW.kW.','..kW.kW.kW.','.kkkkkkkkk.','kWWWWWWWWWk','kkkkkkkkkkk']},
+  house:{r:['....kk....','...krrk...','..krrrrk..','.krrrrrrk.','kkkkkkkkkk','.ktbttbtk.','.kttNNttk.','.kttNNttk.','.kkkkkkkk.']},
+  house_old:{base:'house',map:{r:'n',t:'g',b:'G'}},
+  lantern:{r:['....kk....','...kkkk...','..krrrrk..','.krryrrRk.','.kryyyrRk.','.krryrrRk.','..krrrrk..','...kkkk...','....kk....']},
+  tent:{r:['....krr...','....k.....','...kwk....','..kwrwk...','.kwrwrwk..','kwrwrwrwk.','kkkkkkkkk.','kwrkkkwrk.','kwrkNkwrk.','kkkkkkkkk.']},
+  moon:{r:['...kkkk...','..kyyyk...','.kyyk.....','kyyk......','kyyk......','kyyk......','.kyyk.....','..kyyyk...','...kkkk...']},
+  sun:{r:['....yy....','.y.kkkk.y.','..kyyyyk..','.kyywyyyk.','ykyyyyyyky','ykyyyyyyky','.kyyyyyYk.','..kyyyYk..','.y.kkkk.y.','....yy....']},
+  snow:{r:['....c....','.c..c..c.','..c.c.c..','...ccc...','ccccwcccc','...ccc...','..c.c.c..','.c..c..c.','....c....']},
+  zzz:{r:['......cccc','.......cc.','......cc..','cccc.cccc.','..cc......','.cc.......','cccc......']},
+  fire:{r:['....k.....','...kok....','...koyk...','..koyyok..','.koyyyok.k','.koyyyyokk','kooyyyyook','kooyywyook','.koyyyyok.','..kkkkkk..']},
+  sparkle:{r:['...k......','..kyk...k.','.kyyyk.kyk','kyywyyk.k.','.kyyyk....','..kyk..k..','...k..kyk.','.......k..']},
+  note:{r:['.....kk...','.....ksk..','.....k.sk.','.....k..k.','.....k....','..kkkk....','.ksssk....','.kssk.....','..kk......']},
+  bell:{r:['...kk...','..kyyk..','.kyyyyk.','.kywyyk.','.kyyyyk.','kyyyyyyk','kkkkkkkk','...kk...']},
+  bell_off:{r:['...kk..r','..kyyk.r','.kyyyyr.','.kywyrk.','.kyyryk.','kyyryyyk','kkrkkkkk','.r.kk...']},
+  speaker:{r:['...k.....','..kk..s..','kkWk.s..s','kWWk..s.s','kWWk..s.s','kkWk.s..s','..kk..s..','...k.....']},
+  speaker_lo:{r:['...k..','..kk..','kkWk.s','kWWk.s','kWWk.s','kkWk.s','..kk..','...k..']},
+  speaker_off:{r:['...k.....','..kk.....','kkWk.r.r.','kWWk..r..','kWWk..r..','kkWk.r.r.','..kk.....','...k.....']},
+  bulb:{r:['..kkkk..','.kyyyyk.','kyywyyyk','kyyyyyyk','.kyyyyk.','..kWWk..','..kggk..','...kk...']},
+  phone:{r:['.kkkkkk.','.kGGGGk.','.kbbbbk.','.kbcbbk.','.kbbbbk.','.kbbbbk.','.kGGGGk.','.kGWGGk.','.kkkkkk.']},
+  monitor:{r:['kkkkkkkkk','kbbbbbbbk','kbcbbbbbk','kbbbbbbbk','kkkkkkkkk','...kGk...','..kkkkk..']},
+  gamepad:{r:['.kkkkkkkk.','kGGGGGGGGk','kGWGGGGrGk','kWWWGGbGrk','kGWGGGGbGk','.kkGGGGkk.','..kk..kk..']},
+  speech:{r:['.kkkkkkk.','kwwwwwwwk','kwWwWwWwk','kwwwwwwwk','.kkkkkkk.','..kwk....','..kk.....']},
+  chart:{r:['k........','k......r.','k....b.r.','k.e..b.r.','k.e..b.r.','kkkkkkkkk']},
+  calendar:{r:['.k....k.','kkkkkkkk','krrrrrrk','kwwwwwwk','kwkwkwwk','kwwwwwwk','kwkwkwwk','kkkkkkkk']},
+  floppy:{r:['kkkkkkkk','kBWWWWBk','kBWWWWBk','kBBBBBBk','kBkkkkBk','kBkGWkBk','kkkkkkkk']},
+  mail:{r:['kkkkkkkkk','kWkwwwkWk','kwwkwkwwk','kwwwkwwwk','kwwwwwwwk','kkkkkkkkk']},
+  clock:{r:['..kkkk..','.kwwwwk.','kwwkwwwk','kwwkwwwk','kwwkkkwk','kwwwwwwk','.kwwwwk.','..kkkk..']},
+  paper:{r:['kkkkkk..','kwwwwkk.','kwWWwwkk','kwwwwwwk','kwWWWWwk','kwwwwwwk','kwWWWWwk','kwwwwwwk','kkkkkkkk']},
+  scroll:{base:'paper',map:{w:'s',W:'T'}},
+  puff:{r:['..WW....','.WWWW.W.','WWwwWWWW','.WWWWWW.','...WW...']},
+  face_happy:{r:['..kkkk..','.kyyyyk.','kyyyyyyk','kykyykyk','kyyyyyyk','kykkkkyk','.kyyyyk.','..kkkk..']},
+  face_meh:{r:['..kkkk..','.kyyyyk.','kyyyyyyk','kykyykyk','kyyyyyyk','kyykkyyk','.kyyyyk.','..kkkk..']},
+  face_think:{r:['..kkkk..','.kyyyyk.','kyyyyyyk','kykyykyk','kyyyyyyk','kyyykkyk','.kyyyyk.','..kkkk..']},
+  face_devil:{r:['k......k','kk.kk.kk','.kvvvvk.','kvvvvvvk','kvkvvkvk','kvvvvvvk','kvkkkkvk','.kvvvvk.','..kkkk..']},
+  person:{r:['..kkkk..','.kNNNNk.','.kttttk.','.ktkktk.','.kttttk.','..kkkk..','.kbbbbk.','kbbbbbbk','kbbbbbbk','kkkkkkkk']},
+  hand:{r:['..k.k....','.ktktk.k.','.ktktkktk','.ktttktk.','kktttttk.','kttttttk.','.kttttk..','..kkkk...']},
+  robot:{r:['....kk....','..kkWWkk..','.kWWWWWWk.','.kWbWWbWk.','.kWWWWWWk.','.kWkkkkWk.','..kkkkkk..','.kgggggGk.','.kkkkkkkk.']},
+  moneybag:{r:['..kk.kk...','...kkk....','..knnnk...','.knnnnnk..','knnyyynnk.','knnynnnnk.','knnyyynnk.','knnnnynnk.','knnyyynnk.','.kkkkkkk..']},
+  cart:{r:['kk........','.kkkkkkkkk','..kWkWkWk.','..kWkWkWk.','...kkkkkk.','...k....k.','...kkkkkk.','...kk..kk.']},
+  bag:{r:['...kkkk...','..k....k..','.kkkkkkkk.','knnnnnnnnk','knnnyynnnk','knnnnnnnNk','knnnnnnnNk','.kkkkkkkk.']},
+  briefcase:{base:'bag',map:{n:'N'}},
+  barrier:{r:['kk......kk','kkkkkkkkkk','kyykkyykyk','kkkkkkkkkk','.k......k.','.k......k.','kkk....kkk']},
+  blast:{r:['o..y...o.','.oyyyoyo.','.yyrryyy.','yyrwwryyo','.yrwwrry.','oyyrryyo.','.oyyoyyo.','o...y..o.']},
+  arm:{r:['...kk.....','..kttk....','..kttk....','.kttk.kkk.','.kttkkttTk','kttttttttk','kTtttttTk.','.kTTTTTk..','..kkkkk...']},
+  scissors:{r:['W......W','.W....W.','..W..W..','...WW...','..kWWk..','.rr..rr.','r..rr..r','.rr..rr.']},
+  door:{r:['.kkkkkk.','knnnnnnk','knNnnNnk','knNnnNnk','knnnnnyk','knNnnNnk','knNnnNnk','knnnnnnk','kkkkkkkk']},
+  tophat:{r:['..kkkkkk..','..kGGGGk..','..kGGGGk..','..kGGGGk..','..krrrrk..','kkkkkkkkkk','kGGGGGGGGk','kkkkkkkkkk']},
+  bug:{r:['.k....k.','..k..k..','.kkkkkk.','kelkkelk','keeeeeek','kekeekek','keeeeeek','.kkkkkk.']},
+  // ── tools ──
+  rod:{r:['........kk','.......knk','......knkW','.....knk.W','....knk..W','...knk...W','..knk....W','.kook....W','kooyk...kW','kkkk....kk']},
+  axe:{r:['..kkkk....','.kwWWkk...','kwWWWknk..','kWWWgknk..','.kWggknk..','..kkkknk..','.....knk..','.....knk..','.....knk..','.....kkk..']},
+  pick:{r:['...kkkkk...','.kkwWWWWkk.','kwWkknkkWgk','kWk.knk.kgk','kk..knk..kk','....knk....','....knk....','....knk....','....kkk....']},
+  hammer:{r:['kkkkkkkk','kWWWWWwk','kgggggWk','kkknnkkk','..knnk..','..knnk..','..knnk..','..knnk..','..kkkk..']},
+  worm:{r:['.kkk......','kpkpk.....','kpppk.....','.kpk..kkk.','.kpk.kpppk','..kppk.kpk','...kk..kk.']},
+  net:{r:['W...W...W','.W.W.W.W.','..W...W..','.W.W.W.W.','W...W...W','.W.W.W.W.','..W...W..','.W.W.W.W.','W...W...W']},
+  log:{r:['..kkkkkk..','.kNNNNNNk.','kNttttttNk','kNtTTTTtNk','kNtTttTtNk','kNtTTTTtNk','kNttttttNk','.kNNNNNNk.','..kkkkkk..']},
+  // ── nature / crops ──
+  sprout:{r:['.kk....kk.','kllk..klek','klllkkleek','.kllkkeek.','..kkeekk..','....ek....','....ek....','..kkekkk..','.knnnnnnk.','..kkkkkk..']},
+  herb:{r:['......kkk.','.....klllk','..kk.kllek','.kllkkeek.','.klllkek..','..kleeek..','...kkek...','....kek...','....kek...','.....k....']},
+  wheat:{r:['...kk.kk..','..kyykyyk.','..kyYkyYk.','...kykyk..','..kyykyyk.','..kyYkYyk.','...kkykk..','....kYk...','....kYk...','....kYk...']},
+  blossom:{r:['...kkkk...','..kppppk..','.kkppppkk.','kppkppkppk','kpppyypppk','kpppyypppk','kppkppkppk','.kkppppkk.','..kppppk..','...kkkk...']},
+  daisy:{base:'blossom',map:{p:'y',y:'o'}},
+  hibiscus:{base:'blossom',map:{p:'r',y:'y'}},
+  pine:{r:['....kk....','...keek...','..keeeEk..','...keEk...','..keeeEk..','.keeeeeEk.','..keeeEk..','.keeeeeEEk','keeeeeeEEk','kkkkkkkkkk','....NN....']},
+  leaf:{r:['......kkk.','....kkoook','...koooOok','..kooOOook','.kooOooOk.','.koOoooOk.','kooOooOk..','kOooOkk...','kOkkk.....','k.........']},
+  cauli:{r:['..kkkkkk..','.kwwwWwwk.','kwwWwwwWwk','kwwwwWwwwk','kWwwwwwwWk','.kkwwwwkk.','keekkkkeek','keeeeeeeek','.keeeeeek.','..kkkkkk..']},
+  kale:{r:['..kkkkkk..','.kllelllk.','klleleellk','kleellelek','kllelleelk','.kleleelk.','..kelelk..','...klwk...','...kwwk...','....kk....']},
+  blueberry:{r:['...kkkk...','..kbcbbk..','..kbbbBk..','.kkkBBkkk.','kbcbkkbcbk','kbbbBkbbBk','kbbBBkbBBk','.kkkk.kkk.']},
+  salad:{r:['..kk.kk...','.kllklelk.','kleellelek','kkkkkkkkkk','kwWwwwwWwk','.kwwwwwwk.','..kWWWWk..','...kkkk...']},
+  snowyam:{r:['....kk....','...keek...','..kkkkkk..','.kwwwwwWk.','kwwwwwwWWk','kwwWwwwwWk','kwwwwWwWWk','.kWwwwWWk.','..kkWWkk..','....kk....']},
+  potato:{r:['..kkkkk...','.knnnnnkk.','knnNnnnnnk','knnnnnNnnk','knNnnnnnNk','.knnnNnnNk','..kNNNNNk.','...kkkkk..']},
+  garlic:{r:['....kk....','....kk....','...kwwk...','..kwwWwk..','.kwwWwwWk.','kwwWwwWwwk','kwWwwWwwWk','.kWwWwwWk.','..kkkkkk..','...k.k.k..']},
+  onion:{base:'garlic',map:{w:'v',W:'V'}},
+  tulip:{r:['..k.kk.k..','.krkrrkrk.','.krrrrrrk.','.krrrrrRk.','..krrrRk..','...kkkk...','.kk.kek...','.klkkekk..','..kleeek..','....kek...']},
+  tomato:{r:['...kekk...','..kkeek...','.kkrrrrkk.','krrwrrrrrk','krwrrrrrRk','krrrrrrrRk','krrrrrrRRk','.kRrrrRRk.','..kkkkkk..']},
+  sunflower:{r:['..k.kk.k..','.kykyykyk.','kyyykkyyyk','.kykNNkyk.','kyykNNkyyk','.kyykkyyk.','..kyyyyk..','...kkek...','..kk.ekk..','....kek...']},
+  pumpkin:{r:['....kNk...','....kek...','.kkkkkkkk.','kooOooOook','koOooOooOk','koOooOooOk','koOooOooOk','kOOoOOoOOk','.kkkkkkkk.']},
+  yam:{r:['...kkkk...','..kPPPPkk.','.kPvPPPPPk','kPPPPvPPPk','kPvPPPPPVk','.kPPPPVVk.','..kkkkkk..']},
+  grape:{r:['.....kk...','....kek...','.kkkkkkkk.','kvcvvcvvvk','kvvvvvvvVk','.kvcvvcvk.','.kvvvvvVk.','..kvcvvk..','...kvVk...','....kk....']},
+  cherry:{r:['......kk..','.....kek..','....keek..','...ke.ek..','..kek..ek.','.kkk..kkk.','krwrkkrwrk','krrrkkrrRk','.kkk..kkk.']},
+  gem:{r:['..kkkkkk..','.kcwcccbk.','kcwccccbbk','kkkkkkkkkk','.kcccbbbk.','..kccbbk..','...kcbk...','....kk....']},
+  quartz:{r:['....kk....','...kcbk...','..kcwbbk..','.kcwbbbBk.','kcbbbbbBBk','.kbbbbBBk.','..kbbBBk..','...kbBk...','....kk....']},
+  topaz:{base:'quartz',map:{c:'y',w:'w',b:'o',B:'O'}},
+  emerald:{base:'quartz',map:{c:'l',b:'e',B:'E'}},
+  ruby:{base:'gem',map:{c:'p',b:'r',w:'w'}},
+  nugget:{r:['..kkkkk...','.kgggggkk.','kggyyggggk','kgyyYgggGk','kggYgggyyk','kgggggyyYk','kGggggGYGk','.kGGGGGGk.','..kkkkkk..']},
+  copper:{base:'nugget',map:{y:'o',Y:'O'}},
+  stone:{r:['...kkkk...','..kWgggkk.','.kWgggggGk','kgggggggGk','kggggGggGk','kgGgggggGk','.kGGgGGGk.','..kkkkkk..']},
+  coal:{base:'stone',map:{W:'g',g:'G',G:'k'}},
+  iron:{r:['...kkkk...','..kWWWgk..','.kWWkkWgk.','kWWk..kWgk','kWWk..kggk','.kWWkkggk.','..kWggGk..','...kkkk...']},
+  candle:{r:['...y....','..yoy...','...k....','..kwk...','..kwk...','..kwk...','..kWk...','.kkkkk..']},
+  coral:{r:['c..c..c.','c.cc.cc.','cc.c.c.c','.ccccc..','..ccc...','..ccc...','.kkkkk..']},
+  pinecone:{r:['...kk...','..kNNk..','.knNnNk.','.kNnNnk.','knNnNnNk','.kNnNnk.','.knNnNk.','..kNNk..','...kk...']},
+  shell:{r:['...kkkk...','..kpwppk..','.kpPpPpPk.','kpPpPpPpPk','kpPpPpPpPk','.kkpPpPkk.','...kkkk...']},
+  amphora:{r:['..kkkk..','...kk...','..kook..','.koOook.','kokkkkok','koooOOok','.kooOOk.','..kOOk..','..kkkk..']},
+  chestnut:{r:['....k....','..kkNkk..','.kNNNNNk.','kNnNNNNNk','knnnnnnnk','knwnnnnnk','.knnnnnk.','..kkkkk..']},
+  clover:{r:['.kkk.kkk.','kelekelek','keeeeeeek','.keeeeek.','keeeeeeek','kelekelek','.kkkekkk.','....ek...','....kk...']},
+  carrot:{r:['......k.k.','.....kekek','....kookk.','...koook..','..kooOk...','..koOok...','.kooOk....','.kOok.....','kOkk......','kk........']},
+  mushroom:{r:['..kkkkk...','.krrwrrk..','krwrrrwrk.','krrrwrrrk.','kkkkkkkkk.','..kwwwk...','..kwwwk...','..kWWWk...','..kkkkk...']},
+  beans:{r:['.kkk.kkk.','kcwckcwck','kccbkccbk','.kkk.kkk.','...kkk...','..kcwck..','..kccbk..','...kkk...']},
+  apple:{r:['.....kk...','....kNkeek','..kkkNkkk.','.krwrrrrRk','krwrrrrrRk','krrrrrrrRk','krrrrrrRRk','.krrrrRRk.','..kkkkkk..']},
+  goldapple:{base:'apple',map:{r:'y',R:'Y'}},
+  peach:{base:'apple',map:{r:'p',R:'P'}},
+  // ── fish & sea ──
+  fish:{r:['...kkkkk....','..kccbbbk.kk','.kcwkbbbbkbk','kbbbbbbbbbbk','.kBbbbbbBkbk','..kBBBBBk.kk','...kkkkk....']},
+  fish_trop:{base:'fish',map:{b:'o',B:'O',c:'y'}},
+  puffer:{r:['..k.kk.k..','.kykyykyk.','kyyyyyyyyk','kywkyyyyyk','kyyyyyyyyk','kyyyyykkyk','.kYyyyyYk.','..kkkkkk..']},
+  eel:{r:['.kkk......','kekek.....','keeek..kk.','.keek.keek','..keekeek.','...keeek..','....kkk...']},
+  dragon:{r:['..k...k...','.kek.kek..','.keekeek..','keeeeeeek.','kekeeekeek','keeeeeeeek','kerrrrrek.','.keeeeek..','..kkkkk...']},
+  crab:{r:['kk......kk','krk....krk','.kk.kk.kk.','..krkkrk..','.krrrrrrk.','krrrrrrrRk','.kRRRRRRk.','k.k.kk.k.k']},
+  squid:{r:['...kkkk...','..kppppk..','.kppppppk.','.kpkppkpk.','.kppppppk.','..kPPPPk..','.kpkpkpk..','.kp.kp.kp.']},
+  ice:{r:['.kkkkkkkk.','kcwccccbbk','kwccccccbk','kcccccccbk','kccccccbbk','kcccccbbbk','kbbbbbbbbk','.kkkkkkkk.']},
+  // ── animals ──
+  chicken:{r:['..kk......','.krrk.....','.kwwwk....','kokwwk....','.kwwwkkkk.','.kwwwwwwwk','.kwwWwwwWk','..kwWWWWk.','...kokok..','...kk.kk..']},
+  cow:{r:['Wk......kW','kkkkkkkkkk','kwwwkkwwwk','kwkwkkwkwk','kwwwwwwwwk','.kppppppk.','.kpkppkpk.','.kppppppk.','..kkkkkk..']},
+  sheep:{r:['..kkkkkk..','.kwWwwWwk.','kwwkkkkwwk','kwkGGGGkwk','kwkwGGwkwk','kwkGGGGkwk','.kwkGGkwk.','.kwwkkwwk.','..kkkkkk..']},
+  egg:{r:['..kkkk..','.kssssk.','kssssstk','kssssstk','kssssstk','ksssttk.','.kttttk.','..kkkk..']},
+  milk:{r:['..kkkk..','..kWWk..','.kwwwwk.','kwwwwwwk','kwbbbbwk','kwbwbbwk','kwwwwwWk','kwwwwwWk','kkkkkkkk']},
+  yarn:{r:['..kkkkk...','.kpPpppk..','kppPpPppk.','kpPppPppk.','kppPppPpk.','kpPppPppk.','.kppPpPk.k','..kkkkk.k.']},
+  paw:{r:['.kk...kk.','knnk.knnk','.kk.k.kk.','...knk...','.kknnnkk.','knnnnnnnk','knnnnnnnk','.kkkkkkk.']},
+  // ── food ──
+  pan:{r:['.kkkkkkk....','kGGwwwGGk...','kGwwwwwGk...','kGwwyywGkkkk','kGwyyywGGGGk','kGwwwwwGkkkk','kGGGGGGGk...','.kkkkkkk....']},
+  stew:{r:['..W..W....','...W..W...','.kkkkkkkk.','kooOoooOok','kkkkkkkkkk','kGGGGGGGGk','kGGGGGGGGk','.kGGGGGGk.','..kkkkkk..']},
+  bowl:{r:['..WW.W....','..........','kkkkkkkkkk','kooyoyoook','kbbbbbbbbk','.kbbbbbbk.','..kBBBBk..','...kkkk...']},
+  plate:{r:['.kkkkkkkk.','kWWWWWWWWk','kWwwwwwwWk','kWwwwwwwWk','kWWWWWWWWk','.kkkkkkkk.']},
+  pie:{r:['...kkkk...','.kkttttkk.','kttTttTttk','kTtttTtttk','kkkkkkkkkk','kTTTTTTTTk','.kkkkkkkk.']},
+  pancakes:{r:['....yy....','.kkkkkkkk.','kttttttttk','kTTnTTTTTk','kttttttttk','kTTTTTnTTk','kttttttttk','.kkkkkkkk.','kkkkkkkkkk']},
+  tart:{r:['..kkkkkk..','.kTTTTTTk.','kTtTttTtTk','kTttyyttTk','kTtTttTtTk','.kTTTTTTk.','..kkkkkk..']},
+  crown:{r:['y...y...y','yk.kyk.ky','yykyyykyy','yyyyyyyyy','yryyryyry','YYYYYYYYY']},
+  party:{r:['..r...y...','y...b...p.','...k..r...','..kyk....b','.kyyrk.y..','.kyrryk...','kyrryyk...','krryk.....','kkk.......']},
+  honey:{r:['.kkkkkk.','.knnnnk.','kkkkkkkk','kyyyyyYk','kywyyyYk','kyyyyyYk','kYYYYYYk','.kkkkkk.']},
+  wine:{r:['.kkkkkk.','kwwwwwwk','kRRRRRRk','kRrrrRRk','.kRRRRk.','..kWWk..','...kk...','...kk...','.kkkkkk.']},
+  jar:{r:['.kkkkkk.','.kGGGGk.','kkkkkkkk','kcwcccck','kwccccck','kcccccbk','kccccbbk','.kkkkkk.']},
+
+  // ── farm scene (drawn at 2× in the scene) ──
+  farmhouse:{r:[
+    '...........kk...kkk.....',
+    '..........krrk..kGk.....',
+    '.........krrrrk.kGk.....',
+    '........krrrrrrkkGk.....',
+    '.......krrrrrrrrkGk.....',
+    '......krrrrrrrrrrkk.....',
+    '.....krrrrrrrrrrrrk.....',
+    '....krrrrrrrrrrrrrrk....',
+    '...krrrrrrrrrrrrrrrrk...',
+    '..kRRRRRRRRRRRRRRRRRRk..',
+    '.kkkkkkkkkkkkkkkkkkkkkk.',
+    '...kttttttttttttttttk...',
+    '...ktkkkktkkkktkkkktk...',
+    '...ktkbbktkNNktkbbktk...',
+    '...ktkcbktkNNktkcbktk...',
+    '...ktkkkktkNNktkkkktk...',
+    '...kttttttkNykttttttk...',
+    '...kTTTTTTkNNkTTTTTTk...',
+    '...kkkkkkkkkkkkkkkkkk...']},
+  farmhouse_night:{base:'farmhouse',map:{b:'y',c:'s'}},
+  farmhouse_snow:{base:'farmhouse',map:{r:'w',R:'W'}},
+  farmhouse_snow_night:{base:'farmhouse',map:{r:'w',R:'W',b:'y',c:'s'}},
+  coop:{r:[
+    '........kk........',
+    '.......kYYk.......',
+    '......kYyyYk......',
+    '.....kYyyyyYk.....',
+    '....kYyyyyyyYk....',
+    '...kYyyyyyyyyYk...',
+    '..kYYYYYYYYYYYYk..',
+    '.kkkkkkkkkkkkkkkk.',
+    '..knnnnnnnnnnnnk..',
+    '..knNnnkkkknnNnk..',
+    '..knNnnkNNknnNnk..',
+    '..knNnnkNNknnNnk..',
+    '..kmmmmkNNkmmmmk..',
+    '..kkkkkkkkkkkkkk..']},
+  barn:{r:[
+    '........kkkkkkkk........',
+    '.......kRRRRRRRRk.......',
+    '......kRrrrrrrrrRk......',
+    '.....kRrrrkkkkrrrRk.....',
+    '....kRrrrrkyykrrrrRk....',
+    '...kRrrrrrkyykrrrrrRk...',
+    '..kRrrrrrrkkkkrrrrrrRk..',
+    '.kkkkkkkkkkkkkkkkkkkkkk.',
+    '..krrrrrrrrrrrrrrrrrrk..',
+    '..krrrrkkkkkkkkkkrrrrk..',
+    '..krrrrkwwwwwwwwkrrrrk..',
+    '..krrrrkwkkwwkkwkrrrrk..',
+    '..krrrrkwwkwwkwwkrrrrk..',
+    '..krrrrkwwwkkwwwkrrrrk..',
+    '..krrrrkwwkwwkwwkrrrrk..',
+    '..krrrrkwkkwwkkwkrrrrk..',
+    '..kRRRRkwwwwwwwwkRRRRk..',
+    '..kkkkkkkkkkkkkkkkkkkk..']},
+  site:{r:[
+    '...k.........k....',
+    '..knk.......knk...',
+    '..kkkkkkkkkkkkk...',
+    '..knnnnnnnnnnnk...',
+    '..kkkkkkkkkkkkk...',
+    '..knk.......knk...',
+    '..knk.......knk...',
+    'kkkkkkkkkkkkkkkkkk',
+    'kyykkyykkyykkyykyk',
+    'kkkkkkkkkkkkkkkkkk',
+    '.k..............k.',
+    'kkk............kkk']},
+  tree:{r:[
+    '....kkkkkk....',
+    '..kkllleeekk..',
+    '.kllleeeeeeek.',
+    '.klleeeeeeeEk.',
+    'kllleeeeeeeEEk',
+    'kleeeeeleeeeEk',
+    'keeeeeeeeeeeEk',
+    'keleeeeeeeeEEk',
+    '.keeeeeeeeEEk.',
+    '.kEeeeeeeEEEk.',
+    '..kEEEEEEEEk..',
+    '...kkkNNkkk...',
+    '.....kNNk.....',
+    '.....kNNk.....',
+    '.....kNNk.....',
+    '....kkNNkk....']},
+  tree_spring:{base:'tree',map:{l:'p'}},
+  tree_fall:{base:'tree',map:{l:'y',e:'o',E:'O'}},
+  tree_winter:{base:'tree',map:{l:'w',e:'W',E:'g'}},
+  farmer:{r:[
+    '..kkkkkk..',
+    '.kyyyyyyk.',
+    'kkkkkkkkkk',
+    '.kttttttk.',
+    '.ktkttktk.',
+    '.kttttttk.',
+    '..kkkkkk..',
+    '.krbbbbrk.',
+    'ktbbBBbbtk',
+    'ktbbbbbbtk',
+    '.kBBBBBBk.',
+    '.kBBkkBBk.',
+    '.kBk..kBk.',
+    '.kNk..kNk.',
+    '.kkk..kkk.']},
+  farmer_step:{r:[
+    '..kkkkkk..',
+    '.kyyyyyyk.',
+    'kkkkkkkkkk',
+    '.kttttttk.',
+    '.ktkttktk.',
+    '.kttttttk.',
+    '..kkkkkk..',
+    '.krbbbbrk.',
+    'ktbbBBbbtk',
+    'ktbbbbbbtk',
+    '.kBBBBBBk.',
+    '.kBBkBBk..',
+    '..kBkkBk..',
+    '..kNkkNk..',
+    '..kkkkkk..']},
+  crate:{r:[
+    '.kkkkkkkkkk.',
+    'knnnnnnnnnnk',
+    'kkkkkkkkkkkk',
+    'knnNnnnnNnnk',
+    'knnNnnnnNnnk',
+    'kkkkkkkkkkkk',
+    'knnNnnnnNnnk',
+    'knnNnnnnNnnk',
+    'kkkkkkkkkkkk']},
+  cloud:{r:[
+    '.....wwww.......',
+    '...wwwwwwww.ww..',
+    '.wwwwwwwwwwwwwww',
+    'wwwwwwwwwwwwwwww',
+    '.WWWWWWWWWWWWWW.']},
+  sun_big:{r:[
+    '...kkkk...',
+    '.kkyyyykk.',
+    '.kyywyyyk.',
+    'kyywyyyyyk',
+    'kyyyyyyyyk',
+    'kyyyyyyyYk',
+    'kyyyyyyyYk',
+    '.kyyyyyYk.',
+    '.kkYYYYkk.',
+    '...kkkk...']},
+  sun_set:{base:'sun_big',map:{y:'o',Y:'O',w:'y'}},
+  moon_big:{r:[
+    '...kkkk...',
+    '.kkWWWWkk.',
+    '.kWwWWWWk.',
+    'kWwWWgWWWk',
+    'kWWWWWWWWk',
+    'kWWgWWWgWk',
+    'kWWWWWWWWk',
+    '.kWWWgWWk.',
+    '.kkWWWWkk.',
+    '...kkkk...']},
+};
+// emoji → sprite. Arrows, ticks and ▸ ✦ stay as text glyphs.
+const PX_EMOJI={
+  '🪙':'coin','⭐':'star','⚡':'bolt','❤':'heart','💗':'heart_pink','💕':'heart_pink','💝':'heart_pink','💜':'heart_purple','♡':'heart_empty',
+  '💧':'drop','💦':'drops','🫧':'amber','❓':'question','⚠':'warn','⬆':'up','⬇':'down','⏩':'ff','⚙':'gear','🔒':'lock','🔓':'unlock',
+  '🎁':'gift','🥇':'medal_gold','🥈':'medal_silver','📦':'box','🏛':'townhall','🏠':'house','🏚':'house_old','🏮':'lantern','🎪':'tent',
+  '🌙':'moon','☀':'sun','❄':'snow','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
+  '💡':'bulb','📱':'phone','📲':'phone','🖥':'monitor','🎮':'gamepad','💬':'speech','📊':'chart','📅':'calendar','💾':'floppy','📧':'mail','🕐':'clock',
+  '📄':'paper','📜':'scroll','💨':'puff','😄':'face_happy','😐':'face_meh','🤔':'face_think','😈':'face_devil','🧑':'person','👥':'person','👋':'hand','✊':'hand',
+  '🤖':'robot','💰':'moneybag','🛒':'cart','👜':'bag','🎒':'bag','💼':'briefcase','🚧':'barrier','💥':'blast','💪':'arm','✂':'scissors','🚪':'door','🎩':'tophat','🐛':'bug',
+  '🎣':'rod','🪓':'axe','⛏':'pick','🔨':'hammer','🔧':'hammer','🛠':'hammer','🪱':'worm','🕸':'net','🪵':'log',
+  '🌱':'sprout','🌿':'herb','🌾':'wheat','🌸':'blossom','🌼':'daisy','🌺':'hibiscus','🌲':'pine','🍂':'leaf','🥦':'cauli','🥬':'kale','🫐':'blueberry','🥗':'salad',
+  '⬜':'snowyam','🥔':'potato','🧄':'garlic','🧅':'onion','🌷':'tulip','🍅':'tomato','🌻':'sunflower','🎃':'pumpkin','🍠':'yam','🍇':'grape','🍒':'cherry',
+  '💎':'gem','🔷':'quartz','🟠':'topaz','🟢':'emerald','🟡':'nugget','🟤':'copper','🪨':'stone','⬛':'coal','🔩':'iron',
+  '🕯':'candle','🪸':'coral','🪺':'pinecone','🐚':'shell','🏺':'amphora','🌰':'chestnut','🍀':'clover','🥕':'carrot','🍄':'mushroom','🫘':'beans','🍎':'goldapple','🍑':'peach',
+  '🐟':'fish','🐠':'fish_trop','🐡':'puffer','🐍':'eel','🐉':'dragon','🦀':'crab','🦑':'squid','🧊':'ice',
+  '🐔':'chicken','🐄':'cow','🐑':'sheep','🥚':'egg','🥛':'milk','🧶':'yarn','🐾':'paw',
+  '🍳':'pan','🍲':'stew','🥣':'bowl','🍽':'plate','🥧':'pie','🥞':'pancakes','🥮':'tart','👑':'crown','🎉':'party','🍯':'honey','🍷':'wine','🫙':'jar',
+};
+
+// ── renderer ──
+const PX_CACHE={};
+function pxResolve(name){
+  const def=PX_SPRITES[name];
+  if(!def) return null;
+  if(def._rows) return def._rows;
+  let rows;
+  if(def.base){
+    rows=pxResolve(def.base).slice();
+    if(def.map) rows=rows.map(r=>r.replace(/./g,ch=>def.map[ch]||ch));
+    if(def.flipY) rows=rows.reverse();
+  }else rows=def.r;
+  const w=Math.max(...rows.map(r=>r.length));
+  def._rows=rows.map(r=>r.padEnd(w,'.'));
+  return def._rows;
+}
+// square=true pads to a centred square (inline icons); false keeps the sprite's own shape (scene)
+function pxURL(name,square=true){
+  const key=name+(square?'':'#');
+  if(PX_CACHE[key]) return PX_CACHE[key];
+  const rows=pxResolve(name);
+  if(!rows) return '';
+  const h=rows.length,w=rows[0].length;
+  // inline icons share a 12×12 canvas so they render 1:1 at the 12px minimum size
+  const sq=Math.max(w,h,12);
+  const cw=square?sq:w, ch=square?sq:h;
+  const ox=Math.floor((cw-w)/2), oy=Math.floor((ch-h)/2);
+  const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+  const ctx=cv.getContext('2d');
+  rows.forEach((row,y)=>{for(let x=0;x<w;x++){const col=PX_PAL[row[x]];if(col){ctx.fillStyle=col;ctx.fillRect(ox+x,oy+y,1,1);}}});
+  return PX_CACHE[key]=cv.toDataURL();
+}
+function pxSize(name){const r=pxResolve(name);return r?{w:r[0].length,h:r.length}:{w:0,h:0};}
+
+// ── emoji → sprite swapping ──
+const PX_SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1,OPTION:1,SELECT:1,TITLE:1,NOSCRIPT:1};
+const PX_RE=new RegExp('('+Object.keys(PX_EMOJI).sort((a,b)=>b.length-a.length)
+  .map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\uFE0F?','gu');
+function pxImg(emoji){
+  const img=document.createElement('img');
+  img.className='px';img.alt=emoji;img.draggable=false;
+  img.src=pxURL(PX_EMOJI[emoji]);
+  return img;
+}
+function pxText(node){
+  const t=node.nodeValue;
+  if(!t||!node.parentNode||PX_SKIP[node.parentNode.nodeName]) return;
+  PX_RE.lastIndex=0;
+  if(!PX_RE.test(t)) return;
+  PX_RE.lastIndex=0;
+  const frag=document.createDocumentFragment();
+  let last=0,m;
+  while((m=PX_RE.exec(t))){
+    if(m.index>last) frag.appendChild(document.createTextNode(t.slice(last,m.index)));
+    frag.appendChild(pxImg(m[1]));
+    last=m.index+m[0].length;
+  }
+  if(last<t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+  node.parentNode.replaceChild(frag,node);
+}
+function pxScan(root){
+  if(root.nodeType===3){pxText(root);return;}
+  if(root.nodeType!==1||PX_SKIP[root.nodeName]) return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const list=[];while(walker.nextNode()) list.push(walker.currentNode);
+  list.forEach(pxText);
+}
+// Point a scene <img class="pxs"> at a sprite, sized at `scale` screen px per art pixel
+function pxSetSprite(el,name,scale){
+  if(!el) return;
+  scale=scale||+el.dataset.scale||2;
+  if(el.dataset.cur===name&&+el.dataset.curScale===scale) return;
+  const url=pxURL(name,false);
+  if(!url) return;
+  const z=pxSize(name);
+  el.src=url;el.style.width=z.w*scale+'px';el.style.height=z.h*scale+'px';
+  el.dataset.cur=name;el.dataset.curScale=scale;
+}
+function pxStart(){
+  document.querySelectorAll('img.pxs[data-px]').forEach(el=>{if(!el.dataset.cur)pxSetSprite(el,el.dataset.px);});
+  pxScan(document.body);
+  new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      if(m.type==='characterData') pxText(m.target);
+      else m.addedNodes.forEach(pxScan);
+    });
+  }).observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+document.addEventListener('DOMContentLoaded',pxStart);
+</script>
 <script>
 // ── SEASONS ──
 const SEASONS = [
@@ -2245,8 +2588,8 @@ function applySeasonVisuals(){
   document.getElementById('season-label').textContent=s.icon+' '+s.name;
   document.getElementById('season-footer').textContent='SEASON: '+s.name+' '+s.icon;
   document.getElementById('season-progress').style.background=s.progressColor;
-  ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background=s.treeColor;});
-  ['cl1','cl2','cl3'].forEach(id=>document.getElementById(id).style.background=s.cloudColor);
+  const treeSprite={spring:'tree_spring',summer:'tree',fall:'tree_fall',winter:'tree_winter'}[s.id]||'tree';
+  ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)pxSetSprite(el,treeSprite);});
   updateSeasonBar();
   updateEventBanner();
 }
@@ -2479,16 +2822,17 @@ function updateSky(){
     const sp=sunPos(h);
     sun.style.left=(sp.x-10)+'px';sun.style.top=(sp.y-10)+'px';sun.style.opacity=sa;
     const t=(h-6)/12,nh=t<0.07||t>0.93;
-    sun.style.background=nh?'#f07020':'#ffe44d';sun.style.borderColor=nh?'#b04010':'#d4a80a';
+    pxSetSprite(sun,nh?'sun_set':'sun_big'); // orange sun at dawn/dusk
   }else sun.style.opacity=0;
   const moon=document.getElementById('moon'),ma=moonAlpha(h);
   if(ma>0.01){
     const mp=moonPos(h);
-    moon.style.left=(mp.x-8)+'px';moon.style.top=(mp.y-8)+'px';moon.style.opacity=ma;
+    moon.style.left=(mp.x-10)+'px';moon.style.top=(mp.y-10)+'px';moon.style.opacity=ma;
   }else moon.style.opacity=0;
-  const night=h>=19||h<6,wc=night?'#ffe090':'#a8d4f5';
-  document.getElementById('wl').style.background=wc;
-  document.getElementById('wr').style.background=wc;
+  // farmhouse: lit windows at night, snowy roof in winter
+  const night=h>=19||h<6;
+  const houseImg=document.getElementById('house-img');
+  if(houseImg) pxSetSprite(houseImg,'farmhouse'+(currentSeason().id==='winter'?'_snow':'')+(night?'_night':''));
   // Sleep label: gold pulse in evening, white during day, dim before 8am
   const sleepLbl=document.getElementById('house-sleep-label');
   if(sleepLbl){
@@ -2977,7 +3321,8 @@ function renderTile(i){
 // Scene crop sprite positions — 6 slots spread across the soil strip
 // avoiding the house (centre) and ship box (far left)
 // 6 crop positions: 3 left of house, 3 right — avoiding ship box (now at ~148px) and house (~167-207px)
-const SCENE_CROP_X=[26,72,118, 254,300,346];
+// % of scene width — 3 crops left of the house, 3 right (fixed px used to clip on narrow phones)
+const SCENE_CROP_X=[5,16,27, 61,72,83];
 
 function updateSceneCrop(i){
   const id='sc-'+i;
@@ -2999,7 +3344,7 @@ function updateSceneCrop(i){
     setTimeout(()=>{if(el)el.style.opacity='1'},30);
   }
   el.className='scene-crop';
-  el.style.left=SCENE_CROP_X[i]+'px';
+  el.style.left=SCENE_CROP_X[i]+'%';
 
   if(t.st==='grow'){
     const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
@@ -3185,7 +3530,18 @@ function wateringTick(){
   if(anyOverdue) info('💧 CROPS ARE THIRSTY — TAP WATER BUTTON!');
 }
 
-function moveFarmer(i){$('farmer').style.left=(80+(i%3)*80)+'px'}
+// Farmer walks over to the plot being worked: faces the direction of travel and steps
+let _farmerX=19,_farmerStepTimer=null;
+function moveFarmer(i){
+  const f=$('farmer');if(!f)return;
+  const x=SCENE_CROP_X[i]+1;
+  if(x!==_farmerX) f.style.transform=x<_farmerX?'scaleX(-1)':'';
+  _farmerX=x;
+  f.style.left=x+'%';
+  pxSetSprite(f,'farmer_step');
+  clearTimeout(_farmerStepTimer);
+  _farmerStepTimer=setTimeout(()=>pxSetSprite(f,'farmer'),300);
+}
 
 // ── SEEDS ──
 function renderSeeds(){
@@ -4691,13 +5047,7 @@ function setMusicVolume(val){
   const label=document.getElementById('music-vol-label');
   if(label) label.textContent=val+'%';
   if(musicGain){
-    try{
-      const ctx=getMusicCtx();
-      const h=getRealH();
-      const isNight=h>=19||h<6;
-      const targetVol=musicVolume*(isNight?0.4:1.0);
-      musicGain.gain.linearRampToValueAtTime(targetVol,ctx.currentTime+0.1);
-    }catch(e){}
+    try{const ctx=getMusicCtx();musicGain.gain.setTargetAtTime(musicTargetVol(),ctx.currentTime,0.05);}catch(e){}
   }
   saveGame();
 }
@@ -4712,42 +5062,92 @@ function toggleMusic(on){
 }
 
 // ══════════════════════════════════════
-// PROCEDURAL FOLK MUSIC ENGINE
+// MUSIC ENGINE — a small library of simple songs that rotate
 // ══════════════════════════════════════
-
+// Each song is written as "NOTE/beats" tokens (r = rest). A song plays SONG_LOOPS times, then the
+// engine picks another that suits the season (day) or the night, so the music keeps changing.
+// Notes are scheduled ~1.2s ahead on the AudioContext clock for steady timing.
 let musicCtx=null,musicGain=null,musicPlaying=false,musicScheduler=null;
 let musicPaused=false;
-
-// Pentatonic major scale in A: A B C# E F# (as semitone offsets from A3)
-const PENT=[0,2,4,7,9,12,14,16,19,21];
-const BASE_FREQ=220; // A3
-
-function midiToFreq(semitones){return BASE_FREQ*Math.pow(2,semitones/12);}
-
-// Full 32-bar melody — A section, B section, A' return, Turnaround
-// Indices into PENT array, -1 = rest
-const MELODY=[
-  7,7,9,7, 4,4,6,4,
-  7,9,7,4, 2,2,4,2,
-  9,9,7,6, 4,4,2,0,
-  6,7,6,4, 2,0,-1,-1,
-  5,5,7,5, 2,2,4,2,
-  5,7,5,2, 0,0,2,0,
-  7,7,9,7, 6,4,2,0,
-  4,2,4,6, 7,-1,-1,-1,
+const SONG_LOOPS=2;
+const SONGS=[
+  {id:'morning_fields',name:'MORNING FIELDS',pool:'spring',bpm:100,inst:'pluck',
+   mel:'C5/1 E5/1 G5/1 E5/1 F5/1 E5/1 D5/2 E5/1 G5/1 A5/1 G5/1 E5/1 D5/1 C5/2 A4/1 C5/1 D5/1 E5/1 G5/1 E5/1 D5/2 C5/1 D5/1 E5/1 D5/1 C5/3 r/1',
+   bass:'C3/2 G3/2 F3/2 C3/2 C3/2 G3/2 G3/2 C3/2 A2/2 E3/2 C3/2 G3/2 F3/2 G3/2 C3/4'},
+  {id:'blossom_path',name:'BLOSSOM PATH',pool:'spring',bpm:88,inst:'flute',
+   mel:'B4/2 D5/1 G5/1 F#5/2 E5/2 D5/1 E5/1 D5/1 B4/1 A4/4 B4/2 D5/1 G5/1 A5/2 G5/1 E5/1 D5/1 B4/1 A4/1 B4/1 G4/4',
+   bass:'G2/4 D3/4 G2/2 E3/2 D3/4 G2/4 C3/4 D3/4 G2/4'},
+  {id:'sunny_rows',name:'SUNNY ROWS',pool:'summer',bpm:116,inst:'chip',hats:true,
+   mel:'D5/0.5 F#5/0.5 A5/1 F#5/1 A5/1 B5/1 A5/1 F#5/2 G5/0.5 F#5/0.5 E5/1 D5/1 E5/1 F#5/2 E5/2 D5/0.5 F#5/0.5 A5/1 B5/1 A5/1 D6/1 B5/1 A5/2 G5/1 E5/1 F#5/1 E5/1 D5/3 r/1',
+   bass:'D3/1 A2/1 D3/1 A2/1 G2/1 D3/1 G2/1 D3/1 E3/1 B2/1 E3/1 B2/1 A2/1 E3/1 A2/1 E3/1 D3/1 A2/1 D3/1 A2/1 G2/1 D3/1 G2/1 D3/1 A2/1 E3/1 A2/1 E3/1 D3/2 D3/2'},
+  {id:'river_glint',name:'RIVER GLINT',pool:'summer',bpm:104,inst:'pluck',
+   mel:'E5/1 C#5/1 B4/1 A4/1 B4/1 C#5/1 E5/2 F#5/1 E5/1 C#5/1 B4/1 C#5/4 A5/1 F#5/1 E5/1 C#5/1 E5/1 F#5/1 A5/2 F#5/1 E5/1 B4/1 C#5/1 A4/4',
+   bass:'A2/2 E3/2 F#2/2 C#3/2 D3/2 A2/2 E3/4 A2/2 E3/2 D3/2 A2/2 E3/2 E2/2 A2/4'},
+  {id:'harvest_waltz',name:'HARVEST WALTZ',pool:'fall',bpm:120,inst:'pluck',
+   mel:'A4/1 C5/1 E5/1 D5/2 C5/1 B4/1 C5/1 D5/1 E5/3 F5/1 E5/1 D5/1 C5/2 B4/1 A4/1 B4/1 G4/1 A4/3',
+   bass:'A2/1 E3/1 E3/1 D3/1 A3/1 A3/1 G2/1 D3/1 D3/1 C3/1 G3/1 G3/1 F2/1 C3/1 C3/1 A2/1 E3/1 E3/1 E2/1 B2/1 B2/1 A2/3'},
+  {id:'amber_lane',name:'AMBER LANE',pool:'fall',bpm:80,inst:'flute',
+   mel:'E5/2 G5/1 F#5/1 E5/1 D5/1 B4/2 C5/1 D5/1 E5/1 G5/1 F#5/4 E5/2 G5/1 A5/1 B5/1 A5/1 G5/2 F#5/1 D5/1 E5/1 F#5/1 E5/4',
+   bass:'E2/4 G2/4 C3/4 B2/4 E2/4 G2/2 C3/2 D3/2 B2/2 E2/4'},
+  {id:'frost_window',name:'FROST WINDOW',pool:'winter',bpm:72,inst:'bell',
+   mel:'A5/2 C6/2 A5/1 G5/1 F5/2 G5/2 A5/1 G5/1 E5/4 F5/2 A5/2 C6/1 D6/1 C6/2 A5/1 G5/1 E5/1 G5/1 F5/4',
+   bass:'F2/4 D3/4 C3/4 C3/4 F2/4 A2/4 C3/4 F2/4'},
+  {id:'hearthside',name:'HEARTHSIDE',pool:'winter',bpm:84,inst:'pluck',
+   mel:'D5/1 F5/1 A5/2 G5/1 F5/1 E5/2 C5/1 E5/1 G5/2 F5/1 E5/1 D5/2 D5/1 F5/1 A5/1 C6/1 B5/1 A5/1 G5/2 F5/1 E5/1 C5/1 E5/1 D5/4',
+   bass:'D3/4 G2/4 C3/4 D3/4 D3/4 G2/4 A2/4 D3/4'},
+  {id:'starlit_barn',name:'STARLIT BARN',pool:'night',bpm:64,inst:'bell',
+   mel:'G5/2 E5/2 D5/2 C5/2 E5/1 G5/1 A5/2 G5/4 C6/2 A5/2 G5/2 E5/2 D5/1 E5/1 D5/1 C5/1 C5/4',
+   bass:'C3/4 A2/4 F2/4 C3/4 A2/4 E2/4 G2/4 C3/4'},
+  {id:'fireflies',name:'FIREFLIES',pool:'night',bpm:70,inst:'flute',
+   mel:'E5/3 D5/1 C5/2 A4/2 B4/1 C5/1 D5/1 E5/1 A4/4 E5/3 G5/1 A5/2 E5/2 D5/1 C5/1 B4/1 G4/1 A4/4',
+   bass:'A2/4 F2/4 G2/4 A2/4 C3/4 F2/4 E2/4 A2/4'},
 ];
+let musicSong=null;      // current song object
+let musicSeq=null;       // {events, idx, loopStart, loops, spb, lenSec}
+let musicNoise=null;     // cached noise buffer for hi-hats
 
-// Bass pattern — root/fifth alternating across 32 bars
-const BASS=[
-  0,-1,7,-1, 0,-1,7,-1,
-  0,-1,5,-1, 0,-1,7,-1,
-  0,-1,7,-1, 0,-1,5,-1,
-  0,-1,7,-1, 2,-1,-1,-1,
-  0,-1,5,-1, 0,-1,7,-1,
-  0,-1,7,-1, 0,-1,5,-1,
-  0,-1,7,-1, 0,-1,5,-1,
-  2,-1,4,-1, 7,-1,-1,-1,
-];
+function noteFreq(name){
+  const m=/^([A-G])(#|b)?(\d)$/.exec(name);
+  if(!m) return 0;
+  const semi={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);
+  const midi=12*(+m[3]+1)+semi;
+  return 440*Math.pow(2,(midi-69)/12);
+}
+// Turn a song into one time-sorted event list (in beats)
+function songEvents(song){
+  if(song._events) return song._events;
+  const ev=[];
+  const parse=(str,part)=>{
+    let t=0;
+    str.trim().split(/\s+/).forEach(tok=>{
+      const [n,d]=tok.split('/');const beats=parseFloat(d)||1;
+      if(n!=='r') ev.push({t,part,freq:noteFreq(n),beats});
+      t+=beats;
+    });
+    return t;
+  };
+  const len=parse(song.mel,'mel');
+  parse(song.bass,'bass');
+  if(song.hats) for(let t=0.5;t<len;t+=1) ev.push({t,part:'hat',freq:0,beats:0.25});
+  ev.sort((a,b)=>a.t-b.t);
+  song._len=len;
+  return song._events=ev;
+}
+function musicIsNight(){ const h=getRealH(); return h>=19||h<6; }
+function musicTargetVol(){ return musicVolume*(musicIsNight()?0.7:1.0); }
+function pickSong(){
+  const pool=SONGS.filter(s=>s.pool===(musicIsNight()?'night':currentSeason().id));
+  const choices=pool.length>1&&musicSong?pool.filter(s=>s!==musicSong):pool;
+  return choices[Math.floor(Math.random()*choices.length)]||SONGS[0];
+}
+function startSong(song,when){
+  musicSong=song;
+  const spb=60/song.bpm;
+  const events=songEvents(song);
+  musicSeq={events,idx:0,loopStart:when,loops:0,spb,lenSec:song._len*spb};
+  const el=document.getElementById('music-now');
+  if(el) el.textContent='♪ NOW PLAYING: '+song.name;
+}
 
 function getMusicCtx(){
   if(!musicCtx||musicCtx.state==='closed') musicCtx=new(window.AudioContext||window.webkitAudioContext)();
@@ -4755,76 +5155,80 @@ function getMusicCtx(){
   return musicCtx;
 }
 
-function pluck(ctx,masterGain,freq,startTime,duration,vol=0.18){
-  if(!isFinite(freq)||freq<=0||!isFinite(startTime))return;
-  // Karplus-Strong-ish pluck: quick attack, exponential decay
-  const osc=ctx.createOscillator();
+// ── instruments ──
+function envGain(ctx,t,attack,peak,decayTo,dur){
   const g=ctx.createGain();
-  const filter=ctx.createBiquadFilter();
-  filter.type='bandpass';
-  filter.frequency.value=freq*2;
-  filter.Q.value=1.2;
-  osc.type='triangle';
-  osc.frequency.setValueAtTime(freq,startTime);
-  g.gain.setValueAtTime(0,startTime);
-  g.gain.linearRampToValueAtTime(vol,startTime+0.008);
-  g.gain.exponentialRampToValueAtTime(0.001,startTime+duration*0.85);
-  osc.connect(filter);filter.connect(g);g.connect(masterGain);
-  osc.start(startTime);osc.stop(startTime+duration+0.05);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(peak,t+attack);
+  g.gain.exponentialRampToValueAtTime(decayTo,t+dur);
+  return g;
 }
-
-function bassNote(ctx,masterGain,freq,startTime,duration){
-  if(!isFinite(freq)||freq<=0||!isFinite(startTime))return;
-  const osc=ctx.createOscillator();
-  const g=ctx.createGain();
-  const filter=ctx.createBiquadFilter();
-  filter.type='lowpass';filter.frequency.value=300;
-  osc.type='sine';
-  osc.frequency.setValueAtTime(freq/2,startTime); // one octave down
-  g.gain.setValueAtTime(0,startTime);
-  g.gain.linearRampToValueAtTime(0.12,startTime+0.02);
-  g.gain.exponentialRampToValueAtTime(0.001,startTime+duration*0.7);
-  osc.connect(filter);filter.connect(g);g.connect(masterGain);
-  osc.start(startTime);osc.stop(startTime+duration+0.05);
-}
-
-function scheduleMusic(){
-  if(!musicPlaying||musicPaused)return;
-  const ctx=getMusicCtx();
-  const bpm=90;
-  const beat=60/bpm;
-  const now=ctx.currentTime+0.05;
-
-  // day/night volume
-  const h=getRealH();
-  const isNight=h>=19||h<6;
-  const targetVol=musicVolume*(isNight?0.4:1.0);
-  if(musicGain) musicGain.gain.linearRampToValueAtTime(targetVol,ctx.currentTime+2);
-
-  for(let i=0;i<MELODY.length;i++){
-    const t=now+i*beat;
-    const note=MELODY[i];
-    if(note!==-1){
-      const idx=((note%PENT.length)+PENT.length)%PENT.length;
-      const semitones=PENT[idx];
-      if(typeof semitones==='number'&&isFinite(semitones)){
-        const freq=midiToFreq(semitones);
-        if(isFinite(freq)&&freq>0) pluck(ctx,musicGain,freq,t,beat*0.9);
-      }
+function playInstrument(ctx,out,inst,freq,t,dur){
+  if(!isFinite(freq)||freq<=0) return;
+  if(inst==='pluck'){
+    const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=envGain(ctx,t,0.008,0.17,0.001,dur*0.95);
+    o.type='triangle';o.frequency.value=freq;f.type='bandpass';f.frequency.value=freq*2;f.Q.value=1.1;
+    o.connect(f);f.connect(g);g.connect(out);o.start(t);o.stop(t+dur+0.05);
+  }else if(inst==='flute'){
+    const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lg=ctx.createGain();
+    const g=envGain(ctx,t,0.07,0.14,0.002,dur*0.98);
+    o.type='sine';o.frequency.value=freq;
+    lfo.frequency.value=5;lg.gain.value=freq*0.004; // gentle vibrato
+    lfo.connect(lg);lg.connect(o.frequency);
+    o.connect(g);g.connect(out);o.start(t);lfo.start(t);o.stop(t+dur+0.05);lfo.stop(t+dur+0.05);
+  }else if(inst==='bell'){
+    const ring=Math.max(dur,1.4);
+    [[1,0.13],[2.76,0.04],[5.4,0.015]].forEach(([mul,vol])=>{
+      const o=ctx.createOscillator(),g=envGain(ctx,t,0.004,vol,0.0005,ring);
+      o.type='sine';o.frequency.value=freq*mul;o.connect(g);g.connect(out);o.start(t);o.stop(t+ring+0.05);
+    });
+  }else if(inst==='chip'){
+    const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=envGain(ctx,t,0.005,0.06,0.001,dur*0.85);
+    o.type='square';o.frequency.value=freq;f.type='lowpass';f.frequency.value=2400;
+    o.connect(f);f.connect(g);g.connect(out);o.start(t);o.stop(t+dur+0.05);
+  }else if(inst==='bass'){
+    const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=envGain(ctx,t,0.02,0.12,0.001,Math.min(dur,1.6)*0.9);
+    o.type='triangle';o.frequency.value=freq;f.type='lowpass';f.frequency.value=400;
+    o.connect(f);f.connect(g);g.connect(out);o.start(t);o.stop(t+dur+0.05);
+  }else if(inst==='hat'){
+    if(!musicNoise){
+      musicNoise=ctx.createBuffer(1,ctx.sampleRate*0.1,ctx.sampleRate);
+      const d=musicNoise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     }
-    const bNote=BASS[i];
-    if(bNote!==-1){
-      const bidx=((bNote%PENT.length)+PENT.length)%PENT.length;
-      const bSemitones=PENT[bidx];
-      if(typeof bSemitones==='number'&&isFinite(bSemitones)){
-        const bFreq=midiToFreq(bSemitones);
-        if(isFinite(bFreq)&&bFreq>0) bassNote(ctx,musicGain,bFreq,t,beat*1.8);
-      }
-    }
+    const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=envGain(ctx,t,0.002,0.035,0.0005,0.05);
+    src.buffer=musicNoise;f.type='highpass';f.frequency.value=7000;
+    src.connect(f);f.connect(g);g.connect(out);src.start(t);src.stop(t+0.06);
   }
+}
 
-  const phraseDur=MELODY.length*beat;
-  musicScheduler=setTimeout(scheduleMusic,(phraseDur-0.3)*1000);
+// Look-ahead scheduler: queue every note that starts within the next 1.2 seconds
+function scheduleMusic(){
+  if(!musicPlaying||musicPaused||!musicGain) return;
+  const ctx=getMusicCtx();
+  const horizon=ctx.currentTime+1.2;
+  let guard=0;
+  while(musicSeq&&guard++<200){
+    const sq=musicSeq;
+    if(sq.idx>=sq.events.length){
+      // end of a pass through the song
+      sq.loops++;
+      const nextStart=sq.loopStart+sq.lenSec;
+      if(sq.loops>=SONG_LOOPS) startSong(pickSong(),nextStart+1.5); // short breath, then a new tune
+      else{sq.idx=0;sq.loopStart=nextStart;}
+      continue;
+    }
+    const ev=sq.events[sq.idx];
+    const t=sq.loopStart+ev.t*sq.spb;
+    if(t>horizon) break;
+    if(t>=ctx.currentTime-0.05){
+      const inst=ev.part==='mel'?musicSong.inst:ev.part;
+      playInstrument(ctx,musicGain,inst,ev.freq,Math.max(t,ctx.currentTime),ev.beats*sq.spb);
+    }
+    sq.idx++;
+  }
+  // follow day/night volume
+  musicGain.gain.setTargetAtTime(musicTargetVol(),ctx.currentTime,1.5);
+  musicScheduler=setTimeout(scheduleMusic,250);
 }
 
 function musicStart(){
@@ -4833,18 +5237,19 @@ function musicStart(){
     const ctx=getMusicCtx();
     musicGain=ctx.createGain();
     // Reverb-lite: slight delay node for warmth
-    const delay=ctx.createDelay(0.05);
+    const delay=ctx.createDelay(0.1);
     const delayGain=ctx.createGain();
-    delay.delayTime.value=0.04;
-    delayGain.gain.value=0.18;
+    delay.delayTime.value=0.06;
+    delayGain.gain.value=0.2;
     musicGain.connect(delay);
     delay.connect(delayGain);
     delayGain.connect(ctx.destination);
     musicGain.connect(ctx.destination);
     musicGain.gain.setValueAtTime(0,ctx.currentTime);
-    musicGain.gain.linearRampToValueAtTime(musicVolume,ctx.currentTime+2); // fade in
+    musicGain.gain.linearRampToValueAtTime(musicTargetVol(),ctx.currentTime+2); // fade in
     musicPlaying=true;
     musicPaused=false;
+    startSong(pickSong(),ctx.currentTime+0.3);
     scheduleMusic();
   }catch(e){console.log('Music error:',e);}
 }
@@ -4852,12 +5257,16 @@ function musicStart(){
 function musicStop(){
   musicPlaying=false;
   if(musicScheduler){clearTimeout(musicScheduler);musicScheduler=null;}
-  if(musicGain){
+  const g=musicGain; // fade out this gain only — a quick restart creates a new one
+  musicGain=null;
+  if(g){
     try{
       const ctx=getMusicCtx();
-      musicGain.gain.linearRampToValueAtTime(0,ctx.currentTime+1.5);
-      setTimeout(()=>{try{musicGain.disconnect();}catch(e){}musicGain=null;},1600);
-    }catch(e){musicGain=null;}
+      g.gain.cancelScheduledValues(ctx.currentTime);
+      g.gain.setValueAtTime(g.gain.value,ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+1.5);
+      setTimeout(()=>{try{g.disconnect();}catch(e){}},1600);
+    }catch(e){}
   }
 }
 
@@ -4865,16 +5274,19 @@ function musicPause(){
   musicPaused=true;
   if(musicScheduler){clearTimeout(musicScheduler);musicScheduler=null;}
   if(musicGain){
-    try{const ctx=getMusicCtx();musicGain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.8);}catch(e){}
+    try{const ctx=getMusicCtx();musicGain.gain.cancelScheduledValues(ctx.currentTime);musicGain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.8);}catch(e){}
   }
 }
 
 function musicResume(){
-  if(!musicEnabled||!musicPlaying)return;
+  if(!musicEnabled||!musicPlaying||!musicGain)return;
   musicPaused=false;
-  if(musicGain){
-    try{const ctx=getMusicCtx();musicGain.gain.linearRampToValueAtTime(musicVolume,ctx.currentTime+1.5);}catch(e){}
-  }
+  try{
+    const ctx=getMusicCtx();
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.linearRampToValueAtTime(musicTargetVol(),ctx.currentTime+1.5);
+    if(musicSong) startSong(musicSong,ctx.currentTime+0.2); // restart the current tune from the top
+  }catch(e){}
   scheduleMusic();
 }
 
@@ -4910,54 +5322,9 @@ document.addEventListener('visibilitychange',()=>{
 });
 
 // ══════════════════════════════════════
-// FEEDBACK — BUG REPORT & FEATURE REQUEST
+// FEEDBACK — FEATURE REQUEST
 // ══════════════════════════════════════
 const FEEDBACK_EMAIL = 'joshuapaul2531@gmail.com';
-
-function getFeedbackGameState(){
-  const s=currentSeason();
-  const lines=[
-    'Version: v1.1',
-    'Day: '+day+' | Season: '+s.name+' (Day '+seasonDay+'/'+s.daysPerSeason+')',
-    'Coins: '+coins+'g | Energy: '+energy+'/'+maxEnergy,
-    'Harvests: '+hvst+' | Earned: '+totalEarned+'g',
-    'Skills: Farming LV'+skills.farming.level+' | Foraging LV'+skills.foraging.level+' | Fishing LV'+skills.fishing.level+' | WC LV'+skills.chopping.level+' | Mining LV'+skills.mining.level,
-    'Plots: '+tiles.filter(t=>t.st!=='locked').length+'/6 unlocked',
-    'Buildings: Coop='+(buildings.coop||'none')+' Barn='+(buildings.barn||'none'),
-    'Animals: '+animals.length,
-    'Bag: '+Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length+'/'+bagCapacity+' slots',
-    'Town Hall: '+thCompleteCount()+'/4 rooms complete',
-    'Pickaxe: Tier '+pickaxeTier+' | Axe: Tier '+axeTier+' | Watering Can: Tier '+wateringCanTier,
-    'Device: '+navigator.userAgent.slice(0,80),
-  ];
-  return lines.join('\n');
-}
-
-function openBugReport(){
-  closeSettings();
-  const state=$('bug-state');
-  if(state) state.textContent=getFeedbackGameState();
-  $('bug-desc').value='';
-  $('bug-steps').value='';
-  $('bug-overlay').className='show';
-}
-function closeBugReport(){
-  $('bug-overlay').className='';
-}
-function submitBugReport(){
-  const desc=$('bug-desc').value.trim();
-  if(!desc){info('PLEASE DESCRIBE THE BUG FIRST!');return;}
-  const steps=$('bug-steps').value.trim();
-  const state=getFeedbackGameState();
-  const subject=encodeURIComponent('Fernhollow Farm — [BUG] '+desc.slice(0,60));
-  const body=encodeURIComponent(
-    'BUG DESCRIPTION\n'+desc+
-    '\n\nSTEPS TO REPRODUCE\n'+(steps||'Not provided')+
-    '\n\nGAME STATE\n'+state
-  );
-  sendFeedback('bug',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
-  closeBugReport();
-}
 
 // Formspree integration — paste your form endpoint here (https://formspree.io → New Form).
 // e.g. 'https://formspree.io/f/abcdwxyz'. Leave blank to fall back to opening an email.
@@ -4966,7 +5333,7 @@ const FORMSPREE_ENDPOINT='';
 function sendFeedback(kind,subjectText,bodyText,subjectEnc,bodyEnc){
   const viaEmail=()=>{
     window.open('mailto:'+FEEDBACK_EMAIL+'?subject='+subjectEnc+'&body='+bodyEnc,'_blank');
-    showToast(kind==='bug'?'THANKS FOR THE REPORT!':'THANKS FOR THE IDEA!');
+    showToast('THANKS FOR THE IDEA!');
   };
   if(!FORMSPREE_ENDPOINT||!navigator.onLine){viaEmail();return;}
   showToast('SENDING...');
@@ -4976,7 +5343,7 @@ function sendFeedback(kind,subjectText,bodyText,subjectEnc,bodyEnc){
     body:JSON.stringify({_subject:subjectText,type:kind,message:bodyText}),
   }).then(r=>{
     if(!r.ok) throw new Error('HTTP '+r.status);
-    showToast(kind==='bug'?'🐛 BUG REPORT SENT — THANKS!':'💡 IDEA SENT — THANKS!');
+    showToast('💡 IDEA SENT — THANKS!');
   }).catch(()=>{
     info('COULD NOT SEND ONLINE — OPENING YOUR EMAIL APP INSTEAD.');
     viaEmail();
@@ -5004,7 +5371,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v1.1 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v1.2 | Day: '+day+' | Season: '+currentSeason().name
   );
   sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
@@ -5320,7 +5687,7 @@ function renderAnimals(){
   if(!buildings.coop&&!buildings.barn){
     const msg=document.createElement('div');
     msg.style.cssText='font-size:4px;color:var(--dim);text-align:center;padding:8px 0';
-    msg.textContent='BUILD A COOP OR BARN FROM THE SHOP TO GET ANIMALS.';
+    msg.textContent='ASK BESS IN THE TOWN TAB TO BUILD A COOP OR BARN.';
     g.appendChild(msg);return;
   }
 
@@ -5347,11 +5714,19 @@ function renderAnimals(){
     g.appendChild(row);
   });
 
+  // buildings still under construction
+  ['coop','barn'].forEach(b=>{
+    if(buildings[b]!=='building') return;
+    const row=document.createElement('div');
+    row.className='animal-row no-building';
+    row.innerHTML=`<div class="animal-icon">🚧</div><div class="animal-info"><div class="animal-name">${b.toUpperCase()} UNDER CONSTRUCTION</div><div class="animal-status">READY TOMORROW MORNING</div></div>`;
+    g.appendChild(row);
+  });
   // buy slots
   const coopSlots=MAX_COOP-coopCount();
   const barnSlots=MAX_BARN-barnCount();
 
-  if(buildings.coop&&coopSlots>0){
+  if(buildings.coop===true&&coopSlots>0){ // no buy row while still under construction
     const row=document.createElement('div');
     row.className='animal-row';
     row.innerHTML=
@@ -5361,7 +5736,7 @@ function renderAnimals(){
       `<div class="animal-btns"><button class="animal-btn buy" onclick="buyAnimal('chicken')">BUY 300g</button></div>`;
     g.appendChild(row);
   }
-  if(buildings.barn&&barnSlots>0){
+  if(buildings.barn===true&&barnSlots>0){
     const row=document.createElement('div');
     row.className='animal-row';
     const barnAnimals=animals.filter(a=>ANIMAL_DATA[a.type].building==='barn');
@@ -8141,36 +8516,18 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-scene">
       <div id="ts-sky"></div>
       <div id="ts-stars"></div>
-      <div id="ts-moon"></div>
-      <div id="ts-sun-title"></div>
+      <img id="ts-sun-title" class="pxs" data-px="sun_big" alt="">
+      <img class="pxs ts-cloud" data-px="cloud" alt="" style="top:14px;left:10%">
+      <img class="pxs ts-cloud" data-px="cloud" alt="" style="top:30px;left:38%;transform:scale(.7);transform-origin:left top">
       <div id="ts-ground"></div>
       <div id="ts-soil"></div>
-      <!-- left tree -->
-      <div class="ts-tree" style="left:10px"><div class="ts-tree-t" style="background:#1a5010"></div><div class="ts-tree-b"></div></div>
-      <!-- right tree -->
-      <div class="ts-tree" style="right:10px"><div class="ts-tree-t" style="background:#1a5010"></div><div class="ts-tree-b"></div></div>
-      <!-- coop -->
-      <div id="ts-coop"><div class="ts-coop-roof"></div><div class="ts-coop-wall"></div></div>
-      <!-- barn -->
-      <div id="ts-barn"><div class="ts-barn-roof"></div><div class="ts-barn-wall"></div></div>
-      <!-- house -->
-      <div id="ts-house">
-        <div class="ts-h-roof"></div>
-        <div class="ts-h-wall">
-          <div class="ts-h-door"></div>
-          <div class="ts-h-win" style="left:3px"></div>
-          <div class="ts-h-win" style="right:3px"></div>
-        </div>
-      </div>
-      <!-- ship box -->
-      <div id="ts-box"><div class="ts-box-lid"></div><div class="ts-box-body"></div></div>
-      <!-- farmer -->
-      <div id="ts-farmer">
-        <div class="ts-f-hat"></div>
-        <div class="ts-f-head"></div>
-        <div class="ts-f-body"></div>
-        <div class="ts-f-legs"><div class="ts-f-leg"></div><div class="ts-f-leg"></div></div>
-      </div>
+      <img class="pxs ts-tree" data-px="tree" alt="" style="left:2%">
+      <img class="pxs ts-tree" data-px="tree" alt="" style="right:2%">
+      <img id="ts-coop" class="pxs" data-px="coop" alt="">
+      <img id="ts-barn" class="pxs" data-px="barn" alt="">
+      <img id="ts-house" class="pxs" data-px="farmhouse" alt="">
+      <img id="ts-box" class="pxs" data-px="crate" alt="">
+      <img id="ts-farmer" class="pxs" data-px="farmer" alt="">
     </div>
     <!-- Logo -->
     <div id="ts-logo-area">
@@ -8182,7 +8539,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v1.1 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v1.2 — FERNHOLLOW FARM</div>
   </div>
 </div>
 

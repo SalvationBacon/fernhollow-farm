@@ -10,7 +10,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## v1.1 — What's in the game
+## v1.2 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
@@ -76,8 +76,11 @@ Five skills (Farming, Foraging, Fishing, Woodcutting, Mining) each with 10 level
 ### ⭐ Achievements
 48 achievements across 9 categories. Reach the bottom of the mine, harvest every season, max a skill, restore the town.
 
+### 🎨 Pixel Art
+Every icon, item, villager and building is custom pixel art drawn in code: 150+ sprites. The farm scene changes with the seasons (blossom, autumn and snowy trees, a snow-covered roof in winter), the farmhouse windows light up at night, and the farmer walks over to whichever plot you're working.
+
 ### 🎵 Music & Audio
-Procedural folk music — pentatonic pluck engine with bass, day/night volume dynamics, full audio pause/resume on app hide.
+Ten original songs with simple melodies, played on plucked strings, flute, bells and chiptune. Each season has its own two tunes, and two gentle night songs take over after dark. Songs rotate every couple of minutes. Audio fully pauses when you leave the app.
 
 ### 📱 PWA
 - Installable on Android, iOS and desktop
@@ -89,7 +92,7 @@ Procedural folk music — pentatonic pluck engine with bass, day/night volume dy
 
 ## Tech
 
-Single HTML file (~8,200 lines). No frameworks, no build step, no server. Vanilla JS, Web Audio API, CSS. Press Start 2P pixel font.
+Single HTML file (~8,550 lines). No frameworks, no build step, no server, no image files for the game art. Vanilla JS, Canvas-drawn pixel sprites, Web Audio API, CSS. Press Start 2P pixel font.
 
 ## Install as App
 
@@ -105,6 +108,15 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 
 ## Changelog
 
+### v1.2 — Pixel art & music
+- All emoji replaced with custom pixel art: items, crops, fish, ores, meals, villagers, menus and achievements
+- New pixel-art farm scene and title screen: farmhouse, coop, barn, construction site, seasonal trees, farmer, crate, clouds, sun and moon
+- Night-lit windows, snowy winter roof, orange sunrise and sunset, and the farmer walks to the plot you tap
+- Scene layout fixed: crops no longer cut off on narrow phones, and the barn no longer overlaps the tree in landscape
+- The Animals tab shows buildings under construction and only offers animals once they're finished
+- New music engine: 10 songs that rotate by season and time of day, plus a "now playing" line in Settings
+- Bug report form removed (feature requests remain)
+
 ### v1.1 — Kitchen, festivals & fixes
 **New**
 - Cooking overhaul: 11 recipes with specific ingredients, taught by Hob as hearts rise, with day-long meal buffs
@@ -112,7 +124,7 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 - Four seasonal festivals with same-day effects and yearly villager gifts
 - Status strip under the clock shows today's festival / countdown and active meal buffs
 - 3 new achievements (Home Cooking, Master Chef, Festival Regular)
-- Bug reports and feature requests can post straight to Formspree (falls back to email)
+- Feature requests can post straight to Formspree (falls back to email)
 
 **Fixes**
 - Reopening the app no longer skips straight to 1am — the day clock is saved as time-into-day
