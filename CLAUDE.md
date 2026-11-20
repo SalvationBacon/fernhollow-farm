@@ -4,7 +4,7 @@
 Single HTML file farming game. No frameworks, vanilla JS only. Pixel aesthetic, Press Start 2P font.
 Working file: `index.html` — only build file (~9,350 lines).
 Hosted as PWA on GitHub Pages: https://salvationbacon.github.io/fernhollow-farm/
-Current version: **v2.0** (shown on title screen and in feature requests).
+Current version: **v2.1** (shown on title screen and in feature requests).
 
 ---
 
@@ -13,7 +13,7 @@ Current version: **v2.0** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v19` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v20` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -22,7 +22,7 @@ Current version: **v2.0** (shown on title screen and in feature requests).
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v19` → `fernhollow-v20`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v20` → `fernhollow-v21`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -107,28 +107,31 @@ vibration. Effects are capped at 30 on screen.
 
 ---
 
-## Layout
+## Layout (v2.1 Handheld)
+The page is still authored as the old stacked layout; `buildHandheld()` (first thing in `init()`) rearranges it at
+startup and adds `body.handheld`. Every element keeps its id, so game code is unchanged.
 ```
-HUD (Title | Day | Energy | Gold | ⭐ Achievements | ⚙ Settings | 🛠 Dev)
-Season bar · Clock bar
-Status bar (#status-bar — weather + tomorrow's forecast, festival/countdown, birthday, meal buff)
-Skills bar (Farming | Foraging | Fishing | Woodcutting | Mining — tappable)
-Scene (sky/sun/moon/stars/clouds/trees/house/coop/barn/shipping crate/farmer/crops) — all pixel sprites
-  Positions are % of scene width so nothing clips/overlaps at any width:
-  tree 1% | coop 9% | crate 33% | house 52% (centred) | barn right 9% | tree right 1%
-  Crops `SCENE_CROP_X=[5,16,27,61,72,83]` (%). Farmer walks to the crop being worked (`moveFarmer`).
-  Layers: sky, stars, seasonal hills + treeline, ambient (birds, fireflies), weather particles/flash, decor
-  (fence, path, flowers, bee house, chest, lamps, scarecrow, crow), chimney smoke, animals wandering
-  (`renderSceneAnimals`), farmer. Ambient life is driven by `sceneAmbientTick()` from `clockTick`.
-Farm plot (3×2 grid)
-Info bar
-Tabs: SEEDS | BAG | VALLEY | ANIMALS (hidden until building) | TOWN
-Panel content
-Install banner (bottom, one-time PWA prompt)
+#gw (100dvh flex column)
+  #play (flex:1)
+    #scene (clamp(190px,38%,300px)) — scene soil strip + scene crops hidden (plots live in the yard)
+    #yard — grass, #field-panel (3×2 plots, square tiles, sized with container query units), pond, butterflies
+    #hud-overlay — chips over the sky: left .hud-col (season/clock/status bars), right .hud-col-r (#hud-right: day, stamina, gold)
+    #info-bar — parchment toast; info() adds .show and auto-hides
+  #sheet (absolute, bottom:62px, 64% tall, slides up with .open) — #sheet-title, #sheet-close, #sheet-body
+    holds seed/inv/act/animal/th panels + #menu-panel (Achievements, Settings, Dev, skills bar, footer stats)
+  #tabs (62px bottom bar) SEEDS | BAG | VALLEY | ANIMALS (hidden until building) | TOWN | MENU
 ```
+- `#hud` and `#dev-bar` are hidden; the ⭐/⚙/🛠 buttons live in the MENU tab (`renderMenu()`), alert dot `#menu-badge`.
+- Tabs call `tapTab(t)` (tapping the open tab closes it) → `showTab(t)` → `openSheet(t)`. `closeSheet()` on sleep,
+  reset, tutorial end and seed pick. `markTab()` toggles `.on` with classList (keeps `.visible` on the Animals tab).
+- Tutorial steps with `tabTo` open the sheet, others close it; targets are measured 360ms later, after the slide.
+- Text is bumped for handheld by generated `body.handheld …{font-size}` overrides at the end of `<style>`
+  (3–4px→6, 5–6px→7) plus `[style*="font-size:Npx"]` overrides inside the sheet and popups.
+- `#item-popup` z 60 > `#sheet` z 15 / `#tabs` z 16 < `#summary` z 20.
 
 ### PC/Landscape Mode
-Left sidebar (220px): Farm Status, Skills, Animals, Activity Log. Right: full game. Class: `body.pc-mode`.
+Left sidebar (220px): Farm Status, Skills, Animals, Activity Log. Right: the same handheld column (full height). Class: `body.pc-mode`.
+Fixed popups get `left:220px` in pc-mode so they centre over the game column.
 Auto-detect: `pcMode` defaults to `window.innerWidth >= 800`. Saved preference overrides on return visits.
 `body.pc-mode` must include `justify-content:flex-start` to override mobile centring.
 
@@ -701,6 +704,7 @@ Stub functions kept for old call sites: `notifScheduleCrop()`, `notifCancelCrop(
 - Sleep confirm popup
 - Network-first SW (auto-updates for players)
 - **v1.1:** Cooking depth (11 recipes, Hob teaches, meal buffs) · Sap has a use (cooking) · Seasonal festivals · Formspree feedback integration (needs endpoint) · bug-fix pass
+- **v2.1:** Handheld UI (full-screen farm, HUD chips, slide-up sheet, bottom bar + MENU tab, toast messages, bigger text) · cozy cottage farmhouse · yard pond & butterflies
 - **v2.0:** Graphics overhaul (auto-shaded sprites, wood theme, soil tiles, living scene, juice) · weather ·
   notice board quests · villager portraits/talk/birthdays/loved gifts · crafting & decor + crows · foraging 1⚡/dig ·
   big bug hunt (full-bag item loss, off-screen popups, fertilizer perk, and more)

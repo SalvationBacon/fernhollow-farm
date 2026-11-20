@@ -10,7 +10,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## v2.0 — What's in the game
+## v2.1 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
@@ -116,6 +116,14 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 ---
 
 ## Changelog
+
+### v2.1 — Handheld UI
+- New handheld layout: the farm scene and your plots fill the screen, with day/time/weather/energy/gold as chips over the sky
+- SEEDS, BAG, VALLEY, ANIMALS, TOWN and a new MENU tab open a slide-up sheet (tap the tab again, ✕, or swipe down to close)
+- Messages pop up as a parchment toast instead of a fixed strip
+- Bigger, easier-to-read text throughout
+- Cozy yard with a little pond and butterflies; cottage farmhouse redrawn
+- Landscape/PC: popups now centre over the game column
 
 ### v2.0 — The big polish
 **New**

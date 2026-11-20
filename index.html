@@ -1245,6 +1245,242 @@ img.scene-bird{position:absolute;left:-12px;animation:birdFly 9s linear forwards
 @keyframes floatUp{0%{opacity:0;transform:translate(-50%,4px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-34px)}}
 .spark{position:fixed;width:4px;height:4px;z-index:949;pointer-events:none;animation:sparkFly .6s ease-out forwards}
 @keyframes sparkFly{to{opacity:0;transform:translate(var(--dx),var(--dy))}}
+/* ══ v2.1 HANDHELD LAYOUT: scene + yard on top, HUD chips, slide-up sheet, bottom bar ══ */
+html:has(body.handheld),body.handheld{height:100%;overflow:hidden}
+body.handheld{padding:0;min-height:0}
+body.handheld #gw{display:flex;flex-direction:column;height:100vh;height:100dvh;border-top:none;border-bottom:none}
+body.handheld #hud{display:none}
+body.handheld #dev-bar{display:none}
+#play{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+body.handheld #scene{height:clamp(190px,38%,300px);flex-shrink:0;border-bottom:none;box-shadow:none}
+body.handheld #scene .soil-strip,body.handheld #scene-crops{display:none}
+body.handheld #scene::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;
+  background:linear-gradient(rgba(0,0,0,.28),transparent 30%,transparent 80%,rgba(30,50,10,.25))}
+/* the yard: grass with the plots in a wooden frame, a pond and butterflies */
+#yard{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  background:#5a9a34 var(--px-grass) repeat;background-size:32px 16px;background-blend-mode:soft-light;overflow:hidden;padding:8px 10px 14px;container-type:size}
+#yard::before{content:'';position:absolute;left:0;right:0;top:0;height:6px;background:rgba(0,0,0,.18);pointer-events:none}
+body.handheld #field-panel{position:relative;z-index:2;width:min(100%,370px);width:min(100%,370px,calc((100cqh - 64px)*1.45));background:rgba(58,36,16,.92) var(--px-plank);background-size:48px 24px;
+  border:3px solid #24150a;box-shadow:var(--bevel),0 4px 0 rgba(0,0,0,.35);padding:7px 7px 2px}
+body.handheld #field-label{display:none}
+body.handheld #plot{gap:6px}
+body.handheld .tile{height:auto;aspect-ratio:1;min-height:0}
+body.handheld #field-water-row{padding:5px 1px 3px}
+.yard-pond{position:absolute;right:-14px;bottom:-10px;width:96px;height:46px;border-radius:50%;
+  background:radial-gradient(ellipse at 40% 35%,#8cd0f0,#4a90c8 55%,#2e6898);box-shadow:0 0 0 4px #3c7a26,inset 0 3px 0 rgba(255,255,255,.25);z-index:1}
+.yard-pond i{position:absolute;width:10px;height:6px;border-radius:50%;background:#4fa83a;box-shadow:inset -2px -1px 0 #2e7a22}
+.butterfly{position:absolute;width:4px;height:4px;z-index:3;pointer-events:none;animation:flutter 9s ease-in-out infinite alternate}
+.butterfly::before,.butterfly::after{content:'';position:absolute;top:-2px;width:5px;height:5px;background:var(--c,#f8a8c8);animation:wing .25s steps(2) infinite}
+.butterfly::before{left:-5px}.butterfly::after{left:4px}
+@keyframes flutter{0%{translate:0 0}25%{translate:60px -14px}50%{translate:110px 6px}75%{translate:40px 20px}100%{translate:150px -8px}}
+@keyframes wing{50%{transform:scaleY(.3)}}
+/* HUD chips floating over the scene */
+#hud-overlay{position:absolute;top:6px;left:6px;right:6px;z-index:6;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;pointer-events:none}
+#hud-overlay>*>*{pointer-events:auto}
+.hud-col{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:58%}
+.hud-col-r{align-items:flex-end;max-width:42%}
+body.handheld #season-bar,body.handheld #clock-bar,body.handheld #status-bar{background:rgba(26,14,6,.8);border:2px solid #24150a;
+  box-shadow:var(--bevel-soft);padding:4px 6px;gap:5px;border-radius:0}
+body.handheld #season-bar span,body.handheld #clock-bar span{font-size:7px}
+body.handheld #season-label,body.handheld #real-time{font-size:8px;color:#fff3c4}
+body.handheld #season-progress-wrap,body.handheld #day-progress-wrap{min-width:28px;height:5px}
+body.handheld #season-days-left{display:none}
+body.handheld #next-reset{font-size:6px!important}
+body.handheld #status-bar{font-size:6px;justify-content:flex-start;color:#e8d0a0}
+body.handheld #hud-right{flex-direction:column;align-items:flex-end;gap:4px}
+body.handheld #hud-right .hstat{font-size:9px;background:rgba(26,14,6,.8);border:2px solid #24150a;padding:4px 6px}
+body.handheld #hud-right .stam-bar{width:46px}
+body.handheld #ach-hud-btn,body.handheld #hud-right>button{display:none!important}
+/* messages: parchment toast over the scene */
+body.handheld #info-bar{position:absolute;left:12px;right:12px;top:96px;z-index:7;pointer-events:none;text-align:center;
+  min-height:0;padding:6px 10px;font-size:8px;line-height:1.8;border:3px solid #24150a;box-shadow:inset 0 2px 0 #fff0c8,inset 0 -2px 0 #b8925a,0 4px 0 rgba(0,0,0,.35);
+  opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .25s}
+body.handheld #info-bar.show{opacity:1;transform:none}
+/* the sheet */
+#sheet{position:absolute;left:0;right:0;bottom:62px;height:64%;z-index:15;display:flex;flex-direction:column;
+  background:#2a1b0e var(--px-wood) repeat;background-size:48px 24px;border-top:4px solid #5a3818;
+  box-shadow:0 -2px 0 #24150a,0 -10px 24px rgba(0,0,0,.5);transform:translateY(calc(100% + 70px));transition:transform .28s cubic-bezier(.2,.8,.3,1),visibility 0s .28s;visibility:hidden}
+#sheet.open{transform:translateY(0);visibility:visible;transition:transform .28s cubic-bezier(.2,.8,.3,1),visibility 0s}
+.sheet-grab{width:42px;height:5px;background:#8a5a2c;margin:5px auto 0;box-shadow:0 1px 0 #24150a}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:4px 10px 6px;border-bottom:3px solid #24150a;touch-action:none}
+#sheet-title{font-size:9px;color:#ffe27a;text-shadow:1px 1px 0 #1a0e06;letter-spacing:1px}
+#sheet-close{font-family:'Press Start 2P',monospace;font-size:9px;background:#3a2210;color:#ffe27a;border:2px solid #24150a;box-shadow:var(--bevel-soft);padding:5px 7px;cursor:pointer}
+#sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#sheet-body>div{padding-bottom:14px}
+#menu-panel{display:none;padding:8px 10px}
+#menu-panel.on{display:block}
+.menu-btns{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.menu-btn{display:flex;align-items:center;gap:8px;font-family:'Press Start 2P',monospace;font-size:8px;color:#fff0c8;text-align:left;
+  background:#3a2614;border:2px solid #1e1209;box-shadow:var(--bevel),var(--drop);padding:10px;cursor:pointer}
+.menu-btn:active{transform:translateY(2px)}
+.menu-btn span:first-of-type{flex:1}
+#menu-ach-count{color:#ffe27a}
+#menu-panel #skills-bar{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:none;border:none;padding:0;margin-bottom:12px}
+#menu-panel .skill-chip{padding:6px}
+#menu-panel .skill-chip{display:flex;gap:6px;align-items:center}
+#menu-panel .skill-info{flex:1;min-width:0}
+#menu-panel .skill-label{color:#fff0c8;font-size:7px}
+#menu-panel .skill-lvl{color:#ffe27a;font-size:7px}
+#menu-panel .skill-xp-wrap{width:100%}
+#menu-panel #footer span{color:#e8d0a0;font-size:7px;line-height:1.8}
+#menu-panel #footer{color:#e8d0a0;display:flex;flex-direction:column;gap:6px;background:rgba(20,12,6,.6);border:2px solid #24150a;padding:8px;font-size:7px}
+/* bottom bar */
+body.handheld #tabs{position:relative;z-index:16;flex:0 0 62px;height:62px;padding:4px 4px 6px;gap:3px;border-bottom:none;border-top:3px solid #24150a;
+  background:#1a0f07 var(--px-wood);background-size:48px 24px;padding-bottom:max(6px,env(safe-area-inset-bottom))}
+body.handheld .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px solid #24150a;padding:4px 1px;min-width:0}
+body.handheld .tab.on{transform:translateY(-2px);box-shadow:var(--bevel),0 2px 0 #24150a}
+body.handheld .tab-ic img.px{width:20px;height:20px}
+body.handheld .tab-tx{font-size:6px;white-space:nowrap}
+body.handheld #tab-animals{display:none}
+body.handheld #tab-animals.visible{display:flex}
+body.handheld #inv-badge,body.handheld #menu-badge{position:absolute;top:2px;right:4px}
+.tab-alert-dot{width:7px;height:7px;background:#e04040;border:1px solid #600}
+body.handheld #install-banner{bottom:62px}
+body.handheld #item-popup{z-index:60}
+/* landscape: same handheld column next to the sidebar */
+/* PC: popups centre over the game column, not the whole window */
+body.pc-mode #skill-overlay,body.pc-mode #ach-overlay,body.pc-mode #vil-dialogue-overlay,body.pc-mode #gift-chooser-overlay,body.pc-mode #ship-qty-overlay,body.pc-mode #season-overlay,body.pc-mode #summary,body.pc-mode #tut-letter,body.pc-mode #settings-overlay,body.pc-mode #dev-overlay,body.pc-mode #feat-overlay,body.pc-mode .screen-overlay{left:220px!important}
+body.handheld.pc-mode #pc-right{padding:0;overflow:hidden}
+body.handheld.pc-mode #gw{height:100vh}
+body.handheld.pc-mode #scene{height:clamp(190px,40%,320px)}
+body.handheld.pc-mode #plot{grid-template-columns:repeat(3,1fr)}
+body.handheld.pc-mode .tile{height:auto}
+body.handheld.pc-mode #field-panel,body.handheld.pc-mode #info-bar,body.handheld.pc-mode #tabs{padding-left:7px;padding-right:7px}
+/* bigger text for the handheld layout */
+body.handheld .gift-slot .gs-name,
+body.handheld .gift-slot .gs-fav{font-size:6px}
+body.handheld #craft-toggle,
+body.handheld .craft-name,
+body.handheld .craft-desc,
+body.handheld .craft-cost,
+body.handheld .craft-btn,
+body.handheld .craft-built,
+body.handheld .qb-count,
+body.handheld .qb-kind,
+body.handheld .qb-when,
+body.handheld .qb-line,
+body.handheld .qb-want,
+body.handheld .qb-reward,
+body.handheld .qb-btn,
+body.handheld .sb-count,
+body.handheld #dev-bar span,
+body.handheld .spd-btn,
+body.handheld .save-btn,
+body.handheld .animal-feed-all-btn,
+body.handheld .animal-status,
+body.handheld .animal-btn,
+body.handheld .water-btn,
+body.handheld #water-can-label,
+body.handheld .t-lbl,
+body.handheld .panel-label,
+body.handheld .sc-stat,
+body.handheld .sc-sub,
+body.handheld .sc-unlock,
+body.handheld .shc-name,
+body.handheld .shc-desc,
+body.handheld .shop-btn,
+body.handheld .inv-slot .is-qty,
+body.handheld .inv-slot .is-name,
+body.handheld #ship-all-btn,
+body.handheld #unship-all-btn,
+body.handheld .item-popup-btn,
+body.handheld .popup-energy,
+body.handheld #inv-ship-label,
+body.handheld .ship-row-left,
+body.handheld .ship-row-gold,
+body.handheld .unship-btn,
+body.handheld #inv-ship-total,
+body.handheld .act-energy-cost,
+body.handheld .act-desc,
+body.handheld .act-result,
+body.handheld .tree-hp-label,
+body.handheld #fish-instructions,
+body.handheld #fish-status,
+body.handheld #dig-header,
+body.handheld #dig-legend,
+body.handheld #dig-hint,
+body.handheld .skill-label,
+body.handheld #skill-xp-label,
+body.handheld #skill-xp-numbers,
+body.handheld .slr-perk,
+body.handheld .slr-xp,
+body.handheld .th-room-badge,
+body.handheld .th-req-left,
+body.handheld .th-req-progress,
+body.handheld .th-donate-btn,
+body.handheld .th-room-desc,
+body.handheld .th-room-complete-msg,
+body.handheld .th-reward-name,
+body.handheld .th-reward-desc,
+body.handheld .th-reward-btn,
+body.handheld #ach-progress-label,
+body.handheld .ach-name,
+body.handheld .ach-desc,
+body.handheld #ach-pop-name,
+body.handheld #ach-pop-label,
+body.handheld .th-overall-label,
+body.handheld .vil-role,
+body.handheld .vil-dialogue,
+body.handheld .vil-gift-label,
+body.handheld .vil-gift-btn,
+body.handheld .vil-gift-used,
+body.handheld .vil-shop-label,
+body.handheld .vil-item-name,
+body.handheld .vil-item-desc,
+body.handheld .vil-item-lock,
+body.handheld .vil-buy-btn,
+body.handheld .vil-fav,
+body.handheld #vil-dialogue-role,
+body.handheld #vil-dialogue-gift-preview,
+body.handheld #vil-dialogue-skip,
+body.handheld .gift-slot .gs-qty,
+body.handheld #gift-chooser-cancel,
+body.handheld #ship-qty-max,
+body.handheld #ship-qty-cancel,
+body.handheld .mine-floor-sub,
+body.handheld .mine-checkpoint,
+body.handheld .mine-rock-hp,
+body.handheld .mine-ladder-sub,
+body.handheld .mine-exit-btn,
+body.handheld .mine-status,
+body.handheld .mine-pickaxe-status,
+body.handheld .mine-cons-btn,
+body.handheld .mine-result,
+body.handheld .mine-locked-msg,
+body.handheld .mine-floor-sel-btn,
+body.handheld #footer span,
+body.handheld #sum-day,
+body.handheld .sl-sub,
+body.handheld #sum-bonus,
+body.handheld .fb-label,
+body.handheld .fb-desc,
+body.handheld .fb-input,
+body.handheld .fb-select,
+body.handheld .fb-state-box,
+body.handheld .fb-note,
+body.handheld #save-toast-sub,
+body.handheld #install-banner-sub,
+body.handheld #install-banner-btn,
+body.handheld .settings-desc,
+body.handheld .sett-btn,
+body.handheld .settings-info,
+body.handheld #import-area,
+body.handheld #import-feedback,
+body.handheld .sic-label,
+body.handheld .dev-badge,
+body.handheld .dev-chip-label,
+body.handheld .dev-toggle-label,
+body.handheld .dev-toggle-sub,
+body.handheld .dev-sp-btn,
+body.handheld .dev-skip-btn,
+body.handheld .dev-skip-result,
+body.handheld .dev-gold-btn,
+body.handheld .dev-energy-btn{font-size:7px}
+
+body.handheld #sheet [style*="font-size:3px"],body.handheld .screen-overlay [style*="font-size:3px"],body.handheld #item-popup [style*="font-size:3px"],body.handheld #summary [style*="font-size:3px"],body.handheld #vil-dialogue-overlay [style*="font-size:3px"],body.handheld #gift-chooser-overlay [style*="font-size:3px"],body.handheld #ship-qty-overlay [style*="font-size:3px"],body.handheld #skill-overlay [style*="font-size:3px"],body.handheld #ach-overlay [style*="font-size:3px"]{font-size:6px!important}
+body.handheld #sheet [style*="font-size:4px"],body.handheld .screen-overlay [style*="font-size:4px"],body.handheld #item-popup [style*="font-size:4px"],body.handheld #summary [style*="font-size:4px"],body.handheld #vil-dialogue-overlay [style*="font-size:4px"],body.handheld #gift-chooser-overlay [style*="font-size:4px"],body.handheld #ship-qty-overlay [style*="font-size:4px"],body.handheld #skill-overlay [style*="font-size:4px"],body.handheld #ach-overlay [style*="font-size:4px"]{font-size:6px!important}
+body.handheld #sheet [style*="font-size:5px"],body.handheld .screen-overlay [style*="font-size:5px"],body.handheld #item-popup [style*="font-size:5px"],body.handheld #summary [style*="font-size:5px"],body.handheld #vil-dialogue-overlay [style*="font-size:5px"],body.handheld #gift-chooser-overlay [style*="font-size:5px"],body.handheld #ship-qty-overlay [style*="font-size:5px"],body.handheld #skill-overlay [style*="font-size:5px"],body.handheld #ach-overlay [style*="font-size:5px"]{font-size:7px!important}
+body.handheld #sheet [style*="font-size:6px"],body.handheld .screen-overlay [style*="font-size:6px"],body.handheld #item-popup [style*="font-size:6px"],body.handheld #summary [style*="font-size:6px"],body.handheld #vil-dialogue-overlay [style*="font-size:6px"],body.handheld #gift-chooser-overlay [style*="font-size:6px"],body.handheld #ship-qty-overlay [style*="font-size:6px"],body.handheld #skill-overlay [style*="font-size:6px"],body.handheld #ach-overlay [style*="font-size:6px"]{font-size:7px!important}
 </style>
 </head>
 <body>
@@ -1439,11 +1675,12 @@ img.scene-bird{position:absolute;left:-12px;animation:birdFly 9s linear forwards
   </div>
   <div id="info-bar">WELCOME BACK! SELECT A SEED AND TAP A PLOT TO PLANT.</div>
   <div id="tabs">
-    <button class="tab on" onclick="showTab('seeds')">🌱 SEEDS</button>
-    <button class="tab"    onclick="showTab('inv')">🎒 BAG <span id="inv-badge"></span></button>
-    <button class="tab"    id="tab-do" onclick="showTab('act')">🌲 VALLEY</button>
-    <button class="tab"    id="tab-animals" onclick="showTab('animals')">🐾 ANIMALS</button>
-    <button class="tab"    onclick="showTab('th')">🏛 TOWN</button>
+    <button class="tab" onclick="tapTab('seeds')"><span class="tab-ic">🌱</span><span class="tab-tx">SEEDS</span></button>
+    <button class="tab" onclick="tapTab('inv')"><span class="tab-ic">🎒</span><span class="tab-tx">BAG</span><span id="inv-badge"></span></button>
+    <button class="tab" id="tab-do" onclick="tapTab('act')"><span class="tab-ic">🌲</span><span class="tab-tx">VALLEY</span></button>
+    <button class="tab" id="tab-animals" onclick="tapTab('animals')"><span class="tab-ic">🐾</span><span class="tab-tx">ANIMALS</span></button>
+    <button class="tab" onclick="tapTab('th')"><span class="tab-ic">🏛</span><span class="tab-tx">TOWN</span></button>
+    <button class="tab" onclick="tapTab('menu')"><span class="tab-ic">⚙</span><span class="tab-tx">MENU</span><span id="menu-badge"></span></button>
   </div>
   <div id="seed-panel" class="on">
     <div class="panel-label">▸ SEEDS</div>
@@ -3469,6 +3706,7 @@ function updateSky(){
   if(dim){sky=lerpHex(sky,weatherToday==='snow'?'#8a96a8':'#4a5260',dim);gr=lerpHex(gr,'#2a3420',dim*0.4);}
   document.getElementById('sky').style.background=sky;
   document.getElementById('ground').style.backgroundColor=gr;
+  const yd=document.getElementById('yard');if(yd)yd.style.backgroundColor=gr;
   const co=getCloudOp(h);
   ['cl1','cl2','cl3'].forEach(id=>document.getElementById(id).style.opacity=co);
   starOpacity=lerp(starOpacity,(h>=19.5||h<5.5)?1:0,0.03);
@@ -3625,6 +3863,7 @@ function forceSleep(){
   doSleep();
 }
 function doSleep(){
+  closeSheet();
   // Stop music cleanly before new day sequence
   if(musicPlaying) musicStop();
   // a forced 1am sleep can land mid-minigame — wrap those up first
@@ -3644,7 +3883,14 @@ const upEnergy=()=>{
   if(f){const r=maxEnergy?energy/maxEnergy:0;f.style.width=Math.round(r*100)+'%';f.className=r<=0.2?'low':r<=0.5?'mid':'';}
   pcUpdate();
 }
-const info=m=>$('info-bar').textContent=m;
+// Messages pop up as a note under the top bar, then fade
+let _infoTimer=null;
+const info=m=>{
+  const el=$('info-bar');if(!el) return;
+  el.textContent=m;
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  clearTimeout(_infoTimer);_infoTimer=setTimeout(()=>el.classList.remove('show'),Math.min(6000,2600+m.length*25));
+};
 
 // ── INVENTORY ──
 // Can the bag take this item? (existing stacks always grow; a new item needs a free slot)
@@ -4300,7 +4546,7 @@ function renderSeeds(){
 <div class="sc-stats"><div class="sc-stat">SELL <span>${c.sell}g</span></div><div class="sc-stat">GROWS <span>${formatTime(c.baseDays)}</span></div></div>
 <div class="sc-sub">${c.desc}</div>
 ${lkd?`<div class="sc-unlock">NEED ${remaining} MORE 🌾 THIS SEASON</div>`:`<div style="font-size:4px;color:#60aa40;margin-top:2px">COST: ${c.cost}g</div>`}`;
-    if(!lkd)d.onclick=()=>{sel=c;info('SELECTED: '+c.name+' | '+c.cost+'g | SELLS '+c.sell+'g');renderSeeds();tutHook('seedSelected');};
+    if(!lkd)d.onclick=()=>{sel=c;renderSeeds();tutHook('seedSelected');if(!tutActive){closeSheet();info('🌱 '+c.name+' SELECTED ('+c.cost+'g) — TAP AN EMPTY PLOT TO PLANT');}};
     g.appendChild(d);
   });
 }
@@ -4316,17 +4562,39 @@ function triggerMayorFirstMeet(){
   },600);
 }
 
-function showTab(t){
-  // highlight correct tab — match by onclick attribute
+// ── HANDHELD UI: tabs open a slide-up sheet over the yard ──
+const SHEET_TITLES={seeds:'🌱 SEEDS',inv:'🎒 BAG',act:'🌲 VALLEY',animals:'🐾 ANIMALS',th:'🏛 TOWN',menu:'⚙ MENU'};
+let sheetTab=null;
+function markTab(t){
+  // highlight by onclick attribute; classList keeps .visible on the Animals tab
   document.querySelectorAll('.tab').forEach(b=>{
     const fn=b.getAttribute('onclick')||'';
-    b.className='tab'+(fn.includes("'"+t+"'")||fn.includes('"'+t+'"')?' on':'');
+    b.classList.toggle('on',!!t&&fn.includes("'"+t+"'"));
   });
+}
+// bottom-bar tap: tapping the open tab again closes the sheet
+function tapTab(t){ if(sheetTab===t){closeSheet();return;} showTab(t); }
+function openSheet(t){
+  sheetTab=t;
+  const sh=$('sheet');if(!sh) return;
+  $('sheet-title').textContent=SHEET_TITLES[t]||'';
+  sh.classList.add('open');sh.setAttribute('aria-hidden','false');
+}
+function closeSheet(){
+  sheetTab=null;markTab(null);
+  const sh=$('sheet');if(!sh) return;
+  sh.classList.remove('open');sh.setAttribute('aria-hidden','true');
+}
+function showTab(t){
+  markTab(t);
   $('seed-panel').className=t==='seeds'?'on':'';
   $('inv-panel').className=t==='inv'?'on':'';
   $('act-panel').className=t==='act'?'on':'';
   $('animal-panel').className=t==='animals'?'on':'';
   $('th-panel').className=t==='th'?'on':'';
+  const mp=$('menu-panel');if(mp){mp.className=t==='menu'?'on':'';if(t==='menu')renderMenu();}
+  openSheet(t);
+  const body=$('sheet-body');if(body&&sheetTab!==t)body.scrollTop=0;
   if(t==='inv'){renderInv();setTimeout(()=>showTabTip('bag'),400);}
   if(t==='act'){renderActivities();tutHook('actTabVisited');setTimeout(()=>showTabTip('valley'),400);}
   if(t==='animals')renderAnimals();
@@ -5280,7 +5548,7 @@ function doReset(){
   pcUpdate();
   updateEventBanner();
   const animalTab=document.getElementById('tab-animals');if(animalTab)animalTab.className='tab';
-  showTab('seeds');
+  closeSheet();
 
   document.getElementById('dn').textContent=day;
   document.getElementById('hvn').textContent=hvst;
@@ -5399,6 +5667,7 @@ function updateAchBadge(){
   const total=Object.keys(achUnlocked).length;
   const seen=parseInt(localStorage.getItem('hh_ach_seen')||'0');
   badge.style.display=total>seen?'block':'none';
+  const mb=document.getElementById('menu-badge');if(mb)mb.className=total>seen?'tab-alert-dot':'';
 }
 
 function openAchievements(){
@@ -5572,7 +5841,7 @@ const TUT_STEPS=[
     body:'Tap the 🏠 farmhouse to end your day. A popup will ask you to confirm.\n\nYour shipped items sell overnight and the next morning begins!',
     target:'scene',
     waitFor:'none',
-    tabTo:'seeds',
+    tabTo:null,
     showBtn:true,
     btnLabel:'GOT IT ▸',
   },
@@ -5582,7 +5851,7 @@ const TUT_STEPS=[
     body:'Visit THE VALLEY tab for foraging, fishing, chopping and mining. Head to TOWN to meet the villagers!',
     target:'tab-do',
     waitFor:'none',
-    tabTo:'seeds',
+    tabTo:null,
     showBtn:true,
     btnLabel:'START FARMING! ▸',
   },
@@ -5610,10 +5879,10 @@ function showTutStep(idx){
   if(idx>=TUT_STEPS.length){endTutorial();return;}
   tutStep=idx;
   const step=TUT_STEPS[idx];
-  if(step.tabTo) showTab(step.tabTo);
+  if(step.tabTo) showTab(step.tabTo); else closeSheet();
   document.getElementById('tut-overlay').className='show';
-  // wait a frame for tab panel to render before measuring
-  requestAnimationFrame(()=>_positionTutStep(idx));
+  // wait for the sheet to finish sliding before measuring the target
+  setTimeout(()=>_positionTutStep(idx),360);
 }
 
 function _positionTutStep(idx){
@@ -6040,7 +6309,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v2.0 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v2.1 | Day: '+day+' | Season: '+currentSeason().name
   );
   sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
@@ -6062,7 +6331,7 @@ function endTutorial(){
   // re-enable any pointer events that may have been blocked
   const ig=document.getElementById('inv-grid');
   if(ig) ig.style.pointerEvents='';
-  showTab('seeds');
+  closeSheet();
   info('HAPPY FARMING! VISIT THE VALLEY AND TOWN TABS TO EXPLORE!');
   // prompt PWA install after tutorial
   setTimeout(scheduleInstallBanner,3000);
@@ -7125,7 +7394,56 @@ function shipCropOne(id){
   updateShipCount();
 }
 
+// Rearranges the page into the Handheld layout: farm scene + yard on top, HUD chips over the
+// scene, a slide-up sheet for tab panels and a bottom bar. Every element keeps its id.
+function buildHandheld(){
+  const gw=$('gw');if(!gw||$('play')) return;
+  const mk=(tag,id,cls)=>{const e=document.createElement(tag);if(id)e.id=id;if(cls)e.className=cls;return e;};
+  const play=mk('div','play'),yard=mk('div','yard'),hud=mk('div','hud-overlay');
+  const left=mk('div',null,'hud-col'),right=mk('div',null,'hud-col hud-col-r');
+  ['season-bar','clock-bar','status-bar'].forEach(id=>{const e=$(id);if(e)left.appendChild(e);});
+  const hr=$('hud-right');if(hr)right.appendChild(hr);
+  hud.append(left,right);
+  const scene=$('scene');
+  gw.insertBefore(play,scene);
+  play.append(scene,yard,hud);
+  // yard: the field of plots plus a little pond and wildlife
+  yard.appendChild($('field-panel'));
+  yard.insertAdjacentHTML('beforeend',`<div class="yard-pond"><i style="left:12px;top:10px"></i><i style="left:46px;top:20px"></i><i style="left:64px;top:7px"></i></div>
+    <span class="butterfly" style="--c:#f8a8c8;top:18%;left:10%"></span><span class="butterfly" style="--c:#fff3a0;top:70%;left:66%;animation-delay:-3s"></span>`);
+  play.appendChild($('info-bar'));
+  // sheet with the tab panels + a new Menu panel
+  const sheet=mk('div','sheet');sheet.setAttribute('aria-hidden','true');
+  sheet.innerHTML='<div class="sheet-grab"></div><div class="sheet-head"><span id="sheet-title"></span><button id="sheet-close" onclick="closeSheet()" aria-label="Close">✕</button></div><div id="sheet-body"></div>';
+  const body=sheet.querySelector('#sheet-body');
+  ['seed-panel','inv-panel','act-panel','animal-panel','th-panel'].forEach(id=>body.appendChild($(id)));
+  const menu=mk('div','menu-panel');
+  menu.innerHTML=`<div class="menu-btns">
+      <button class="menu-btn" onclick="openAchievements()">⭐<span>ACHIEVEMENTS</span><span id="menu-ach-count"></span></button>
+      <button class="menu-btn" onclick="openSettings()">⚙<span>SETTINGS &amp; SAVE</span></button>
+      <button class="menu-btn" id="menu-dev-btn" onclick="openDev()" style="display:none">🛠<span>DEV TOOLS</span></button>
+    </div>
+    <div class="panel-label">▸ SKILLS — TAP FOR PERKS</div>`;
+  menu.appendChild($('skills-bar'));
+  menu.insertAdjacentHTML('beforeend','<div class="panel-label">▸ YOUR FARM</div>');
+  menu.appendChild($('footer'));
+  body.appendChild(menu);
+  gw.insertBefore(sheet,$('tabs'));
+  gw.insertBefore($('tabs'),sheet.nextSibling);
+  // swipe the sheet down to close it
+  let sy=null;
+  sheet.querySelector('.sheet-head').addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+  sheet.querySelector('.sheet-head').addEventListener('touchend',e=>{if(sy!==null&&e.changedTouches[0].clientY-sy>50)closeSheet();sy=null;});
+  // the yard's grass follows the time of day and season
+  ['seed-panel'].forEach(id=>$(id).className='');
+  document.body.classList.add('handheld');
+}
+function renderMenu(){
+  const c=$('menu-ach-count');if(c)c.textContent=Object.keys(achUnlocked).length+'/'+ACHIEVEMENTS.length;
+  const d=$('menu-dev-btn');if(d)d.style.display=devMode?'':'none';
+}
 function init(){
+  buildHandheld();
   const loaded=loadGame();
   if(!loaded) defaultState();
 
@@ -9350,7 +9668,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v2.0 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v2.1 — FERNHOLLOW FARM</div>
   </div>
 </div>
 
