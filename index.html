@@ -106,6 +106,14 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 #sky{position:absolute;inset:0}
 #stars{position:absolute;inset:0;opacity:0}
 .star{position:absolute;background:#fff;border-radius:50%}
+
+/* Popups stay on the visible screen (they used to sit at the top/bottom of the whole page,
+   so on a scrolled phone a dialogue could open off-screen). */
+#skill-overlay,#ach-overlay,#vil-dialogue-overlay,#gift-chooser-overlay,#ship-qty-overlay,#season-overlay,
+#summary,#tut-letter,#settings-overlay,#dev-overlay,#feat-overlay,.screen-overlay{
+  position:fixed!important;inset:0!important;max-width:420px;margin:0 auto;
+}
+#ach-overlay,#settings-overlay,#dev-overlay,#feat-overlay,#summary{overflow-y:auto}
 /* pixel art — sprites are drawn by pxURL(); .px = inline icon (swapped from emoji), .pxs = scene sprite */
 img.px{width:max(12px,1.35em);height:max(12px,1.35em);image-rendering:pixelated;image-rendering:crisp-edges;
   vertical-align:-0.25em;display:inline-block;pointer-events:none;-webkit-user-drag:none}
@@ -478,7 +486,7 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 
 /* level-up flash */
 @keyframes lvlFlash{0%{opacity:0;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1)}}
-.lvl-up-pop{position:absolute;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);white-space:nowrap;animation:lvlFlash 1.4s ease forwards;z-index:60}
+.lvl-up-pop{position:fixed;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);white-space:nowrap;animation:lvlFlash 1.4s ease forwards;z-index:60}
 /* QUALITY badges */
 .q-silver{font-size:11px;line-height:1;margin-left:1px}
 .q-gold{font-size:11px;line-height:1;margin-left:1px}
@@ -556,7 +564,7 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #ach-hud-btn{position:relative}
 #ach-badge{display:none;position:absolute;top:-3px;right:-3px;width:7px;height:7px;background:var(--red);border-radius:50%}
 /* Achievement unlock pop */
-#ach-pop{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:var(--deep);border:2px solid var(--gold);padding:8px 12px;z-index:900;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
+#ach-pop{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--deep);border:2px solid var(--gold);padding:8px 12px;z-index:900;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
 #ach-pop.show{opacity:1}
 #ach-pop-icon{font-size:14px;display:block;margin-bottom:3px}
 #ach-pop-name{font-size:6px;color:var(--gold);display:block}
@@ -572,6 +580,9 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 .vil-card.locked{opacity:.45}
 .vil-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
 .vil-avatar{font-size:22px;flex-shrink:0;line-height:1}
+img.vil-portrait{width:40px;height:40px;image-rendering:pixelated;display:block;border:2px solid var(--rim);background:#5a3e1b}
+img.vil-dialogue-portrait{width:60px;height:60px;image-rendering:pixelated;display:block;border:2px solid var(--gold);background:#5a3e1b}
+img.qb-portrait{width:20px;height:20px;image-rendering:pixelated;vertical-align:middle;border:1px solid var(--rim)}
 .vil-info{flex:1}
 .vil-name{font-size:7px;color:var(--cream);margin-bottom:2px}
 .vil-role{font-size:5px;color:var(--muted)}
@@ -965,14 +976,14 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
 .fb-note{font-size:5px;color:var(--dim);text-align:center;line-height:1.7;margin-top:4px}
 
 /* ── SAVE TOAST ── */
-#save-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--deep);border:2px solid var(--green2);color:var(--green);font-size:8px;padding:12px 18px;opacity:0;pointer-events:none;white-space:nowrap;z-index:60;text-align:center;transition:opacity .2s,transform .2s}
+#save-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--deep);border:2px solid var(--green2);color:var(--green);font-size:8px;padding:12px 18px;opacity:0;pointer-events:none;white-space:nowrap;z-index:60;text-align:center;transition:opacity .2s,transform .2s}
 #save-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #save-toast-icon{font-size:26px;display:block;margin-bottom:6px}
 #save-toast-msg{display:block;letter-spacing:1px}
 #save-toast-sub{display:block;font-size:5px;color:var(--muted);margin-top:4px}
 
 /* ── INSTALL BANNER ── */
-#install-banner{display:none;position:absolute;bottom:0;left:0;right:0;background:var(--deep);border-top:2px solid var(--gold);padding:10px 12px;z-index:40;animation:bannerSlide .4s ease}
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--deep);border-top:2px solid var(--gold);padding:10px 12px;z-index:40;animation:bannerSlide .4s ease}
 #install-banner.show{display:flex;align-items:center;gap:8px}
 #install-banner-icon{font-size:18px;flex-shrink:0}
 #install-banner-text{flex:1}
@@ -1991,6 +2002,15 @@ const PX_SPRITES={
   wine:{r:['.kkkkkk.','kwwwwwwk','kRRRRRRk','kRrrrRRk','.kRRRRk.','..kWWk..','...kk...','...kk...','.kkkkkk.']},
   jar:{r:['.kkkkkk.','.kGGGGk.','kkkkkkkk','kcwcccck','kwccccck','kcccccbk','kccccbbk','.kkkkkk.']},
 
+  // ── villager portraits (20×20, generated from layered parts) ──
+  pt_wren:{r:['....................','.......kkkkkk.......','......kbbcbbbk......','.....kbbcbbbbbk.....','...kkbbbbbbbbbbkk...','..kBBBBBBBBBBBBBBk..','...kkkOOOOOOOOkkk...','....kOttttttttOk....','....kOttOttOtTOk....','....kOttkttktTOk....','....kOtTttttTTOk....','....kOttTttTtTOk....','....kOtttRRttTOk....','....kOOttttttOOk....','....kOOkttTTkOOk....','....kOOkkTTkkOOk....','....keeewwwweeek....','...keeeeewweeeeEk...','..keeeeeeeeeeeeeEk..','..keeeeeeeeeeeeeEk..']},
+  pt_hob:{r:['....kwwwwwwwwwwk....','....kwwwwwwwwWwk....','....kwwwwwwwwwwk....','.....kwWwwwwwWk.....','.....kwwwwwwwwk.....','.....kWWWWWWWWk.....','......kttttttk......','.....kttttttttk.....','.....kttWttWtTk.....','.....kttkttktTk.....','.....ktttttttTk.....','.....ktpWWWWpTk.....','.....ktWtRRtWTk.....','......kttttttk......','.......kttTTk.......','.....kkkkTTkkkk.....','....kwwwwgwwwwwk....','...kwwwwwwgwwwwWk...','..kwwwwwwgwwwwwwWk..','..kwwwwwwwwwwwwwWk..']},
+  pt_sal:{r:['....................','....................','.......kkkkkk.......','.....kkvvvvvvkk.....','....kvvvyvvyvvvk....','....kvvvvvvvvvvk....','....kvVVVVVVVVvk....','....kvnnnnnnnnvvk...','....kvnnNnnNnNvkVk..','....kvnnknnknNvkk...','....kvnnnnnnnNvk....','...kyvnnnnnRnNvyk...','....kvnnnRRRnNvk....','.....kknnnnnnkk.....','.......knnNNk.......','.....kkkkNNkkkk.....','....kvvvyyyyvvvk....','...kvvvvvyyvvvvVk...','..kvvvvvvvvvvvvvVk..','..kvvvvvvvvvvvvvVk..']},
+  pt_bess:{r:['....................','.......kkkkkk.......','......kYYYYYYk......','.....kYYYYYYYYk.....','..kkkkrrrrrrrrkkkk..','.kYyyyyyyyyyyyyyyYk.','..kkkkyyyyyyyykkkk..','....kkyttttttykk....','...kyyttYttYtTyyk...','...kyyttkttktTyyk...','...kYytttttttTyYk...','...kyytpTttTpTyyk...','...kyytttRRttTyyk...','...kYykttttttkyYk...','...kyykkttTTkkyyk...','...kyykkkTTkkkyyk...','...kyybrrrrrrbyyk...','...krbbbbrrbbbbrk...','..kbbbbbbbbbbbbbBk..','..kbbbbbbbbbbbbbBk..']},
+  pt_ford:{r:['........kwwk........','......kkrrrrkk......','.....krrrrrrrrk.....','.....krrRrrRrrk.....','.....krrrrrrrrk.....','....kRRRRRRRRRRk....','.....kkttttttkk.....','.....kttttttttk.....','.....kttNttNtTk.....','.....kttkttktTk.....','.....ktttttttTk.....','.....kNNNNNNNNk.....','.....kNNNnnNNNk.....','.....kNNnNNNNNk.....','.....kNNNNNnNNk.....','.....kNNNNNNNNk.....','....kRrNNNNNNrRk....','...kRrrRNNNNrRrRk...','..kRrrRrrRrrRrrRRk..','..krrRrrRrrRrrRrRk..']},
+  pt_mayor:{r:['......kGGGGGGk......','......kGgGGGGk......','......kGGGGGGk......','......krrrrrrk......','....kkkGGGGGGkkk....','...kGGGGGGGGGGGGk...','....kkWWWWWWWWkk....','....kWttttttttWk....','....kWttWttytTWk....','....kWttktykyTWk....','....kWtttttytyWk....','....kWtWWWWWWyWk....','....kWtttRRttTWk....','.....kkttttttkk.....','.......kttTTk.......','.....kkkkTTkkkk.....','....kBBBwwwwBBBk....','...kBBBBBrrBBBBBk...','..kBBBBBBrBBBBBBBk..','..kBBBBBBBrBBBBBBk..']},
+  pt_bram:{r:['.........kk.........','.......kkcckk.......','.....kkyywwyykk.....','....kyyyywwyyyyk....','....kyYyywwyyYyk....','....kyyyyyyyyyyk....','...kYYYYYYYYYYYYk...','....kkTTTTTTGTkk....','.....kTTgTTgTnk.....','.....kTTkTTkTnk.....','.....kTGTTTTTnk.....','.....kggggggggk.....','.....kgWgRRgggk.....','.....kggggggWgk.....','.....kggggggggk.....','.....kkggggggkk.....','....kONggggggNOk....','...kOONOWWWWONOOk...','..kOOONOOOOOONOOOk..','..kOOONOOOOOONOOOk..']},
+  cake:{r:['...r..r...','...y..y...','..kkkkkk..','.kppppppk.','.kwwwwwwk.','kppppppppk','knnnnnnnnk','kwwrwwrwwk','knnnnnnnnk','.kkkkkkkk.']},
   // ── farm scene (drawn at 2× in the scene) ──
   farmhouse:{r:[
     '...........kk...kkk.....',
@@ -2159,7 +2179,7 @@ const PX_EMOJI={
   '🪙':'coin','⭐':'star','⚡':'bolt','❤':'heart','💗':'heart_pink','💕':'heart_pink','💝':'heart_pink','💜':'heart_purple','♡':'heart_empty',
   '💧':'drop','💦':'drops','🫧':'amber','❓':'question','⚠':'warn','⬆':'up','⬇':'down','⏩':'ff','⚙':'gear','🔒':'lock','🔓':'unlock',
   '🎁':'gift','🥇':'medal_gold','🥈':'medal_silver','📦':'box','🏛':'townhall','🏠':'house','🏚':'house_old','🏮':'lantern','🎪':'tent',
-  '🌙':'moon','☀':'sun','❄':'snow','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
+  '🌙':'moon','☀':'sun','❄':'snow','🎂':'cake','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
   '💡':'bulb','📱':'phone','📲':'phone','🖥':'monitor','🎮':'gamepad','💬':'speech','📊':'chart','📅':'calendar','💾':'floppy','📧':'mail','🕐':'clock',
   '📄':'paper','📜':'scroll','💨':'puff','😄':'face_happy','😐':'face_meh','🤔':'face_think','😈':'face_devil','🧑':'person','👥':'person','👋':'hand','✊':'hand',
   '🤖':'robot','💰':'moneybag','🛒':'cart','👜':'bag','🎒':'bag','💼':'briefcase','🚧':'barrier','💥':'blast','💪':'arm','✂':'scissors','🚪':'door','🎩':'tophat','🐛':'bug',
@@ -2748,6 +2768,8 @@ function updateEventBanner(){
   parts.push(`<span class="sb-weather" title="${w.note||''}">${w.icon} ${w.name}</span><span class="sb-forecast">TMRW ${wt.icon}</span>`);
   const f=getEventToday();
   if(f) parts.push(`<span class="sb-event">${f.icon} ${f.name} TODAY</span>`);
+  const bd=(typeof birthdayToday==='function')?birthdayToday():null;
+  if(bd) parts.push(`<span class="sb-event">🎂 ${bd.name}'S BIRTHDAY</span>`);
   else{
     const nx=nextEventInfo();
     if(nx&&nx.days<=7) parts.push(`<span>${nx.fest.icon} ${nx.fest.name} IN ${nx.days} DAY${nx.days===1?'':'S'}</span>`);
@@ -2949,7 +2971,7 @@ function renderQuestBoard(){
     const bonus=q.bonus>=0&&QUEST_BONUS[q.bonus]?' + '+QUEST_BONUS[q.bonus].label:'';
     return `<div class="qb-card${ready?' qb-ready':''}">
       <div class="qb-top"><span class="qb-kind">${title}</span><span class="qb-when">${when}</span></div>
-      <div class="qb-who">${v.avatar} ${v.name}</div>
+      <div class="qb-who">${vilPortrait(q.vil,'qb-portrait')||v.avatar} ${v.name}</div>
       <div class="qb-line">"${q.line}"</div>
       <div class="qb-want">WANTS: ${ingLabel(q.ing)} <span style="color:${ready?'var(--green)':'var(--muted)'}">(${Math.min(have,q.ing.qty)}/${q.ing.qty})</span></div>
       <div class="qb-reward">REWARD: ${q.gold}g · ❤ +${q.xp}${bonus}</div>
@@ -3150,6 +3172,7 @@ function clickHouse(){
   // Show confirm popup
   const overlay=document.createElement('div');
   overlay.id='sleep-confirm-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65)';
   const shipped=Object.keys(shipping).filter(k=>(shipping[k]||0)>0).length;
   const total=getShipTotal();
@@ -3507,6 +3530,8 @@ function dismissSummary(){
   const w=WEATHER[weatherToday]||WEATHER.sun;
   info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. '+w.icon+' '+w.name+(w.note?' — '+w.note.toUpperCase():'')+'.');
   renderWeatherFx();updateEventBanner();
+  const bd=birthdayToday();
+  if(bd) setTimeout(()=>info('🎂 IT\'S '+bd.name+'\'S BIRTHDAY! GIFTS COUNT TRIPLE TODAY.'),4000);
   renderActivities();
   if(document.getElementById('th-panel').className==='on') renderTownHall();
   setTimeout(announceEventToday,700);
@@ -4958,6 +4983,7 @@ function showSkillIntroTip(){
   if(existing) existing.remove();
   const overlay=document.createElement('div');
   overlay.id='tab-tip-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);';
   overlay.innerHTML=`
     <div style="background:var(--deep);border:2px solid var(--gold);padding:14px 12px;max-width:340px;width:92%;">
@@ -5004,6 +5030,7 @@ function showTabTip(key){
   if(existing) existing.remove();
   const overlay=document.createElement('div');
   overlay.id='tab-tip-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);';
   overlay.innerHTML=`
     <div style="background:var(--deep);border:2px solid var(--gold);padding:14px 12px;max-width:340px;width:92%;position:relative;">
@@ -5620,7 +5647,7 @@ function showLevelUp(skillName, newLevel){
   pop.className='lvl-up-pop';
   pop.textContent=(icons[skillName]||'⭐')+' LV'+newLevel+'!';
   const gw=document.getElementById('gw');
-  pop.style.top='40%';pop.style.left='30%';
+  pop.style.top='40%';pop.style.left='50%';pop.style.transform='translateX(-50%)';
   gw.appendChild(pop);
   setTimeout(()=>{if(pop.parentNode)pop.parentNode.removeChild(pop);},1400);
 }
@@ -6340,7 +6367,8 @@ function showVilDialogue(villager, lines, giftInfo, onComplete){
   vilDialogueIdx=0;
   vilDialogueGift=giftInfo||null;
   vilDialogueCb=onComplete||null;
-  $('vil-dialogue-avatar').textContent=villager.avatar;
+  const pt=vilPortrait(villager.id,'vil-dialogue-portrait');
+  if(pt) $('vil-dialogue-avatar').innerHTML=pt; else $('vil-dialogue-avatar').textContent=villager.avatar;
   $('vil-dialogue-name').textContent=villager.name;
   $('vil-dialogue-role').textContent=villager.role;
   $('vil-dialogue-overlay').className='show';
@@ -6360,7 +6388,7 @@ function vilDialogueRender(){
     gp.style.display='none';
   }
   const btn=$('vil-dialogue-next');
-  btn.textContent=isLast?'ACCEPT ✓':'NEXT ▸';
+  btn.textContent=isLast?(vilDialogueGift?'ACCEPT ✓':'BYE ▸'):'NEXT ▸';
   // hide skip on last line
   $('vil-dialogue-skip').style.display=isLast?'none':'block';
 }
@@ -6464,23 +6492,26 @@ function openGiftChooser(vilId){
   if(s.giftedToday){info('ALREADY GIFTED '+v.name+' TODAY!');return;}
   const g=$('gift-chooser-grid');
   g.innerHTML='';
-  // gold special case for Sal
-  if(v.favourite.type==='gold'){
-    // just confirm directly
-    vilGift(vilId);
-    return;
-  }
   const entries=Object.entries(inventory).filter(([,q])=>q>0);
-  if(entries.length===0){info('YOUR BAG IS EMPTY — NOTHING TO GIFT!');return;}
+  // Sal's favourite is gold: offer a 100g tile alongside the bag (her loved gems are items)
+  if(v.favourite.type==='gold'&&coins>0){
+    const slot=document.createElement('div');
+    slot.className='gift-slot fav';
+    slot.innerHTML=`<div class="gs-icon">🪙</div><div class="gs-qty">${Math.min(100,coins)}g</div><div class="gs-name">GOLD</div><div class="gs-fav">⭐ FAV</div>`;
+    slot.onclick=()=>{closeGiftChooser();vilGift(vilId);};
+    g.appendChild(slot);
+  }
+  if(entries.length===0&&!g.children.length){info('YOUR BAG IS EMPTY — NOTHING TO GIFT!');return;}
   $('gift-chooser-title').textContent='🎁 GIFT TO '+v.name+' (FAV: '+v.favourite.icon+' '+v.favourite.label+')';
   entries.forEach(([id,qty])=>{
     const item=getItemInfo(id);
     const xp=vilGiftValue(vilId,id);
     if(xp===0)return; // skip non-giftable items like sap
     const isFav=vilIsFav(vilId,id);
+    const loved=xp>=60&&vilGetState(vilId).hearts>=2; // loved items are revealed at 2 hearts
     const slot=document.createElement('div');
     slot.className='gift-slot'+(isFav?' fav':'');
-    slot.innerHTML=`<div class="gs-icon">${item.icon}${item.badge?`<span style="font-size:8px">${item.badge}</span>`:''}</div><div class="gs-qty">x${qty}</div><div class="gs-name">${item.name.slice(0,7)}</div>${isFav?'<div class="gs-fav">⭐ FAV</div>':''}`;
+    slot.innerHTML=`<div class="gs-icon">${item.icon}${item.badge?`<span style="font-size:8px">${item.badge}</span>`:''}</div><div class="gs-qty">x${qty}</div><div class="gs-name">${item.name.slice(0,7)}</div>${loved?'<div class="gs-fav">💝 LOVE</div>':isFav&&xp<60?'<div class="gs-fav">⭐ FAV</div>':''}`;
     slot.onclick=()=>doGiftItem(vilId,id);
     g.appendChild(slot);
   });
@@ -6494,7 +6525,7 @@ function doGiftItem(vilId,itemId){
   closeGiftChooser();
   const item=getItemInfo(itemId);
   if(!inventory[itemId]){return;}
-  const xp=vilGiftValue(vilId,itemId)*eventGiftMult();
+  const xp=vilGiftValue(vilId,itemId)*vilGiftMult(vilId);
   inventory[itemId]--;
   if(inventory[itemId]<=0) delete inventory[itemId];
   const s=vilGetState(vilId);
@@ -6502,7 +6533,9 @@ function doGiftItem(vilId,itemId){
   vilAddXP(vilId,xp);
   const isFav=vilIsFav(vilId,itemId);
   const v=VILLAGERS.find(x=>x.id===vilId);
-  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+xp+' XP'+(isFav?' ⭐ FAVOURITE!':'')+(eventGiftMult()>1?' 🎉 FESTIVAL BONUS!':''));
+  const loved=vilGiftValue(vilId,itemId)>=60;
+  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+xp+' XP'+(loved?' 💝 THEY LOVE IT!':isFav?' ⭐ FAVOURITE!':'')+(isBirthday(vilId)?' 🎂 BIRTHDAY ×3!':'')+(eventGiftMult()>1?' 🎉 FESTIVAL BONUS!':''));
+  if(loved) achFlags['loved_'+vilId]=true;
   playSound('collect');
   checkAchievements();
   renderInv();updateInvBadge();
@@ -7013,6 +7046,95 @@ const VILLAGERS=[
   },
 ];
 
+// ── VILLAGER LIFE: portraits, birthdays, loved gifts, daily talk ──
+const VIL_LIFE={
+  wren: {portrait:'pt_wren', birthday:{season:'summer',day:9},  loves:['pike_fish','salmon_fish']},
+  hob:  {portrait:'pt_hob',  birthday:{season:'fall',day:21},   loves:['pumpkin','tomato']},
+  sal:  {portrait:'pt_sal',  birthday:{season:'winter',day:5},  loves:['ruby','emerald']},
+  bess: {portrait:'pt_bess', birthday:{season:'spring',day:18}, loves:['sheep_product','blueberry']},
+  ford: {portrait:'pt_ford', birthday:{season:'fall',day:3},    loves:['sap','maple_pancakes']},
+  mayor:{portrait:'pt_mayor',birthday:{season:'spring',day:7},  loves:['tulip','sunflower']},
+  bram: {portrait:'pt_bram', birthday:{season:'winter',day:24}, loves:['gold_ingot','topaz']},
+};
+const VIL_TALK={
+  wren:{spring:['The trout are waking up. Can you feel the river changing?','Spring melt makes the water fast. Hold your rod tight.'],
+        summer:['Hot days, lazy fish. Try the evenings.','I saw a pufferfish sunbathing. Rude of it, honestly.'],
+        fall:['Salmon are running upriver. Beautiful, isn\'t it?','The leaves on the water look like little boats.'],
+        winter:['Ice fishing teaches patience. And cold toes.','Even under the ice, the river keeps moving.'],
+        rain:['Rain! The best fishing weather there is.','Don\'t mind me, I\'m soaked and happy.'],
+        any:['The river doesn\'t care how busy you are. That\'s why I like it.','Have you tried casting near the reeds?']},
+  hob:{spring:['Fresh parsnips! Nothing beats a spring roast.','I\'m planting herbs behind the kitchen. Wish me luck.'],
+       summer:['Tomato season! I could eat them like apples.','Too hot to stand by the stove... I\'m doing it anyway.'],
+       fall:['Pumpkin soup weather. My favourite time of year.','The harvest is when a cook really earns his apron.'],
+       winter:['Stew bubbling all day keeps the whole house warm.','Winter roots are sweeter after a frost, you know.'],
+       rain:['Rainy days are for baking. The oven\'s already on.','Come in out of the wet — there\'s soup.'],
+       any:['A full belly makes for a good day\'s work.','Taste this. No, really, taste it.']},
+  sal:{spring:['New season, new stock. Business is blooming.','Spring buyers are generous. Sell while you can.'],
+       summer:['Tourists from the coast — they\'ll pay anything.','Hot weather, cold drinks, warm profits.'],
+       fall:['Harvest prices dip when everyone sells at once. Be clever.','I\'ve a buyer who wants grapes. Lots of grapes.'],
+       winter:['Winter\'s quiet. Perfect time to count coins.','Rare gems sell best when the nights are long.'],
+       rain:['Rain keeps the gossips indoors. Good for business.','I don\'t close for weather. Weather closes for me.'],
+       any:['Everything has a price, farmer. Even friendship — mine\'s just high.','Buy low, sell high, smile always.']},
+  bess:{spring:['Lambs everywhere! I can hardly keep count.','The hens love spring. More eggs than baskets!'],
+        summer:['Make sure your animals have shade and water.','The cows are grumpy in the heat. So am I.'],
+        fall:['Time to stock up on hay before the frost.','The sheep\'s wool is coming in thick this year.'],
+        winter:['Keep your barn warm and your animals happy.','I knit scarves for my sheep. Don\'t tell anyone.'],
+        rain:['The ducks are loving this. The chickens are not.','Muddy boots, happy pigs. That\'s a rainy day.'],
+        any:['Animals know who cares for them.','Have you named your chickens yet? You should.']},
+  ford:{spring:['Sap\'s rising. Good time to tap a tree.','New shoots everywhere. The forest is busy.'],
+        summer:['Long days for chopping. I like long days.','Mind the bees in the old oak.'],
+        fall:['Firewood season. Stack it high.','Leaves come down, the wood shows its grain.'],
+        winter:['Cold axe, warm hands. Keep moving.','Snow on the pines. Quiet out there.'],
+        rain:['Wet wood is heavy wood.','Rain\'s good for the saplings.'],
+        any:['Hm.','Good steel, good work.']},
+  mayor:{spring:['Spring in Fernhollow! The flowers outside the hall are blooming.','The Blossom Fair is the pride of our town.'],
+         summer:['A splendid summer! The town is lively again.','The children have been racing down to the river all week.'],
+         fall:['The harvest supper brings us all together. Wonderful.','Our town grows stronger with every harvest.'],
+         winter:['The lanterns on Lantern Night are a sight to behold.','Even in winter, Fernhollow has a warm heart.'],
+         rain:['A little rain never stopped Fernhollow!','My hat is waterproof. Mostly.'],
+         any:['The town hall project is my life\'s work. Thank you for helping.','Fernhollow is lucky to have you, farmer.']},
+  bram:{spring:['Spring floods seep into the lower shafts. Careful down there.','Found a quartz vein the size of my arm.'],
+        summer:['The mine stays cool in summer. Best place in town.','Hot out here. Cold down there. I know where I\'d rather be.'],
+        fall:['Gold glints brighter in autumn light. Old miner\'s tale.','Stocking up on lamp oil for the long nights.'],
+        winter:['Deep rock stays warm. Funny how that works.','Lantern Night\'s my favourite. The mine glows.'],
+        rain:['Rain on the hills means drips in the tunnels.','Good day to be underground.'],
+        any:['The mountain gives what you earn.','Mind your head on floor twelve.']},
+};
+function vilLife(id){return VIL_LIFE[id]||{};}
+function vilPortrait(id,cls){const l=vilLife(id);return l.portrait?`<img class="${cls||'vil-portrait'}" src="${pxURL(l.portrait)}" alt="">`:'';}
+function isBirthday(id){const b=vilLife(id).birthday;return !!b&&b.season===currentSeason().id&&b.day===seasonDay;}
+function birthdayToday(){return VILLAGERS.find(v=>isBirthday(v.id))||null;}
+function vilGiftMult(id){return eventGiftMult()*(isBirthday(id)?3:1);} // festival ×2, birthday ×3
+// A line for today: birthday > festival > weather > season > general, plus the heart-level line
+function vilTalkLine(id){
+  const t=VIL_TALK[id];if(!t) return '...';
+  const v=VILLAGERS.find(x=>x.id===id);
+  if(isBirthday(id)) return 'It\'s my birthday today! You remembered? That means a lot.';
+  const f=getEventToday();
+  if(f){
+    const fname=f.name.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+    return f.host===id?'Welcome to the '+fname+'! I\'ve been looking forward to this all season.':'Happy '+fname+'! Isn\'t the whole town lovely today?';
+  }
+  const pools=[];
+  if(weatherWet()&&weatherToday!=='snow') pools.push(t.rain);
+  pools.push(t[currentSeason().id]||[],t.any);
+  const flat=pools.flat();
+  const s=vilGetState(id);
+  if(s.hearts>=1&&Math.random()<0.35&&v) return v.dialogues[Math.min(s.hearts,4)][0];
+  return flat[(day+id.length)%flat.length]; // changes daily, stable within a day
+}
+function vilTalk(id){
+  vilInitState();
+  const v=VILLAGERS.find(x=>x.id===id);if(!v) return;
+  const s=villagerState[id];
+  const first=!s.talkedToday;
+  s.talkedToday=true;
+  showVilDialogue(v,[vilTalkLine(id)],null,()=>{
+    if(first){vilAddXP(id,isBirthday(id)?20:10);info('💬 YOU CHATTED WITH '+v.name+'. +'+(isBirthday(id)?20:10)+' HEART XP');}
+    saveGame();renderVillagers();
+  });
+}
+
 // villagerState, villagerOpen, mining/fishing/woodcutting state — declared in state block above
 
 // ── SAL SPECIAL STOCK ──
@@ -7128,6 +7250,8 @@ function vilAddXP(id,xp){
 function vilGiftValue(vilId,itemId){
   const v=VILLAGERS.find(x=>x.id===vilId);
   if(!v)return 0;
+  const base=itemId.split('|')[0];
+  if((vilLife(vilId).loves||[]).some(l=>l===itemId||l===base)) return 60; // loved gift
   const fav=v.favourite;
   let isMatch=false;
   if(fav.type==='fish'&&itemId.endsWith('_fish'))isMatch=true;
@@ -7148,7 +7272,7 @@ function vilGift(vilId){
     if(donate<=0){info('NO GOLD TO DONATE TO SAL!');playSound('error');return;}
     coins-=donate;upCoins();
     s.giftedToday=true;
-    vilAddXP(vilId,30*eventGiftMult());
+    vilAddXP(vilId,30*vilGiftMult(vilId));
     info('💰 DONATED '+donate+'g TO SAL! RELATIONSHIP IMPROVED!');
     playSound('coin');saveGame();renderTownHall();return;
   }
@@ -7165,7 +7289,7 @@ function vilGift(vilId){
   inventory[bestId]--;
   if(inventory[bestId]<=0)delete inventory[bestId];
   s.giftedToday=true;
-  vilAddXP(vilId,bestXp*eventGiftMult());
+  vilAddXP(vilId,bestXp*vilGiftMult(vilId));
   const item=getItemInfo(bestId);
   const isFav=bestXp>=30;
   info('🎁 GIFTED '+item.icon+' '+item.name+' TO '+v.name+'!'+(isFav?' FAVOURITE GIFT! 💕':''));
@@ -7319,7 +7443,7 @@ function vilItemOwned(it){
 
 function vilNewDay(){
   vilInitState();
-  Object.keys(villagerState).forEach(id=>{villagerState[id].giftedToday=false;});
+  Object.keys(villagerState).forEach(id=>{villagerState[id].giftedToday=false;villagerState[id].talkedToday=false;});
   // Reset Sal stock and bulk deal on Day 1 of each season
   if(seasonDay===1){salStockRemaining=3;salStockWindow=0;salBulkDealUsed=false;}
   // Restock on new 5-day window
@@ -7721,8 +7845,8 @@ function renderVillagers(){
     card.className='vil-card';
     card.innerHTML=`
       <div class="vil-header" onclick="vilToggleOpen('${v.id}')">
-        <span class="vil-avatar">${v.avatar}</span>
-        <div class="vil-info"><div class="vil-name">${v.name}</div><div class="vil-role">${v.role}</div></div>
+        <span class="vil-avatar">${vilPortrait(v.id)||v.avatar}</span>
+        <div class="vil-info"><div class="vil-name">${v.name}${isBirthday(v.id)?' 🎂':''}</div><div class="vil-role">${v.role}</div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
           <div class="vil-hearts">${heartsHtml}</div>
           <div style="display:flex;align-items:center;gap:4px;width:80px">
@@ -7733,9 +7857,11 @@ function renderVillagers(){
       </div>
       <div class="vil-body ${isOpen?'open':''}">
         <div class="vil-dialogue">"${dialogue}"</div>
-        <div class="vil-fav">💝 FAVOURITE: ${v.favourite.icon} ${v.favourite.label}</div>
+        <div class="vil-fav">⭐ FAVOURITE: ${v.favourite.icon} ${v.favourite.label}</div>
+        <div class="vil-fav">💝 LOVES: ${s.hearts>=2?(vilLife(v.id).loves||[]).map(id=>{const it=getItemInfo(id);return it.icon+' '+it.name;}).join(' · '):'??? (BEFRIEND TO FIND OUT)'}</div>
+        <div class="vil-fav">🎂 BIRTHDAY: ${(()=>{const b=vilLife(v.id).birthday;return b?b.season.toUpperCase()+' '+b.day:'?';})()}${isBirthday(v.id)?' — TODAY! GIFTS ×3':''}</div>
         <div class="vil-gift-row">
-          <span class="vil-gift-label">DAILY GIFT</span>
+          <button class="vil-gift-btn" onclick="vilTalk('${v.id}');event.stopPropagation()">💬 ${s.talkedToday?'CHAT':'TALK'}</button>
           ${giftBtn}
         </div>
         <div class="vil-shop-section">
