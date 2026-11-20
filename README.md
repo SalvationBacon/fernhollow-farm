@@ -124,6 +124,7 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 - Bigger, easier-to-read text throughout
 - Cozy yard with a little pond and butterflies; cottage farmhouse redrawn
 - Landscape/PC: popups now centre over the game column
+- New pixel-art app icon (cottage, crops and sun)
 
 ### v2.0 — The big polish
 **New**

@@ -13,16 +13,20 @@ Current version: **v2.1** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v20` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v21` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
+
+Icons (v2.1) are drawn from the game's own sprites (cottage, sun, trees, crops) on a 64×64 grid, scaled ×8 / ×3
+(apple icon = 192 cropped to 180). Content stays inside the maskable safe circle. Icon URLs carry `?v=N` in
+`manifest.json`, the `<link>` tags and `sw.js` — bump it when the icons change so phones refetch them.
 | `README.md` | GitHub repo readme |
 | `CLAUDE.md` | These instructions |
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v20` → `fernhollow-v21`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v21` → `fernhollow-v22`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 

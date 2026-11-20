@@ -1,10 +1,10 @@
-const CACHE_NAME = 'fernhollow-v20';
+const CACHE_NAME = 'fernhollow-v21';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  './icon-192.png?v=21',
+  './icon-512.png?v=21',
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'
 ];
 
