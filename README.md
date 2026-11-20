@@ -10,7 +10,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## v1.3 — What's in the game
+## v2.0 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
@@ -28,7 +28,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ### 🌲 The Valley
 - 🎣 **Fishing** — hold-and-release minigame with 24 seasonal fish, rod upgrades, Lucky Bait and Fish Net
-- 🌿 **Foraging** — dig the forest floor for buried treasures; colours show how close you are and a ✨ shimmer means something rare is near
+- 🌿 **Foraging** — dig the forest floor for buried treasures (1 stamina per dig); colours show how close you are and a ✨ shimmer means something rare is near
 - 🪓 **Woodcutting** — two independent trees, axe upgrades, growth dust
 - ⛏ **Mining** — 100 floors of ore, gems and checkpoints. Reach the bottom for an Angel Fruit.
 
@@ -66,7 +66,7 @@ One special day (day 14) every season, each with a villager visit and a once-a-y
 Six characters to befriend through daily gifts — each with their own shop, personality and story:
 **Wren** (fishing), **Hob** (food), **Sal** (merchant), **Bess** (animals), **Ford** (woodcutting), **Bram** (mining), **Mayor Johnson** (energy upgrades).
 
-- **5 hearts per villager** — takes about a year of daily gifting
+- **5 hearts per villager** — chat daily, give gifts (each villager has two loved gifts), and celebrate their birthdays for triple gift hearts
 - **Sal's Rare Stock** — out-of-season T2 crops delivered every 5 days at a premium
 - **Bulk Deal** (Sal H5) — sell your shipping box instantly at 1.5× value, once per season
 
@@ -74,10 +74,19 @@ Six characters to befriend through daily gifts — each with their own shop, per
 Five skills (Farming, Foraging, Fishing, Woodcutting, Mining) each with 10 levels and meaningful perks. Expect ~1 year to max any single skill, ~2 years for all five.
 
 ### ⭐ Achievements
-48 achievements across 9 categories. Reach the bottom of the mine, harvest every season, max a skill, restore the town.
+51 achievements across 9 categories. Reach the bottom of the mine, harvest every season, max a skill, restore the town.
+
+### 🌦 Weather
+Sunny, rainy, stormy, windy and snowy days, rolled per season with a forecast for tomorrow. Rain and snow water your crops, storms bring rare fish (and the odd lightning-split tree), and windy days stir up extra forage finds.
+
+### 📜 Notice Board
+A daily request and a weekly request from the villagers: deliver crops, fish, ore, wood or cooked meals for gold, hearts and bonus items.
+
+### 🔨 Crafting & Decor
+Build a scarecrow (crows will eat unprotected crops!), fences, a stone path, flower beds, lamp posts that glow at night, a bee house for honey and storage chests for extra bag space. Everything you build shows up on your farm.
 
 ### 🎨 Pixel Art
-Every icon, item, villager and building is custom pixel art drawn in code: 150+ sprites. The farm scene changes with the seasons (blossom, autumn and snowy trees, a snow-covered roof in winter), the farmhouse windows light up at night, and the farmer walks over to whichever plot you're working.
+Every icon, item, villager and building is custom pixel art drawn in code (180+ sprites), auto-shaded for depth, inside a warm wood-and-parchment interface. Villagers have their own pixel portraits. The farm scene changes with the seasons (blossom, autumn and snowy trees, a snow-covered roof in winter), the farmhouse windows light up at night, and the farmer walks over to whichever plot you're working.
 
 ### 🎵 Music & Audio
 Ten original songs with simple melodies, played on plucked strings, flute, bells and chiptune. Each season has its own two tunes, and two gentle night songs take over after dark. Songs rotate every couple of minutes. Audio fully pauses when you leave the app.
@@ -92,7 +101,7 @@ Ten original songs with simple melodies, played on plucked strings, flute, bells
 
 ## Tech
 
-Single HTML file (~8,550 lines). No frameworks, no build step, no server, no image files for the game art. Vanilla JS, Canvas-drawn pixel sprites, Web Audio API, CSS. Press Start 2P pixel font.
+Single HTML file (~9,350 lines). No frameworks, no build step, no server, no image files for the game art. Vanilla JS, Canvas-drawn pixel sprites, Web Audio API, CSS. Press Start 2P pixel font.
 
 ## Install as App
 
@@ -107,6 +116,23 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 ---
 
 ## Changelog
+
+### v2.0 — The big polish
+**New**
+- Graphics overhaul: auto-shaded sprites, wood-frame interface with chunky buttons, tilled-soil plots that darken when watered, crop growth stages, a stamina bar
+- A living farm: seasonal hills and tree line, drifting clouds, chimney smoke, birds, fireflies, your animals wandering outside
+- Juicy feedback: floating +gold/+item text, sparkles and light vibration
+- Weather with a daily forecast
+- Notice board with daily and weekly villager requests
+- Villager portraits, daily chats, birthdays and loved gifts
+- Crafting and farm decor (scarecrow, fence, path, flowers, lamps, bee house, chests); crows raid unprotected crops
+- Foraging costs 1 stamina per dig, with a Stop button
+- 3 new achievements (51 total)
+
+**Fixes**
+- A full bag no longer destroys harvests, fish, finds, ore, animal products, finished ingots/preserves or paid-for stock
+- Dialogues and popups no longer open off-screen on a scrolled phone
+- Town Hall donation crash, Farming LV5 fertilizer perk, energy food at full energy, minigames left running at 1am, fertilizer save type, villager count in an achievement
 
 ### v1.3 — Hot & Cold foraging
 - Foraging is now a dig minigame: 5 finds are buried in a 5×5 patch, each empty dig shows how close the nearest find is, and a ✨ shimmer means the rare find is near

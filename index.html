@@ -1234,6 +1234,9 @@ img.scene-bird{position:absolute;left:-12px;animation:birdFly 9s linear forwards
 #summary{justify-content:center;gap:6px}
 #sum-lines{width:100%;max-width:360px;background:rgba(20,12,6,.72);border:2px solid #24150a;box-shadow:var(--bevel);padding:6px 8px;max-height:46vh;overflow-y:auto}
 #sum-total{color:#ffe27a;text-shadow:2px 2px 0 #1a0e06}
+/* landscape sidebar matches the game */
+#pc-left{font-family:'Press Start 2P',monospace;background:#22160b var(--px-wood);background-size:48px 24px;border-right:4px solid #5a3818;box-shadow:2px 0 0 #24150a}
+#pc-left *{font-family:'Press Start 2P',monospace}
 /* floating feedback text */
 .float-txt{position:fixed;z-index:950;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:8px;
   color:#fff3c4;text-shadow:1px 1px 0 #1a0e06,-1px 0 0 #1a0e06,0 -1px 0 #1a0e06,1px 0 0 #1a0e06;white-space:nowrap;
@@ -6027,7 +6030,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v1.3 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v2.0 | Day: '+day+' | Season: '+currentSeason().name
   );
   sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
@@ -9337,7 +9340,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v1.3 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v2.0 — FERNHOLLOW FARM</div>
   </div>
 </div>
 
