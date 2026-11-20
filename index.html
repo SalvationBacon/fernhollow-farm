@@ -3331,6 +3331,14 @@ const WEATHER_ODDS={ // weights per season
   winter:{sun:45,snow:45,wind:10},
 };
 function weatherWet(){return !!(WEATHER[weatherToday]||{}).wet;}
+// On a wet day every growing crop counts as watered (covers crops planted after dawn too)
+function rainWaterCrops(){
+  if(!weatherWet()||tutActive) return 0;
+  let n=0;
+  tiles.forEach((t,i)=>{if(t.st==='grow'&&t.crop&&(!t.watered||t.waterDueDay<=day)){t.watered=true;t.waterDueDay=day+1;renderTile(i);n++;}});
+  if(n){refreshAllSceneCrops();renderWaterBtn();}
+  return n;
+}
 // Weather for a given season/day: day 1 of a season and festival days are always sunny
 function rollWeather(sIdx,sDay){
   const s=SEASONS[sIdx];
@@ -4035,7 +4043,10 @@ function popupEat(){
 }
 function popupShip(){
   if(!popupItemId)return;
-  openShipQty(popupItemId);
+  // close the item menu first — it sits above the sheet, so it would cover the quantity picker
+  const id=popupItemId;
+  closeItemPopup();document.removeEventListener('click',closePopupOutside);
+  openShipQty(id);
 }
 function getEnergyGain(id){
   // cooked meals — look up in ALL_ITEMS_MAP
@@ -4367,7 +4378,10 @@ function plantTile(i){
   if(devFlags.instantGrow) growDays=1;
   tiles[i]={st:'grow',crop:sel,plantedDay:day,growDays,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
   moveFarmer(i);
-  info('PLANTED '+sel.icon+' '+sel.name+'! 💧 NOW WATER IT!');
+  // rain/storm/snow waters a fresh planting straight away (not during the tutorial's watering step)
+  const rained=weatherWet()&&!tutActive;
+  if(rained){tiles[i].watered=true;tiles[i].waterDueDay=day+1;}
+  info('PLANTED '+sel.icon+' '+sel.name+'! '+(rained?WEATHER[weatherToday].icon+' THE '+(weatherToday==='snow'?'SNOW':'RAIN')+' WATERED IT.':'💧 NOW WATER IT!'));
   juice($('t'+i),'-'+sel.cost+'g',{pop:true,color:'#ffd27a'});
   playSound('plant');
   pcAddLog('Planted '+sel.icon+' '+sel.name);
@@ -4510,6 +4524,7 @@ function renderWaterBtn(){
 
 function wateringTick(){
   if(typeof townHall!=='undefined'&&(townHall.sprinklerTier||0)>0) applySprinkler();
+  rainWaterCrops();
   let anyOverdue=false;
   tiles.forEach((t,i)=>{
     if(t.st==='grow'&&t.crop&&t.watered&&t.waterDueDay>0&&day>=t.waterDueDay){anyOverdue=true;renderTile(i);}
@@ -7489,6 +7504,7 @@ function init(){
   clockTick();setInterval(()=>{clockTick();pcUpdate();},1000);
   setInterval(()=>{saveGame();},30000); // autosave every 30 seconds
   setInterval(wateringTick,60000); // check overdue crops every 60s
+  rainWaterCrops();
   renderWaterBtn();
   // apply maxEnergy cap
   energy=Math.min(energy,maxEnergy);upEnergy();

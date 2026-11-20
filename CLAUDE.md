@@ -13,7 +13,7 @@ Current version: **v2.1** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v21` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v22` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -26,7 +26,7 @@ Icons (v2.1) are drawn from the game's own sprites (cottage, sun, trees, crops) 
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v21` → `fernhollow-v22`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v22` → `fernhollow-v23`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -363,7 +363,8 @@ Finished jars use `job.itemId` (includes quality) so silver/gold preserves stay 
 ## Weather
 `WEATHER` (sun/rain/storm/snow/wind) rolled a day ahead by `rollWeather()` with per-season `WEATHER_ODDS`;
 `weatherToday` / `weatherTomorrow` are saved. Day 1 and festival days are always sunny.
-Rain/storm/snow water all growing crops at dawn (`advanceWeather`); rain/storm add +15 rare-fish weight; storms have a
+Rain/storm/snow water all growing crops at dawn (`advanceWeather`), and on a wet day crops planted later are
+watered too (`plantTile`, plus `rainWaterCrops()` on load and in `wateringTick`; skipped during the tutorial); rain/storm add +15 rare-fish weight; storms have a
 30% chance to split a tree (+4 wood); windy days give +1 forage dig. Scene: `renderWeatherFx()` particles, overcast
 sky in `updateSky`, lightning flashes + `sfxThunder` (`scheduleLightning`).
 
