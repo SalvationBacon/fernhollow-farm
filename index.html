@@ -124,6 +124,24 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #weather-flash.on{animation:wxFlash .7s ease-out}
 @keyframes wxFlash{0%{opacity:0}8%{opacity:.75}20%{opacity:.1}30%{opacity:.5}100%{opacity:0}}
 #status-bar .sb-weather{color:var(--cream)}
+/* notice board */
+#quest-board{margin-bottom:10px}
+.qb-title{font-size:7px;color:var(--gold);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.qb-count{font-size:5px;color:var(--muted)}
+.qb-card{background:#3a2a14;border:2px solid var(--rim);padding:7px 8px;margin-bottom:5px;box-shadow:inset 0 0 0 1px #4a3418}
+.qb-card.qb-ready{border-color:var(--green)}
+.qb-card.qb-done,.qb-card.qb-empty{opacity:.6}
+.qb-top{display:flex;justify-content:space-between;margin-bottom:3px}
+.qb-kind{font-size:5px;color:var(--gold);letter-spacing:1px}
+.qb-when{font-size:5px;color:var(--muted)}
+.qb-who{font-size:7px;color:var(--cream);margin-bottom:3px}
+.qb-line{font-size:5px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:3px}
+.qb-want{font-size:6px;color:var(--cream);margin-bottom:2px}
+.qb-reward{font-size:5px;color:var(--gold);margin-bottom:5px}
+.qb-btn{width:100%;font-family:'Press Start 2P',monospace;font-size:6px;padding:5px;background:var(--lift);border:2px solid var(--green2);color:var(--green);cursor:pointer}
+.qb-btn:disabled{opacity:.4;cursor:default;border-color:var(--border);color:var(--muted)}
+.tab{position:relative}
+.tab-alert{position:absolute;top:1px;right:3px;background:var(--red);color:#fff;font-size:5px;padding:1px 3px;border:1px solid #801818;line-height:1.4}
 #status-bar .sb-forecast{color:var(--muted)}
 .cloud{position:absolute;pointer-events:none;transform-origin:left top}
 .ground{position:absolute;bottom:0;left:0;right:0;height:46px;border-top:3px solid #3a5c1e}
@@ -1249,6 +1267,7 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     </div>
   </div>
   <div id="th-panel">
+    <div id="quest-board"></div>
     <div id="th-header">
       <div id="th-building-art">🏛</div>
       <div id="th-title">FERNHOLLOW VILLAGE HALL</div>
@@ -2380,6 +2399,7 @@ let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
 // ── KITCHEN / EVENTS ──
 let cookBuffs={};     // today's meal buffs {day, fishing, mining, wood, luck} — cleared each new day
 let weatherToday='sun',weatherTomorrow='sun'; // see WEATHER
+let quests={daily:null,weekly:null,done:0}; // notice board — see QUESTS
 let knownRecipes={};  // recipe ids Hob has taught the player
 let eventsSeen={};    // festival rewards claimed, keyed 'eventId_year'
 let clockFrozenAt=null; // seconds into the day while the clock is frozen (title screen / app hidden)
@@ -2423,6 +2443,7 @@ function defaultState(){
   salBulkDealUsed=false;
   cookBuffs={};knownRecipes={};eventsSeen={};
   weatherToday='sun';weatherTomorrow='sun';
+  quests={daily:null,weekly:null,done:0};
 }
 
 function saveGame(){
@@ -2438,7 +2459,7 @@ function saveGame(){
     luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
     daySecs:getSessionSec(),dayPenaltyEnergy,
-    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,
+    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,quests,
     salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
@@ -2532,6 +2553,8 @@ function loadGame(){
     eventsSeen=d.eventsSeen||{};
     weatherToday=WEATHER[d.weatherToday]?d.weatherToday:'sun';
     weatherTomorrow=WEATHER[d.weatherTomorrow]?d.weatherTomorrow:'sun';
+    quests=(d.quests&&typeof d.quests==='object')?d.quests:{daily:null,weekly:null,done:0};
+    quests.done=quests.done||0;
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
@@ -2819,6 +2842,132 @@ function scheduleLightning(){
   },7000+Math.random()*14000);
 }
 
+// ══════════════════════════════════════
+// QUESTS — town notice board: one daily request + one weekly request
+// ══════════════════════════════════════
+// A quest asks for items matched with ingMatches() (same spec as Kitchen ingredients).
+const QUEST_LINES={
+  hob:  ['I\'m cooking for the whole street tonight!','A new recipe needs testing — could you help?','My pantry\'s looking bare, farmer.'],
+  mayor:['The town feast needs fresh produce!','I promised the council a harvest display.','Our visitors would love a taste of Fernhollow.'],
+  wren: ['I\'m studying the river — I need samples.','The heron took my catch again...','A friend upriver is asking for fish.'],
+  bram: ['My forge has gone cold. Bring me ore!','I\'m shoring up the mine shaft.','A buyer in the city wants good stone.'],
+  ford: ['Winter\'s coming and the woodpile\'s low.','I\'m building a new bridge over the creek.','Got a big carving order in.'],
+  bess: ['The market wants farm-fresh goods.','I\'m making cheese and need supplies.','My animals miss your visits — bring treats!'],
+  sal:  ['I\'ve got a buyer paying top coin.','Rare goods sell well this time of year.','A trader from the coast wants a crate.'],
+};
+// Bonus items for weekly requests
+const QUEST_BONUS=[
+  {label:'3x SUPER FERTILIZER',give:()=>{fertilized=(fertilized||0)+3;}},
+  {label:'LUCKY BAIT',give:()=>{luckyBaitReady=true;}},
+  {label:'2x BLAST POWDER',give:()=>{mineConsumables.blast=(mineConsumables.blast||0)+2;}},
+  {label:'GROWTH DUST',give:()=>{wcInstaGCharges++;}},
+  {label:'3x 🫧 SAP',give:()=>{if(!bagCanTake('sap')||!addToInventory('sap',3)){coins+=60;upCoins();}}},
+];
+// Every request type the player can currently fill, given what they've unlocked
+function questCandidates(kind){
+  const weekly=kind==='weekly',out=[];
+  const harvested=seasonHarvests[currentSeason().id]||0;
+  const crops=seasonCrops().filter(c=>harvested>=c.unlock&&cropTier(c)<=(weekly?4:3));
+  crops.forEach(c=>{
+    const t=cropTier(c);
+    const qty=weekly?Math.max(3,10-t*2):Math.max(1,5-t);
+    out.push({vil:Math.random()<0.5?'hob':'mayor',ing:{type:'cropId',id:c.id,qty},value:c.sell*qty});
+  });
+  if(hasAxe) out.push({vil:'ford',ing:{type:'item',id:'wood',qty:weekly?30:10},value:(weekly?30:10)*4});
+  if(fishingUnlocked){
+    if(weekly&&skills.fishing.level>=4) out.push({vil:'wren',ing:{type:'fish',minTier:3,qty:2},value:2*20});
+    else out.push({vil:'wren',ing:{type:'fish',qty:weekly?5:2},value:(weekly?5:2)*8});
+  }
+  if(mineUnlocked){
+    const ore=weekly&&mineCheckpoint>=30?'iron_ore':mineCheckpoint>=10?'copper_ore':'coal';
+    const q=weekly?8:4;
+    out.push({vil:'bram',ing:{type:'item',id:ore,qty:q},value:getItemInfo(ore).sell*q*3});
+  }
+  out.push({vil:'sal',ing:{type:'forage',qty:weekly?6:3},value:(weekly?6:3)*6});
+  if(animals.length) out.push({vil:'bess',ing:{type:'animal',qty:weekly?6:2},value:(weekly?6:2)*45});
+  if(weekly&&typeof thRoomComplete==='function'&&thRoomComplete('kitchen')){
+    const known=TH_RECIPES.filter(recipeKnown);
+    const r=known[Math.floor(Math.random()*known.length)];
+    if(r) out.push({vil:'hob',ing:{type:'item',id:r.id,qty:1},value:r.sells*1.5});
+  }
+  return out;
+}
+function questMake(kind){
+  const c=questCandidates(kind);
+  const pick=c[Math.floor(Math.random()*c.length)];
+  if(!pick) return null;
+  const weekly=kind==='weekly';
+  const lines=QUEST_LINES[pick.vil]||['Could you help me out?'];
+  return {kind,vil:pick.vil,ing:pick.ing,
+    line:lines[Math.floor(Math.random()*lines.length)],
+    gold:Math.round(pick.value*(weekly?2.2:1.6)/5)*5+(weekly?100:25),
+    xp:weekly?60:25,
+    bonus:weekly?Math.floor(Math.random()*QUEST_BONUS.length):-1,
+    expires:day+(weekly?6:0),done:false};
+}
+// New day: fresh daily request; a weekly one on season days 1/8/15/22 (or when none is open)
+function questsNewDay(){
+  if(!quests.daily||quests.daily.done||quests.daily.expires<day) quests.daily=questMake('daily');
+  const weeklyDay=(seasonDay-1)%7===0;
+  if(!quests.weekly||quests.weekly.expires<day||(weeklyDay&&quests.weekly.done)) quests.weekly=questMake('weekly');
+  updateQuestBadge();
+}
+function questHave(q){ return q?ingHave(q.ing):0; }
+function questDeliver(kind){
+  const q=quests[kind];
+  if(!q||q.done){return;}
+  if(questHave(q)<q.ing.qty){info('YOU NEED '+ingLabel(q.ing)+' FOR THIS REQUEST.');playSound('error');return;}
+  let need=q.ing.qty;
+  ingCandidates(q.ing).forEach(id=>{
+    if(need<=0) return;
+    const take=Math.min(need,inventory[id]);
+    inventory[id]-=take;if(inventory[id]<=0) delete inventory[id];
+    need-=take;
+  });
+  q.done=true;quests.done=(quests.done||0)+1;
+  coins+=q.gold;upCoins();
+  vilAddXP(q.vil,q.xp);
+  let bonusLabel='';
+  if(q.bonus>=0&&QUEST_BONUS[q.bonus]){QUEST_BONUS[q.bonus].give();bonusLabel=' + '+QUEST_BONUS[q.bonus].label;}
+  const v=VILLAGERS.find(x=>x.id===q.vil);
+  info('📜 REQUEST DONE! '+(v?v.name:'')+' PAID '+q.gold+'g'+bonusLabel+' · +'+q.xp+' HEART XP');
+  playSound('levelup');
+  pcAddLog('📜 Request for '+(v?v.name:'?')+' done (+'+q.gold+'g)');
+  checkAchievements();saveGame();renderInv();updateInvBadge();renderTownHall();renderActivities();
+}
+function renderQuestBoard(){
+  const el=document.getElementById('quest-board');
+  if(!el) return;
+  const card=(kind,title)=>{
+    const q=quests[kind];
+    if(!q) return `<div class="qb-card qb-empty"><div class="qb-kind">${title}</div><div class="qb-line">Nothing posted yet.</div></div>`;
+    const v=VILLAGERS.find(x=>x.id===q.vil)||{name:'?',avatar:'❓'};
+    if(q.done) return `<div class="qb-card qb-done"><div class="qb-kind">${title}</div><div class="qb-who">${v.avatar} ${v.name}</div><div class="qb-line">✓ DONE — THANK YOU!${kind==='daily'?' A NEW REQUEST TOMORROW.':''}</div></div>`;
+    const have=questHave(q),ready=have>=q.ing.qty;
+    const left=q.expires-day;
+    const when=left<=0?'ENDS TONIGHT':left+' DAY'+(left===1?'':'S')+' LEFT';
+    const bonus=q.bonus>=0&&QUEST_BONUS[q.bonus]?' + '+QUEST_BONUS[q.bonus].label:'';
+    return `<div class="qb-card${ready?' qb-ready':''}">
+      <div class="qb-top"><span class="qb-kind">${title}</span><span class="qb-when">${when}</span></div>
+      <div class="qb-who">${v.avatar} ${v.name}</div>
+      <div class="qb-line">"${q.line}"</div>
+      <div class="qb-want">WANTS: ${ingLabel(q.ing)} <span style="color:${ready?'var(--green)':'var(--muted)'}">(${Math.min(have,q.ing.qty)}/${q.ing.qty})</span></div>
+      <div class="qb-reward">REWARD: ${q.gold}g · ❤ +${q.xp}${bonus}</div>
+      <button class="qb-btn" onclick="questDeliver('${kind}')" ${ready?'':'disabled'}>${ready?'📦 DELIVER':'NOT ENOUGH YET'}</button>
+    </div>`;
+  };
+  el.innerHTML=`<div class="qb-title">📜 NOTICE BOARD <span class="qb-count">${quests.done||0} DONE</span></div>${card('daily','DAILY')}${card('weekly','WEEKLY')}`;
+}
+// "!" on the TOWN tab when a request can be delivered
+function updateQuestBadge(){
+  const tab=[...document.querySelectorAll('.tab')].find(b=>(b.getAttribute('onclick')||'').includes("'th'"));
+  if(!tab) return;
+  let dot=tab.querySelector('.tab-alert');
+  const ready=['daily','weekly'].some(k=>quests[k]&&!quests[k].done&&questHave(quests[k])>=quests[k].ing.qty);
+  if(ready&&!dot){dot=document.createElement('span');dot.className='tab-alert';dot.textContent='!';tab.appendChild(dot);}
+  if(!ready&&dot) dot.remove();
+}
+
 // ── SKY ──
 const SKY_KF=[
   {h:0,sky:'#0b0d2a',gr:'#192810'},{h:4,sky:'#0e1030',gr:'#1a2a12'},
@@ -3104,6 +3253,7 @@ function renderInv(){
     g.appendChild(hint);
   }
   renderShipList();
+  updateQuestBadge();
 }
 
 // ── ITEM POPUP ──
@@ -3287,6 +3437,7 @@ function triggerNewDay(shipped,total){
     tree2RespawnDaysLeft--;
     if(tree2RespawnDaysLeft===0){tree2Hp=treeMaxHp;info('THE TREES HAVE REGROWN!');}
   }
+  questsNewDay();
   showSummary(shipped,total,wasPenalised,weatherMsgs);
   shipping={};updateShipCount();renderInv();
   if((townHall.sprinklerTier||0)>0) applySprinkler(); // sprinklers run at dawn, not up to a minute later
@@ -4595,6 +4746,7 @@ function doReset(){
   // Reset all state to defaults
   defaultState();
   clockFrozenAt=null;titleScreenOpen=true;freezeClock();
+  questsNewDay();
   for(const k in ALL_ITEMS_MAP) delete ALL_ITEMS_MAP[k];
   forgeIngotReady();
 
@@ -4701,6 +4853,7 @@ const ACHIEVEMENTS=[
   {id:'max_hearts',    cat:'🏛 TOWN',      icon:'❤️', name:'BELOVED',           desc:'Max hearts (5) with any villager.',       check:()=>Object.values(villagerState).some(s=>s.hearts>=5)},
   {id:'town_restored', cat:'🏛 TOWN',      icon:'🏛', name:'TOWN RESTORED',     desc:'Complete all 4 Town Hall rooms.',         check:()=>thCompleteCount()>=4},
   {id:'first_ingot',   cat:'🏛 TOWN',      icon:'🔥', name:'FORGEMASTER',       desc:'Smelt your first ingot.',                 check:()=>!!achFlags.first_ingot},
+  {id:'quests_10',     cat:'🏛 TOWN',      icon:'📜', name:'GOOD NEIGHBOUR',    desc:'Complete 10 notice board requests.',      check:()=>(quests.done||0)>=10},
   {id:'first_meal',    cat:'🏛 TOWN',      icon:'🍳', name:'HOME COOKING',      desc:'Cook your first meal in the Kitchen.',    check:()=>!!achFlags.first_meal},
   {id:'all_recipes',   cat:'🏛 TOWN',      icon:'👑', name:'MASTER CHEF',       desc:'Cook every Kitchen recipe at least once.',check:()=>TH_RECIPES.every(r=>achFlags['cooked_'+r.id])},
   // SPECIAL
@@ -6464,6 +6617,7 @@ function init(){
   forgeIngotReady(); // register ingots in ALL_ITEMS_MAP
   if(!townHall.forgeQueue) townHall.forgeQueue=[];
   if(!townHall.preserveQueue) townHall.preserveQueue=[];
+  if(!quests.daily&&!quests.weekly) questsNewDay();
   checkAchievements();
   updateAchBadge();
   // apply axe tier to tree max HP (axeTier takes precedence over skill)
@@ -7708,6 +7862,7 @@ function recipeKnown(r){ return (vilGetState('hob').hearts||0)>=(r.hobHeart||0);
 
 function ingMatches(ing,invId){
   if(ing.type==='item') return invId===ing.id;
+  if(ing.type==='cropId') return invId.split('|')[0]===ing.id; // a specific crop, any quality
   if(ing.type==='crop'){
     const [base,q]=invId.split('|');
     const crop=ALL_CROPS.find(c=>c.id===base);
@@ -7722,7 +7877,7 @@ function ingMatches(ing,invId){
   return false;
 }
 function ingLabel(ing){
-  if(ing.type==='item'){const it=getItemInfo(ing.id);return ing.qty+'x '+it.icon+' '+it.name;}
+  if(ing.type==='item'||ing.type==='cropId'){const it=getItemInfo(ing.id);return ing.qty+'x '+it.icon+' '+it.name;}
   if(ing.type==='crop') return ing.qty+'x '+(ing.quality==='gold'?'🥇 GOLD ':'')+(ing.minTier?'T'+ing.minTier+'+ ':'')+'CROP';
   if(ing.type==='fish') return ing.qty+'x '+(ing.minTier?'T'+ing.minTier+'+ ':'')+'FISH';
   if(ing.type==='animal') return ing.qty+'x ANIMAL PRODUCT';
@@ -8372,6 +8527,7 @@ function thQueueSmelt(id){
 
 function renderTownHall(){
   thInitState();
+  renderQuestBoard();
   const container=$('th-rooms');
   if(!container)return;
 
