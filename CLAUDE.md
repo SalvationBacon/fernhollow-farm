@@ -2,9 +2,9 @@
 
 ## Overview
 Single HTML file farming game. No frameworks, vanilla JS only. Pixel aesthetic, Press Start 2P font.
-Working file: `index.html` — only build file (~8,550 lines).
+Working file: `index.html` — only build file (~9,350 lines).
 Hosted as PWA on GitHub Pages: https://salvationbacon.github.io/fernhollow-farm/
-Current version: **v1.2** (shown on title screen and in feature requests).
+Current version: **v2.1** (shown on title screen and in feature requests).
 
 ---
 
@@ -13,7 +13,7 @@ Current version: **v1.2** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v16` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v20` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -22,7 +22,7 @@ Current version: **v1.2** (shown on title screen and in feature requests).
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v16` → `fernhollow-v17`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v20` → `fernhollow-v21`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -87,28 +87,51 @@ All art is custom pixel art drawn in code — **no emoji are shown to the player
   Variants swapped at runtime: `farmhouse[_snow][_night]`, `tree / tree_spring / tree_fall / tree_winter`,
   `sun_big / sun_set`, `farmer / farmer_step` (step frame + `scaleX(-1)` facing when walking).
 - Helpers: `pxURL(name, square)` (cached data URL), `pxSize(name)`, `pxSetSprite(el, name, scale)`.
+- **Auto-shading** (`pxShade`): every sprite gets sel-out outlines (silhouette `k` pixels become a dark shade of the
+  colour they wrap), top-left highlights and cool bottom-right shadows. Interior `k` details stay dark. Sprites with
+  `flat:true` (tiling textures) skip shading.
+- **Textures** `tx_soil`, `tx_soil_wet`, `tx_grass`, `tx_wood`, `tx_plank` are published as CSS variables
+  (`--px-soil`, `--px-soil-wet`, `--px-grass`, `--px-wood`, `--px-plank`) by `pxThemeVars()` and used by the theme.
+- Villager portraits `pt_<id>` (20×20) are generated from layered parts (face, hair, hat, beard, clothes).
+- The farmhouse is a 32×28 timber cottage (terracotta roof uses palette `x`/`X`; chimney smoke at `left:44px`).
+
+### v2.0 Theme
+A theme block at the end of `<style>` layers on top of the base styles: wood-plank frame and HUD, bevelled cards
+(`--bevel`, `--drop`), chunky buttons that press down on `:active`, wooden tabs, parchment info strip, parchment
+dialogue box and pinned-note notice board. HUD shows icons and a stamina bar (`#stam-fill`, updated in `upEnergy`).
+Plot tiles use tilled-soil textures: `.tile.wet` when watered, grass when locked; growth stages via `cropStageIcon()`.
+**Popups are pinned to the viewport** (`position:fixed`, max 420px) — never position a new overlay against `#gw`,
+or it can open off-screen on a scrolled phone. JS-created overlays get `className='screen-overlay'`.
+**Juice:** `juice(el, text, {sparks, pop, buzz, color})` shows floating text, sparkles, a tile pop and a short
+vibration. Effects are capped at 30 on screen.
 
 ---
 
-## Layout
+## Layout (v2.1 Handheld)
+The page is still authored as the old stacked layout; `buildHandheld()` (first thing in `init()`) rearranges it at
+startup and adds `body.handheld`. Every element keeps its id, so game code is unchanged.
 ```
-HUD (Title | Day | Energy | Gold | ⭐ Achievements | ⚙ Settings | 🛠 Dev)
-Season bar · Clock bar
-Status bar (#status-bar — festival today/countdown + active meal buff; hidden when empty)
-Skills bar (Farming | Foraging | Fishing | Woodcutting | Mining — tappable)
-Scene (sky/sun/moon/stars/clouds/trees/house/coop/barn/shipping crate/farmer/crops) — all pixel sprites
-  Positions are % of scene width so nothing clips/overlaps at any width:
-  tree 1% | coop 9% | crate 33% | house 52% (centred) | barn right 9% | tree right 1%
-  Crops `SCENE_CROP_X=[5,16,27,61,72,83]` (%). Farmer walks to the crop being worked (`moveFarmer`).
-Farm plot (3×2 grid)
-Info bar
-Tabs: SEEDS | BAG | VALLEY | ANIMALS (hidden until building) | TOWN
-Panel content
-Install banner (bottom, one-time PWA prompt)
+#gw (100dvh flex column)
+  #play (flex:1)
+    #scene (clamp(190px,38%,300px)) — scene soil strip + scene crops hidden (plots live in the yard)
+    #yard — grass, #field-panel (3×2 plots, square tiles, sized with container query units), pond, butterflies
+    #hud-overlay — chips over the sky: left .hud-col (season/clock/status bars), right .hud-col-r (#hud-right: day, stamina, gold)
+    #info-bar — parchment toast; info() adds .show and auto-hides
+  #sheet (absolute, bottom:62px, 64% tall, slides up with .open) — #sheet-title, #sheet-close, #sheet-body
+    holds seed/inv/act/animal/th panels + #menu-panel (Achievements, Settings, Dev, skills bar, footer stats)
+  #tabs (62px bottom bar) SEEDS | BAG | VALLEY | ANIMALS (hidden until building) | TOWN | MENU
 ```
+- `#hud` and `#dev-bar` are hidden; the ⭐/⚙/🛠 buttons live in the MENU tab (`renderMenu()`), alert dot `#menu-badge`.
+- Tabs call `tapTab(t)` (tapping the open tab closes it) → `showTab(t)` → `openSheet(t)`. `closeSheet()` on sleep,
+  reset, tutorial end and seed pick. `markTab()` toggles `.on` with classList (keeps `.visible` on the Animals tab).
+- Tutorial steps with `tabTo` open the sheet, others close it; targets are measured 360ms later, after the slide.
+- Text is bumped for handheld by generated `body.handheld …{font-size}` overrides at the end of `<style>`
+  (3–4px→6, 5–6px→7) plus `[style*="font-size:Npx"]` overrides inside the sheet and popups.
+- `#item-popup` z 60 > `#sheet` z 15 / `#tabs` z 16 < `#summary` z 20.
 
 ### PC/Landscape Mode
-Left sidebar (220px): Farm Status, Skills, Animals, Activity Log. Right: full game. Class: `body.pc-mode`.
+Left sidebar (220px): Farm Status, Skills, Animals, Activity Log. Right: the same handheld column (full height). Class: `body.pc-mode`.
+Fixed popups get `left:220px` in pc-mode so they centre over the game column.
 Auto-detect: `pcMode` defaults to `window.innerWidth >= 800`. Saved preference overrides on return visits.
 `body.pc-mode` must include `justify-content:flex-start` to override mobile centring.
 
@@ -130,6 +153,11 @@ Plant → Water → Grow → Harvest → BAG → Ship Box → Sleep → New day 
 - `PENALTY_CUTOFF_H=20` is only used for the evening house-label styling now
 - `doSleep()` calls `musicStop()` before new day sequence
 - `dismissSummary()` calls `musicStart()` to restart music fresh, then `announceEventToday()`
+
+### Overnight (triggerNewDay order)
+payout → `advanceCropDay` → `advanceSeason` → `day++` → `advanceWeather` (rain waters crops, storm lightning) →
+`crowsNight` / `beesNight` → energy → trees → summary → sprinklers → animals → villagers → mine reset →
+`questsNewDay`. Messages from weather/crows/bees appear in the morning summary.
 
 ### Shipping
 Pays out at sleep (`triggerNewDay`). UI says "SELLS TONIGHT".
@@ -172,7 +200,7 @@ Seasons:
 ---
 
 ## Watering System
-**Every crop must be watered every day** or growth pauses (tile shows 💧 WATER!).
+**Every crop must be watered every day** or growth pauses (tile shows 💧 WATER!). Rain, storms and snow water everything.
 Watering sets `waterDueDay = day+1`; `advanceCropDay()` (at sleep) only grows watered, non-overdue crops.
 Watering costs 1 energy per plot. Can tiers water 1/2/4/6 plots per tap (Mayor shop).
 Sprinklers (Forest Spirit shop, after Great Hall) water 1/3/6 plots for free — run at dawn in
@@ -188,7 +216,7 @@ Internal key → Display: `farming`→FARMING🌾 · `foraging`→FORAGING🌿 �
 
 XP rates:
 - Farming: T1=1, T2=2, T3=4, T4=7, T5=11, T6=18 per harvest + quality bonus (+1 silver, +2 gold); ×1.5 with Harvest Tart buff
-- Foraging: 1/round win, 2/sweep bonus
+- Foraging: 1 per find, 3 for the rare find, +2 for digging up all 5
 - Fishing: 1 normal, 2 rare (difficulty>0.6); ×2 on River Derby
 - Woodcutting: 2/chop, 5/fell, 7/growth dust
 - Mining: 1xp/rock (ores with minFloor ≥25 only), 1/descend
@@ -197,7 +225,7 @@ XP rates:
 LV2 silver crops(×1.25) · LV3 more silver · LV4 gold(×1.5) · LV5 fert lasts 2 crops · LV6 more gold · LV7 mostly silver/gold · LV8 double yield 35% · LV9 gold dominant · LV10 near-perfect+10% sell bonus ✦
 
 ### Foraging Perks
-LV3 +1 item on 2+ wins · LV5 spirit bias 45%→35% · LV7 +1 more item on a 3-0 · LV10 a 3-0 sweep always gives the season's rarest item ✦
+LV3 +1 dig (6) · LV5 rare shimmer range 2→3 · LV7 +1 dig (7) · LV9 rare finds come in pairs · LV10 the rare find is always the season's rarest ✦
 Skill also gates which items can drop (`skillMin`: T1=1, T2=2, T3=4, T4=6, T5=8, T6=10).
 
 ### Fishing Perks
@@ -218,9 +246,13 @@ Gated behind meeting Wren. 2 energy/cast. Hold=zone rises, release=falls. Keep f
 6 fish/season tiers 1–6 (sell 2/5/10/20/40/80g). Tier unlock by Fishing level: T1 1, T2 2, T3 4, T4 6, T5 8, T6 10.
 `fishingRod` 0–3 adds weight to T4–T6. Lucky Bait: next cast auto-catches. Fish Net: next catch yields 2 fish.
 
-### Foraging (RPS)
-2 energy. Best of 3 vs Forest Spirit. Seasonal bias. Item tier = position in the season list (`getTier`).
-1 win → T1–2 · 2 wins → T3–4 · 3 wins → T5–6. If the band isn't unlocked by skill yet, the best item below it drops.
+### Foraging (Hot & Cold dig) — replaced Rock Paper Scissors in v1.3
+Starting a hunt is free; **each dig costs 1 energy** (STOP DIGGING ends early, `stopDig`). A 5×5 patch (`digGrid`) hides 5 finds from `forageBuildPrizes()`: 1 rare (T5–6), 2 uncommon (T3–4),
+2 common (T1–2). Item tier = position in the season's `FORAGE_ITEMS` list; if a band isn't unlocked by skill yet,
+the best item below it is used. Digs: `forageDigCount()` = 5 (+1 LV3, +1 LV7, +1 Forager's Salad, +1 windy day).
+Each empty dig shows its step distance to the nearest *still-buried* find (`digClue`, colours `.d1`–`.d5`) and ✨ when
+the rare find is within `forageShimmerRange()` (2, or 3 at LV5). Hints refresh as finds are dug. The hunt ends when digs
+run out or all 5 are found (`endDig`), revealing what was left. Dev flag `rareForage` outlines the rare cell.
 
 ### Woodcutting
 Gated behind Ford. 1 energy/swing. Two independent trees. Tree HP by axe tier (basic=5, copper=4, iron=3, gold=2).
@@ -241,7 +273,11 @@ Iron Grip buff lasts 3 floors (tracked as countdown: grip=3→2→1→0).
 ---
 
 ## Inventory & Shipping
-Bag starts **30 slots**, upgrades to 40/60/80 via Sal. A slot = one unique item stack.
+Bag starts **30 slots**, upgrades to 40/60/80 via Sal, +10 per crafted Storage Chest (max 2). Use `bagCap()`
+for the total, never `bagCapacity` directly. A slot = one unique item stack.
+**Never lose items to a full bag:** `addToInventory` returns false when full. Every item source checks
+`bagCanTake(id)` first and refuses (no energy spent) — harvest, fishing cast, chop, dig, mine swing/blast, animal
+collect, Sal stock. Forge/Storeroom jobs and the bee house wait until there is room.
 Tap item → EAT (food only — `isEdible(id)`) / SHIP / CANCEL. SHIP opens quantity picker. Hold to lock (locked items skip SHIP ALL, donations and cooking).
 Ships sell at next sleep.
 
@@ -287,7 +323,7 @@ Meals are eaten from the BAG. Buff meals last until you sleep (`cookBuffs`, clea
 | 🍽 Fish Meal | 0 | 1 fish + 1 crop | 20 | 50 | — |
 | 🐟 Smoked Fish | 0 | 2 fish | 25 | 65 | — |
 | 🍲 Farm Stew | 1 | 3 crop + 1 animal | 35 | 90 | — |
-| 🥗 Forager's Salad | 1 | 2 forage + 1 crop | 15 | 45 | +1 forage item on a win |
+| 🥗 Forager's Salad | 1 | 2 forage + 1 crop | 15 | 45 | +1 dig when foraging |
 | 🥞 Maple Pancakes | 2 | 1 sap + 1 egg + 1 crop | 18 | 75 | +2 wood per fell |
 | 🥧 Angler's Pie | 3 | 2 fish + 1 milk + 1 crop | 30 | 120 | fishing zone +8px |
 | 🍳 Miner's Breakfast | 3 | 2 egg + 1 coal + 1 crop | 30 | 110 | rocks -1 HP |
@@ -295,7 +331,7 @@ Meals are eaten from the BAG. Buff meals last until you sleep (`cookBuffs`, clea
 | 🥮 Harvest Tart | 4 | 1 T4+ crop + 1 sap + 1 milk | 40 | 260 | +50% farming XP |
 | 👑 Golden Banquet | 5 | 1 gold crop + 1 T5+ fish + 1 wool + 2 sap | 60 | 600 | all buffs |
 
-Buff hooks: `getFishZoneSize`, `mineRockHp`, `getWoodDropBonus`, `endRps`, `harvestTile`.
+Buff hooks: `getFishZoneSize`, `mineRockHp`, `getWoodDropBonus`, `forageDigCount`, `harvestTile`.
 
 ### Forge / Smelting (Workshop reward)
 3 slots, timed in in-game days:
@@ -320,6 +356,26 @@ Finished jars use `job.itemId` (includes quality) so silver/gold preserves stay 
 
 ---
 
+## Weather
+`WEATHER` (sun/rain/storm/snow/wind) rolled a day ahead by `rollWeather()` with per-season `WEATHER_ODDS`;
+`weatherToday` / `weatherTomorrow` are saved. Day 1 and festival days are always sunny.
+Rain/storm/snow water all growing crops at dawn (`advanceWeather`); rain/storm add +15 rare-fish weight; storms have a
+30% chance to split a tree (+4 wood); windy days give +1 forage dig. Scene: `renderWeatherFx()` particles, overcast
+sky in `updateSky`, lightning flashes + `sfxThunder` (`scheduleLightning`).
+
+## Notice Board (Quests)
+`quests={daily, weekly, done}`. `questsNewDay()` posts a daily request each morning and a weekly one on season days
+1/8/15/22. `questCandidates(kind)` only offers what the player has unlocked (crops by season unlock, wood, fish,
+ore, forage, animal products, known meals). A quest has `vil, ing (Kitchen ingredient spec, plus type 'cropId'),
+line, gold, xp, bonus, expires`. `questDeliver(kind)` removes cheapest matching items (never locked ones), pays
+gold + hearts (+ `QUEST_BONUS` item on weeklies). TOWN tab shows `!` when deliverable (`updateQuestBadge`).
+
+## Crafting & Decor
+`CRAFTS` (BAG tab, `renderCrafting`): Scarecrow, Fence, Stone Path, Flower Bed, Lamp Posts, Bee House, Storage Chest
+(×2). `crafted{}` and `beeDays` are saved. Built items appear in the scene (`renderFarmDecor`). Bee house: honey every
+3 days (`beesNight`, item `honey` 60g / +8⚡). Crows (`crowsNight`): from day 5, dry nights, no scarecrow → 12% chance
+one growing crop is eaten; a crow sprite hops on the field as a hint (`updateCrowVisual`).
+
 ## Seasonal Festivals
 `FESTIVALS` — day 14 of each season. Same-day effect + a once-per-year gift (`eventsSeen['id_year']`)
 handed over in a villager dialogue by `announceEventToday()` (on title start and each morning).
@@ -337,7 +393,7 @@ The status bar shows the festival on the day, or a countdown in the final 7 days
 ---
 
 ## Achievements System
-48 achievements in 9 categories. Accessed via ⭐ HUD button. Red dot badge on new unlocks.
+51 achievements in 9 categories. Accessed via ⭐ HUD button. Red dot badge on new unlocks.
 State: `achUnlocked{}` (persisted), `achFlags{}` (persisted event flags — also used for one-time
 rewards: `mine_fruit`, `bought_<shopItemId>`, `cooked_<recipeId>`, `first_meal`).
 Function: `checkAchievements()` — call after any meaningful player action.
@@ -477,7 +533,21 @@ If the constant is blank, the request fails, or the device is offline, it falls 
 
 ### Heart System
 5 hearts. Thresholds: `[60, 400, 800, 1200, 1900]` (VIL_HEART_XP).
-Favourite gift = 30 XP, other gift = 18 XP (×2 on Harvest Supper). 1 gift/villager/day.
+Loved gift = 60 XP, favourite = 30, other = 18. Multipliers via `vilGiftMult()`: ×2 Harvest Supper, ×3 birthday.
+1 gift/villager/day. Daily TALK (`vilTalk`) = +10 XP (+20 on birthdays), `talkedToday` resets nightly.
+
+### Villager Life (`VIL_LIFE`, `VIL_TALK`)
+| Villager | Birthday | Loves |
+|---|---|---|
+| Wren | Summer 9 | Pike, Salmon |
+| Hob | Fall 21 | Pumpkin, Tomato |
+| Sal | Winter 5 | Ruby, Emerald (her gift chooser also offers 100g) |
+| Bess | Spring 18 | Wool, Blueberry |
+| Ford | Fall 3 | Sap, Maple Pancakes |
+| Mayor | Spring 7 | Tulip, Sunflower |
+| Bram | Winter 24 | Gold Ingot, Topaz |
+Loved items are shown on the card from 2 hearts. Talk lines: birthday > festival > rain > season > general, plus
+heart-level lines. Portraits appear on cards, in dialogue and on the notice board.
 `vilGiftValue()` is the single source of truth; `vilIsFav()` = value ≥ 30.
 
 **Heart timeline (favourite gifts daily):** H1 Day 2 · H2 Day 15 · H3 Day 42 · H4 Day 82 · H5 Day 145
@@ -552,7 +622,11 @@ buildings{coop, barn}, animals[], autoFeeder, autoCollect
 // Town Hall
 townHall{rooms{}, sprinklerTier, forgeQueue:[...], preserveQueue:[...]}
 
-// Kitchen / Festivals
+// Kitchen / Festivals / v2.0 systems
+weatherToday, weatherTomorrow                        // 'sun'|'rain'|'storm'|'snow'|'wind'
+quests{daily, weekly, done}                          // notice board
+crafted{scarecrow, fence, path, flowers, lamp, beehouse, chest}, beeDays
+villagerState[id].talkedToday                         // daily chat flag
 cookBuffs{day, fishing, mining, wood, forage, farm}   // cleared every new day
 knownRecipes{}                                        // reserved (recipes derive from Hob hearts)
 eventsSeen{'blossom_1':true, ...}                     // festival gifts claimed per year
@@ -630,6 +704,11 @@ Stub functions kept for old call sites: `notifScheduleCrop()`, `notifCancelCrop(
 - Sleep confirm popup
 - Network-first SW (auto-updates for players)
 - **v1.1:** Cooking depth (11 recipes, Hob teaches, meal buffs) · Sap has a use (cooking) · Seasonal festivals · Formspree feedback integration (needs endpoint) · bug-fix pass
+- **v2.1:** Handheld UI (full-screen farm, HUD chips, slide-up sheet, bottom bar + MENU tab, toast messages, bigger text) · cozy cottage farmhouse · yard pond & butterflies
+- **v2.0:** Graphics overhaul (auto-shaded sprites, wood theme, soil tiles, living scene, juice) · weather ·
+  notice board quests · villager portraits/talk/birthdays/loved gifts · crafting & decor + crows · foraging 1⚡/dig ·
+  big bug hunt (full-bag item loss, off-screen popups, fertilizer perk, and more)
+- **v1.3:** Foraging is now a Hot & Cold dig minigame (Rock Paper Scissors removed)
 - **v1.2:** Custom pixel art for every icon and the whole farm scene · multi-song music engine · bug report removed · scene layout fix (coop/barn/crops)
 
 ### Long Term
@@ -662,8 +741,9 @@ Farming ~90–110 days · Foraging ~87–116 · Fishing ~100–130 · Woodcuttin
 ---
 
 ## Known Issues / Watch List
+- Balance: wine is ×6 crop value, so gold T5/T6 wine sells for ~27k–74k g — far above normal income. By design for
+  now; revisit if it trivialises the economy.
 - `forceSleep()` is now the only forced-sleep path (called from `clockTick` at 1am)
-- `SHOP_ITEMS` / `renderShop()` / `doBuy()` are legacy (no UI uses them) — villager shops replaced them
 - `knownRecipes` is saved but unused (recipes derive from Hob's hearts)
 - Formspree is inactive until `FORMSPREE_ENDPOINT` is filled in
 

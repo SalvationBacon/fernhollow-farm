@@ -106,11 +106,69 @@ body{background:#0e0c08;display:flex;justify-content:center;padding:16px 0;min-h
 #sky{position:absolute;inset:0}
 #stars{position:absolute;inset:0;opacity:0}
 .star{position:absolute;background:#fff;border-radius:50%}
+
+/* Popups stay on the visible screen (they used to sit at the top/bottom of the whole page,
+   so on a scrolled phone a dialogue could open off-screen). */
+#skill-overlay,#ach-overlay,#vil-dialogue-overlay,#gift-chooser-overlay,#ship-qty-overlay,#season-overlay,
+#summary,#tut-letter,#settings-overlay,#dev-overlay,#feat-overlay,.screen-overlay{
+  position:fixed!important;inset:0!important;max-width:420px;margin:0 auto;
+}
+#ach-overlay,#settings-overlay,#dev-overlay,#feat-overlay,#summary{overflow-y:auto}
 /* pixel art — sprites are drawn by pxURL(); .px = inline icon (swapped from emoji), .pxs = scene sprite */
 img.px{width:max(12px,1.35em);height:max(12px,1.35em);image-rendering:pixelated;image-rendering:crisp-edges;
   vertical-align:-0.25em;display:inline-block;pointer-events:none;-webkit-user-drag:none}
 img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-webkit-user-drag:none}
 #sun,#moon{position:absolute;pointer-events:none}
+/* weather particles */
+#weather-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+#weather-fx i{position:absolute;top:-10px;display:block}
+.wx-drop{width:1px;height:9px;background:rgba(190,215,255,.75);animation:wxRain linear infinite}
+.wx-flake{width:3px;height:3px;background:#fff;animation:wxSnow linear infinite}
+.wx-leaf{width:4px;height:3px;animation:wxLeaf linear infinite}
+@keyframes wxRain{from{transform:translate(0,-10px)}to{transform:translate(-18px,170px)}}
+@keyframes wxSnow{0%{transform:translate(0,-10px)}50%{transform:translate(8px,80px)}100%{transform:translate(-4px,170px)}}
+@keyframes wxLeaf{0%{transform:translate(0,10px) rotate(0)}100%{transform:translate(-160px,120px) rotate(540deg)}}
+#weather-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4}
+#weather-flash.on{animation:wxFlash .7s ease-out}
+@keyframes wxFlash{0%{opacity:0}8%{opacity:.75}20%{opacity:.1}30%{opacity:.5}100%{opacity:0}}
+#status-bar .sb-weather{color:var(--cream)}
+/* crafting + decor */
+#craft-area{margin:6px 0 8px}
+#craft-toggle{width:100%;font-family:'Press Start 2P',monospace;font-size:6px;padding:6px;background:var(--mid);border:2px solid var(--rim);color:var(--gold);cursor:pointer;text-align:left}
+.craft-row{display:flex;align-items:center;gap:7px;background:var(--mid);border:1px solid var(--rim);border-top:none;padding:6px}
+.craft-row.done{opacity:.65}
+img.craft-icon{width:28px;height:28px;image-rendering:pixelated;flex-shrink:0}
+.craft-info{flex:1}
+.craft-name{font-size:6px;color:var(--cream);margin-bottom:2px}
+.craft-desc{font-size:5px;color:var(--muted);line-height:1.6}
+.craft-cost{font-size:5px;margin-top:2px;line-height:1.7}
+.craft-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:5px 7px;background:var(--lift);border:2px solid var(--green2);color:var(--green);cursor:pointer}
+.craft-btn:disabled{opacity:.4;cursor:default;border-color:var(--border);color:var(--muted)}
+.craft-built{font-size:5px;color:var(--green)}
+img.decor{position:absolute;pointer-events:none}
+.decor-fence{position:absolute;left:0;right:0;bottom:17px;height:20px;background-repeat:repeat-x;background-size:16px 20px;image-rendering:pixelated;pointer-events:none}
+.decor-crow{animation:crowHop 1.6s steps(2) infinite}
+.decor-lamp.lit{filter:drop-shadow(0 -2px 5px #ffe080) drop-shadow(0 0 10px rgba(255,210,100,.6))}
+@keyframes crowHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+/* notice board */
+#quest-board{margin-bottom:10px}
+.qb-title{font-size:7px;color:var(--gold);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.qb-count{font-size:5px;color:var(--muted)}
+.qb-card{background:#3a2a14;border:2px solid var(--rim);padding:7px 8px;margin-bottom:5px;box-shadow:inset 0 0 0 1px #4a3418}
+.qb-card.qb-ready{border-color:var(--green)}
+.qb-card.qb-done,.qb-card.qb-empty{opacity:.6}
+.qb-top{display:flex;justify-content:space-between;margin-bottom:3px}
+.qb-kind{font-size:5px;color:var(--gold);letter-spacing:1px}
+.qb-when{font-size:5px;color:var(--muted)}
+.qb-who{font-size:7px;color:var(--cream);margin-bottom:3px}
+.qb-line{font-size:5px;color:var(--muted);font-style:italic;line-height:1.7;margin-bottom:3px}
+.qb-want{font-size:6px;color:var(--cream);margin-bottom:2px}
+.qb-reward{font-size:5px;color:var(--gold);margin-bottom:5px}
+.qb-btn{width:100%;font-family:'Press Start 2P',monospace;font-size:6px;padding:5px;background:var(--lift);border:2px solid var(--green2);color:var(--green);cursor:pointer}
+.qb-btn:disabled{opacity:.4;cursor:default;border-color:var(--border);color:var(--muted)}
+.tab{position:relative}
+.tab-alert{position:absolute;top:1px;right:3px;background:var(--red);color:#fff;font-size:5px;padding:1px 3px;border:1px solid #801818;line-height:1.4}
+#status-bar .sb-forecast{color:var(--muted)}
 .cloud{position:absolute;pointer-events:none;transform-origin:left top}
 .ground{position:absolute;bottom:0;left:0;right:0;height:46px;border-top:3px solid #3a5c1e}
 .soil-strip{position:absolute;bottom:0;left:0;right:0;height:18px;border-top:2px solid var(--soil2);background:#6a4820}
@@ -375,38 +433,31 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #fish-catch-bar{height:6px;background:var(--blue);width:0%}
 #fish-status{font-size:6px;color:var(--cream);text-align:center;min-height:12px;line-height:1.8}
 
-/* ── FORAGE RPS ── */
+/* ── FORAGE: HOT & COLD DIG ── */
 #forage-minigame{display:none;background:var(--ink);border:2px solid var(--green2);padding:8px;margin-top:6px}
 #forage-minigame.show{display:block}
-#rps-arena{background:var(--deep);border:1px solid var(--rim);padding:8px;margin-bottom:6px}
-#rps-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-#rps-round-label{font-size:6px;color:var(--green)}
-#rps-score{font-size:6px;color:var(--gold)}
-#rps-spirits{display:flex;justify-content:space-around;align-items:center;margin-bottom:6px;gap:4px}
-.rps-side{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;background:var(--mid);border:1px solid var(--rim);padding:6px 4px}
-.rps-label{font-size:5px;color:var(--muted);margin-bottom:2px}
-.rps-sprite{font-size:32px;line-height:1;min-height:30px;display:flex;align-items:center;justify-content:center}
-.rps-sprite.shake{animation:rpsShake .25s ease}
-@keyframes rpsShake{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
-#rps-vs{font-size:8px;color:var(--dim);flex-shrink:0}
-#rps-taunt{font-size:5px;color:var(--green);text-align:center;min-height:10px;margin-bottom:4px;font-style:italic;line-height:1.6}
-#rps-round-msg{font-size:7px;text-align:center;min-height:14px;margin-bottom:4px;line-height:1.8}
-#rps-pip-row{display:flex;gap:4px;justify-content:center;margin-bottom:6px}
-.rps-pip{width:10px;height:10px;border:1px solid var(--rim);background:var(--mid)}
-.rps-pip.win{background:var(--green);border-color:var(--green2)}
-.rps-pip.lose{background:var(--red);border-color:#802020}
-.rps-pip.draw{background:var(--gold);border-color:#907010}
-#rps-choices{display:flex;gap:4px;margin-bottom:5px}
-.rps-btn{
-  flex:1;font-family:'Press Start 2P',monospace;font-size:24px;
-  padding:8px 4px;cursor:pointer;
-  border:2px solid var(--green2);background:var(--mid);text-align:center;
-  transition:border-color .12s;
-}
-.rps-btn:hover{border-color:var(--green);background:var(--lift)}
-.rps-btn:active{transform:scale(.93)}
-.rps-btn:disabled{opacity:.35;cursor:default}
-#rps-prize-preview{font-size:5px;color:var(--muted);text-align:center;line-height:2;white-space:pre}
+#dig-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:6px}
+#dig-left{color:var(--gold)}
+#dig-found{color:var(--green)}
+#dig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:6px}
+.dig-cell{position:relative;height:38px;border:2px solid #3a2510;background:#6a4820;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:8px;color:#1a1208;
+  box-shadow:inset 2px 2px 0 #8a6030,inset -2px -2px 0 #4a3010;transition:transform .08s}
+.dig-cell:active{transform:scale(.93)}
+.dig-cell.dug{cursor:default;box-shadow:inset 2px 2px 0 rgba(0,0,0,.25)}
+.dig-cell.found{background:#3a6a20;border-color:var(--green2);font-size:16px}
+.dig-cell.found.rare{background:#6a4a10;border-color:var(--gold);animation:glow .9s infinite alternate}
+.dig-cell.missed{background:#2e2010;opacity:.55;font-size:14px;cursor:default}
+.dig-cell .dig-shine{position:absolute;top:1px;right:2px;font-size:7px}
+.dig-cell.d1{background:#e04030;color:#fff}
+.dig-cell.d2{background:#f09030}
+.dig-cell.d3{background:#e8c040}
+.dig-cell.d4{background:#60a8d8}
+.dig-cell.d5{background:#2a5cb0;color:#c8e0ff}
+#dig-legend{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;font-size:5px;color:var(--muted);margin-bottom:4px}
+#dig-legend span{display:inline-flex;align-items:center;gap:2px}
+#dig-legend i{display:inline-block;width:7px;height:7px;border:1px solid #1a1208}
+#dig-hint{font-size:5px;color:var(--muted);text-align:center;line-height:1.8}
 
 /* ── SKILLS ── */
 #skills-bar{background:var(--ink);border-bottom:1px solid var(--border);padding:4px 10px;display:flex;gap:6px;overflow-x:auto}
@@ -453,7 +504,7 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 
 /* level-up flash */
 @keyframes lvlFlash{0%{opacity:0;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1)}}
-.lvl-up-pop{position:absolute;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);white-space:nowrap;animation:lvlFlash 1.4s ease forwards;z-index:60}
+.lvl-up-pop{position:fixed;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);white-space:nowrap;animation:lvlFlash 1.4s ease forwards;z-index:60}
 /* QUALITY badges */
 .q-silver{font-size:11px;line-height:1;margin-left:1px}
 .q-gold{font-size:11px;line-height:1;margin-left:1px}
@@ -531,7 +582,7 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #ach-hud-btn{position:relative}
 #ach-badge{display:none;position:absolute;top:-3px;right:-3px;width:7px;height:7px;background:var(--red);border-radius:50%}
 /* Achievement unlock pop */
-#ach-pop{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:var(--deep);border:2px solid var(--gold);padding:8px 12px;z-index:900;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
+#ach-pop{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--deep);border:2px solid var(--gold);padding:8px 12px;z-index:900;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
 #ach-pop.show{opacity:1}
 #ach-pop-icon{font-size:14px;display:block;margin-bottom:3px}
 #ach-pop-name{font-size:6px;color:var(--gold);display:block}
@@ -547,6 +598,9 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 .vil-card.locked{opacity:.45}
 .vil-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
 .vil-avatar{font-size:22px;flex-shrink:0;line-height:1}
+img.vil-portrait{width:40px;height:40px;image-rendering:pixelated;display:block;border:2px solid var(--rim);background:#5a3e1b}
+img.vil-dialogue-portrait{width:60px;height:60px;image-rendering:pixelated;display:block;border:2px solid var(--gold);background:#5a3e1b}
+img.qb-portrait{width:20px;height:20px;image-rendering:pixelated;vertical-align:middle;border:1px solid var(--rim)}
 .vil-info{flex:1}
 .vil-name{font-size:7px;color:var(--cream);margin-bottom:2px}
 .vil-role{font-size:5px;color:var(--muted)}
@@ -940,14 +994,14 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
 .fb-note{font-size:5px;color:var(--dim);text-align:center;line-height:1.7;margin-top:4px}
 
 /* ── SAVE TOAST ── */
-#save-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--deep);border:2px solid var(--green2);color:var(--green);font-size:8px;padding:12px 18px;opacity:0;pointer-events:none;white-space:nowrap;z-index:60;text-align:center;transition:opacity .2s,transform .2s}
+#save-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--deep);border:2px solid var(--green2);color:var(--green);font-size:8px;padding:12px 18px;opacity:0;pointer-events:none;white-space:nowrap;z-index:60;text-align:center;transition:opacity .2s,transform .2s}
 #save-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #save-toast-icon{font-size:26px;display:block;margin-bottom:6px}
 #save-toast-msg{display:block;letter-spacing:1px}
 #save-toast-sub{display:block;font-size:5px;color:var(--muted);margin-top:4px}
 
 /* ── INSTALL BANNER ── */
-#install-banner{display:none;position:absolute;bottom:0;left:0;right:0;background:var(--deep);border-top:2px solid var(--gold);padding:10px 12px;z-index:40;animation:bannerSlide .4s ease}
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--deep);border-top:2px solid var(--gold);padding:10px 12px;z-index:40;animation:bannerSlide .4s ease}
 #install-banner.show{display:flex;align-items:center;gap:8px}
 #install-banner-icon{font-size:18px;flex-shrink:0}
 #install-banner-text{flex:1}
@@ -1032,6 +1086,401 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
 .dev-gold-btn:hover{background:var(--lift)}
 .dev-energy-btn{font-family:'Press Start 2P',monospace;font-size:6px;background:var(--mid);border:2px solid #601040;color:var(--pink);padding:6px;cursor:pointer;width:100%;margin-top:5px}
 .dev-energy-btn:hover{background:#200818}
+
+/* ═══════════════════════════════════════════════════════════════
+   v2.0 THEME — warm wood frames, bevelled pixel panels, chunky buttons.
+   Layered on top of the base styles above; textures come from pixel
+   sprites published as CSS variables by pxThemeVars().
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --bevel:inset 2px 2px 0 rgba(255,226,170,.13),inset -2px -2px 0 rgba(0,0,0,.38);
+  --bevel-soft:inset 1px 1px 0 rgba(255,226,170,.10),inset -1px -1px 0 rgba(0,0,0,.30);
+  --drop:0 3px 0 rgba(0,0,0,.45);
+}
+body{background:#170f08 var(--px-wood) repeat;background-size:64px 32px}
+#gw{
+  background:#2a1b0e var(--px-wood) repeat;background-size:48px 24px;
+  border:4px solid #5a3818;
+  box-shadow:0 0 0 2px #24150a,0 0 0 4px #8a5a2c,0 0 0 6px #24150a,0 10px 40px rgba(0,0,0,.8);
+}
+/* top bar: light plank sign */
+#hud{background:#6b4221 var(--px-plank) repeat;background-size:48px 24px;border-bottom:3px solid #24150a;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.25),inset 0 2px 0 rgba(255,220,160,.2);padding:7px 8px}
+#hud-title{color:#ffe27a;text-shadow:1px 1px 0 #3a1e08,-1px 0 0 #3a1e08,0 -1px 0 #3a1e08,2px 2px 0 rgba(0,0,0,.4)}
+.hstat{background:rgba(26,14,6,.72);padding:3px 5px;border:1px solid #2a1608;box-shadow:var(--bevel-soft);gap:4px}
+.hstat img.px{width:12px;height:12px}
+.stam-bar{width:34px;height:7px;background:#1a0e06;border:1px solid #0e0703;position:relative;overflow:hidden}
+#stam-fill{height:100%;background:linear-gradient(#8ee060,#4fa52c);transition:width .3s,background .3s;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+#stam-fill.mid{background:linear-gradient(#ffd85a,#d49a1c)}
+#stam-fill.low{background:linear-gradient(#ff7a5a,#c03a1c);animation:houseSleepPulse 1s infinite}
+#hud button{background:#3a2210!important;border:2px solid #24150a!important;color:#ffe27a!important;box-shadow:var(--bevel-soft)}
+/* info strips */
+#season-bar,#clock-bar,#skills-bar{background:rgba(22,13,6,.82);border-bottom:2px solid #24150a}
+#status-bar{background:rgba(48,30,14,.92);border-bottom:2px solid #24150a}
+#season-progress-wrap,#day-progress-wrap{height:5px;background:#120a04;border:1px solid #0a0502}
+.skill-chip{background:rgba(40,24,12,.8);padding:3px 5px;border:1px solid #24150a;box-shadow:var(--bevel-soft)}
+/* scene frame */
+#scene{border-bottom:4px solid #24150a;box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
+/* panels */
+#field-panel,#seed-panel,#inv-panel,#act-panel,#animal-panel,#th-panel{background:transparent}
+#field-panel{border-bottom:3px solid #24150a}
+.panel-label,#field-label,#animal-panel-label .panel-label{color:#ffe27a;text-shadow:1px 1px 0 #1a0e06}
+/* info bar: parchment ticker */
+#info-bar{background:#e9cf9a;color:#3a2210;border-top:2px solid #24150a;border-bottom:3px solid #24150a;
+  box-shadow:inset 0 2px 0 #fff0c8,inset 0 -2px 0 #b8925a;min-height:30px}
+/* tabs: wooden tabs */
+#tabs{background:#1a0f07;border-bottom:3px solid #24150a;padding:4px 4px 0;gap:3px}
+.tab{background:#3d2612;border:2px solid #24150a;border-bottom:none;color:#b08a5a;box-shadow:var(--bevel-soft);padding:7px 2px 6px}
+.tab.on{background:#7a4c26 var(--px-plank);background-size:48px 24px;color:#fff3c4;text-shadow:1px 1px 0 #3a1e08;transform:translateY(1px)}
+.tab img.px{width:14px;height:14px}
+/* cards & sections: bevelled wood */
+.seed-card,.inv-slot,.act-section,.vil-card,.th-room,.animal-row,.shop-card,.ach-card,.craft-row,.mine-rock,#craft-toggle{
+  background-color:#3a2614;box-shadow:var(--bevel),var(--drop);border-color:#1e1209}
+.seed-card.sel{background-color:#5a3c1c;border-color:#ffd24a;box-shadow:var(--bevel),0 0 0 1px #ffd24a,var(--drop)}
+.inv-slot{border-color:#1e1209}
+.inv-slot .is-icon img.px{width:24px;height:24px}
+.seed-card .sc-icon img.px{width:22px;height:22px}
+.animal-icon img.px{width:30px;height:30px}
+/* chunky pixel buttons: bevel + drop shadow, press down on tap */
+.act-btn,.vil-buy-btn,.th-donate-btn,.qb-btn,.craft-btn,.water-btn,#ship-all-btn,#unship-all-btn,.animal-btn,.animal-feed-all-btn,
+#sum-sleep,#ts-start-btn,#vil-dialogue-next,#ship-qty-confirm,.vil-gift-btn,.th-reward-btn,.sett-btn,#tut-letter-btn,#tut-tip-btn,
+#dig-stop-btn,.mine-cons-btn,.fb-submit,#gift-chooser-cancel,#ship-qty-cancel{
+  box-shadow:var(--bevel),var(--drop);transition:transform .06s,box-shadow .06s;
+  background-image:linear-gradient(rgba(255,240,200,.07),rgba(0,0,0,.10));
+}
+.act-btn:active:not(:disabled),.vil-buy-btn:active,.qb-btn:active:not(:disabled),.craft-btn:active:not(:disabled),.water-btn:active:not(:disabled),
+#ship-all-btn:active,.animal-btn:active,#sum-sleep:active,#ts-start-btn:active,#vil-dialogue-next:active,.vil-gift-btn:active:not(:disabled),
+.th-reward-btn:active:not(:disabled),.sett-btn:active,#dig-stop-btn:active,.th-donate-btn:active:not(:disabled){
+  transform:translateY(2px);box-shadow:var(--bevel),0 1px 0 rgba(0,0,0,.45);
+}
+/* farm plot tiles: real tilled soil */
+.tile{background:#7a4c28 var(--px-soil) repeat;background-size:32px 16px;border:3px solid #3a2410;
+  box-shadow:inset 0 3px 0 rgba(0,0,0,.25),inset 0 -2px 0 rgba(255,220,160,.12),0 3px 0 rgba(0,0,0,.4);height:76px}
+.tile.wet{background-image:var(--px-soil-wet);background-color:#3e2614}
+.tile.locked{background:#4c8a30 var(--px-grass) repeat;background-size:32px 16px;opacity:.85;border-color:#2a4a18}
+.tile.locked .t-lbl{background:rgba(26,14,6,.8);padding:2px 4px;color:#ffe27a}
+.tile .t-icon img.px{width:30px;height:30px}
+.tile.ready .t-icon img.px{width:36px;height:36px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4))}
+.tile .t-lbl{color:#fff0c8;text-shadow:1px 1px 0 #1a0e06}
+.tile.pop{animation:tilePop .25s ease}
+@keyframes tilePop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+/* notice board: pinned parchment notes */
+#quest-board{background:#5a3818 var(--px-plank);background-size:48px 24px;padding:8px;border:3px solid #24150a;box-shadow:var(--bevel),var(--drop)}
+.qb-title{color:#ffe27a;text-shadow:1px 1px 0 #2a1608}
+.qb-card{background:#ecd3a0;border:2px solid #8a6034;box-shadow:inset 0 2px 0 #fff3cf,inset 0 -2px 0 #c49c62,0 3px 0 rgba(0,0,0,.4);position:relative}
+.qb-card::before{content:'';position:absolute;top:-4px;left:50%;width:6px;height:6px;margin-left:-3px;background:#d04040;box-shadow:0 0 0 1px #6a1010}
+.qb-card .qb-who,.qb-card .qb-want{color:#3a2210}
+.qb-card .qb-line,.qb-card .qb-when{color:#6a4a28}
+.qb-card .qb-kind,.qb-card .qb-reward{color:#9a5a10}
+.qb-card.qb-ready{border-color:#3f8f2a}
+/* dialogue: parchment speech box */
+#vil-dialogue-box{background:#ecd3a0;border-top:4px solid #5a3818;box-shadow:inset 0 3px 0 #fff3cf}
+#vil-dialogue-text{color:#3a2210;border-left-color:#b8925a}
+#vil-dialogue-name{color:#7a3a10}
+#vil-dialogue-role{color:#8a6034}
+/* end-of-day board */
+#summary{background:#2a1b0e var(--px-wood);background-size:48px 24px}
+#sum-title{color:#ffe27a;text-shadow:2px 2px 0 #1a0e06}
+
+/* scene depth: hills, treeline, textured ground, grounding shadows */
+#scene{height:165px}
+.scene-layer{position:absolute;left:0;right:0;background-repeat:repeat-x;image-rendering:pixelated;pointer-events:none}
+#scene-hills{bottom:44px;height:20px;background-size:128px 20px;opacity:.9}
+#scene-treeline{bottom:44px;height:16px;background-size:32px 16px;opacity:.75}
+#ground{background-image:var(--px-grass);background-size:32px 16px;background-blend-mode:soft-light}
+#scene.winter #ground{background-blend-mode:luminosity}
+.soil-strip{background-image:var(--px-soil);background-size:32px 16px;background-blend-mode:multiply}
+#scene.winter .soil-strip{background-blend-mode:screen}
+#scene img.pxs{filter:drop-shadow(0 2px 0 rgba(0,0,0,.28))}
+.cloud{animation:cloudDrift 70s linear infinite alternate}
+#cl2{animation-duration:55s}#cl3{animation-duration:90s}
+@keyframes cloudDrift{from{translate:-20px 0}to{translate:30px 0}}
+#farmer{animation:farmerIdle 1.6s steps(2) infinite}
+@keyframes farmerIdle{0%,100%{translate:0 0}50%{translate:0 -1px}}
+#chimney-smoke{position:absolute;left:44px;top:-6px;width:10px;height:20px;pointer-events:none}
+#chimney-smoke i{position:absolute;bottom:0;left:2px;width:5px;height:5px;background:rgba(220,220,215,.55);animation:smokeRise 3.6s linear infinite;opacity:0}
+#chimney-smoke i:nth-child(2){animation-delay:1.2s}#chimney-smoke i:nth-child(3){animation-delay:2.4s}
+@keyframes smokeRise{0%{opacity:0;transform:translate(0,0) scale(.7)}15%{opacity:.7}100%{opacity:0;transform:translate(8px,-26px) scale(1.6)}}
+#scene-animals img.scene-animal{position:absolute;bottom:22px;animation:animalWander 8s ease-in-out infinite alternate}
+@keyframes animalWander{0%{translate:0 0;scale:1 1}45%{translate:14px 0;scale:1 1}50%{translate:14px 0;scale:-1 1}95%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+#scene-ambient{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+img.scene-bird{position:absolute;left:-12px;animation:birdFly 9s linear forwards}
+@keyframes birdFly{0%{translate:0 0}25%{translate:110px -6px}50%{translate:220px 2px}75%{translate:330px -4px}100%{translate:460px 0}}
+.firefly{position:absolute;width:2px;height:2px;background:#f8ff90;box-shadow:0 0 4px 2px rgba(240,255,120,.6);animation:flyWander 4s ease-in-out infinite alternate}
+@keyframes flyWander{0%{translate:0 0;opacity:.2}50%{opacity:1}100%{translate:12px -10px;opacity:.3}}
+
+#hud-title{font-size:7px;white-space:nowrap;letter-spacing:2px}
+.inv-slot .is-name{color:#c8a878}
+.inv-slot .is-qty{color:#ffe27a;text-shadow:1px 1px 0 #1a0e06}
+#scene-coop-built .bld-label,#scene-barn-built .bld-label{display:none}
+.sc-name{color:#fff0c8}
+.seed-card.lkd{opacity:.55}
+/* title screen: wooden sign, outlined lettering, walking farmer */
+#title-card{background:#2a1b0e var(--px-wood);background-size:48px 24px;border:4px solid #5a3818;
+  box-shadow:0 0 0 2px #24150a,0 0 0 4px #8a5a2c,0 0 0 6px #24150a,0 12px 40px rgba(0,0,0,.9)}
+#ts-logo-area{background:#6b4221 var(--px-plank);background-size:48px 24px;margin:14px 18px 0;width:auto;padding:12px 10px 10px;
+  border:3px solid #24150a;box-shadow:var(--bevel),var(--drop)}
+#ts-logo-line1{color:#ffe27a;text-shadow:2px 2px 0 #3a1e08,-1px -1px 0 #3a1e08,1px -1px 0 #3a1e08,-1px 1px 0 #3a1e08}
+#ts-logo-line2{color:#fff0c8;text-shadow:1px 1px 0 #3a1e08}
+#ts-logo-icon img.px{width:30px;height:30px}
+#ts-farmer{animation:tsWalk 9s linear infinite alternate}
+@keyframes tsWalk{0%{translate:-30px 0;scale:1 1}49%{translate:30px 0;scale:1 1}50%{translate:30px 0;scale:-1 1}100%{translate:-30px 0;scale:-1 1}}
+.ts-cloud{animation:cloudDrift 40s linear infinite alternate}
+#ts-start-btn{animation:startPulse 1.6s ease-in-out infinite}
+@keyframes startPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+#ts-scene img.pxs{filter:drop-shadow(0 2px 0 rgba(0,0,0,.28))}
+#ts-ground{background-image:var(--px-grass);background-size:32px 16px;background-blend-mode:soft-light}
+#ts-soil{background-image:var(--px-soil);background-size:32px 16px;background-blend-mode:multiply}
+#summary{justify-content:center;gap:6px}
+#sum-lines{width:100%;max-width:360px;background:rgba(20,12,6,.72);border:2px solid #24150a;box-shadow:var(--bevel);padding:6px 8px;max-height:46vh;overflow-y:auto}
+#sum-total{color:#ffe27a;text-shadow:2px 2px 0 #1a0e06}
+/* landscape sidebar matches the game */
+#pc-left{font-family:'Press Start 2P',monospace;background:#22160b var(--px-wood);background-size:48px 24px;border-right:4px solid #5a3818;box-shadow:2px 0 0 #24150a}
+#pc-left *{font-family:'Press Start 2P',monospace}
+/* floating feedback text */
+.float-txt{position:fixed;z-index:950;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:8px;
+  color:#fff3c4;text-shadow:1px 1px 0 #1a0e06,-1px 0 0 #1a0e06,0 -1px 0 #1a0e06,1px 0 0 #1a0e06;white-space:nowrap;
+  animation:floatUp 1.1s ease-out forwards}
+.float-txt img.px{width:12px;height:12px}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,4px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-34px)}}
+.spark{position:fixed;width:4px;height:4px;z-index:949;pointer-events:none;animation:sparkFly .6s ease-out forwards}
+@keyframes sparkFly{to{opacity:0;transform:translate(var(--dx),var(--dy))}}
+/* ══ v2.1 HANDHELD LAYOUT: scene + yard on top, HUD chips, slide-up sheet, bottom bar ══ */
+html:has(body.handheld),body.handheld{height:100%;overflow:hidden}
+body.handheld{padding:0;min-height:0}
+body.handheld #gw{display:flex;flex-direction:column;height:100vh;height:100dvh;border-top:none;border-bottom:none}
+body.handheld #hud{display:none}
+body.handheld #dev-bar{display:none}
+#play{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+body.handheld #scene{height:clamp(190px,38%,300px);flex-shrink:0;border-bottom:none;box-shadow:none}
+body.handheld #scene .soil-strip,body.handheld #scene-crops{display:none}
+body.handheld #scene::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;
+  background:linear-gradient(rgba(0,0,0,.28),transparent 30%,transparent 80%,rgba(30,50,10,.25))}
+/* the yard: grass with the plots in a wooden frame, a pond and butterflies */
+#yard{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  background:#5a9a34 var(--px-grass) repeat;background-size:32px 16px;background-blend-mode:soft-light;overflow:hidden;padding:8px 10px 14px;container-type:size}
+#yard::before{content:'';position:absolute;left:0;right:0;top:0;height:6px;background:rgba(0,0,0,.18);pointer-events:none}
+body.handheld #field-panel{position:relative;z-index:2;width:min(100%,370px);width:min(100%,370px,calc((100cqh - 64px)*1.45));background:rgba(58,36,16,.92) var(--px-plank);background-size:48px 24px;
+  border:3px solid #24150a;box-shadow:var(--bevel),0 4px 0 rgba(0,0,0,.35);padding:7px 7px 2px}
+body.handheld #field-label{display:none}
+body.handheld #plot{gap:6px}
+body.handheld .tile{height:auto;aspect-ratio:1;min-height:0}
+body.handheld #field-water-row{padding:5px 1px 3px}
+.yard-pond{position:absolute;right:-14px;bottom:-10px;width:96px;height:46px;border-radius:50%;
+  background:radial-gradient(ellipse at 40% 35%,#8cd0f0,#4a90c8 55%,#2e6898);box-shadow:0 0 0 4px #3c7a26,inset 0 3px 0 rgba(255,255,255,.25);z-index:1}
+.yard-pond i{position:absolute;width:10px;height:6px;border-radius:50%;background:#4fa83a;box-shadow:inset -2px -1px 0 #2e7a22}
+.butterfly{position:absolute;width:4px;height:4px;z-index:3;pointer-events:none;animation:flutter 9s ease-in-out infinite alternate}
+.butterfly::before,.butterfly::after{content:'';position:absolute;top:-2px;width:5px;height:5px;background:var(--c,#f8a8c8);animation:wing .25s steps(2) infinite}
+.butterfly::before{left:-5px}.butterfly::after{left:4px}
+@keyframes flutter{0%{translate:0 0}25%{translate:60px -14px}50%{translate:110px 6px}75%{translate:40px 20px}100%{translate:150px -8px}}
+@keyframes wing{50%{transform:scaleY(.3)}}
+/* HUD chips floating over the scene */
+#hud-overlay{position:absolute;top:6px;left:6px;right:6px;z-index:6;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;pointer-events:none}
+#hud-overlay>*>*{pointer-events:auto}
+.hud-col{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:58%}
+.hud-col-r{align-items:flex-end;max-width:42%}
+body.handheld #season-bar,body.handheld #clock-bar,body.handheld #status-bar{background:rgba(26,14,6,.8);border:2px solid #24150a;
+  box-shadow:var(--bevel-soft);padding:4px 6px;gap:5px;border-radius:0}
+body.handheld #season-bar span,body.handheld #clock-bar span{font-size:7px}
+body.handheld #season-label,body.handheld #real-time{font-size:8px;color:#fff3c4}
+body.handheld #season-progress-wrap,body.handheld #day-progress-wrap{min-width:28px;height:5px}
+body.handheld #season-days-left{display:none}
+body.handheld #next-reset{font-size:6px!important}
+body.handheld #status-bar{font-size:6px;justify-content:flex-start;color:#e8d0a0}
+body.handheld #hud-right{flex-direction:column;align-items:flex-end;gap:4px}
+body.handheld #hud-right .hstat{font-size:9px;background:rgba(26,14,6,.8);border:2px solid #24150a;padding:4px 6px}
+body.handheld #hud-right .stam-bar{width:46px}
+body.handheld #ach-hud-btn,body.handheld #hud-right>button{display:none!important}
+/* messages: parchment toast over the scene */
+body.handheld #info-bar{position:absolute;left:12px;right:12px;top:96px;z-index:7;pointer-events:none;text-align:center;
+  min-height:0;padding:6px 10px;font-size:8px;line-height:1.8;border:3px solid #24150a;box-shadow:inset 0 2px 0 #fff0c8,inset 0 -2px 0 #b8925a,0 4px 0 rgba(0,0,0,.35);
+  opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .25s}
+body.handheld #info-bar.show{opacity:1;transform:none}
+/* the sheet */
+#sheet{position:absolute;left:0;right:0;bottom:62px;height:64%;z-index:15;display:flex;flex-direction:column;
+  background:#2a1b0e var(--px-wood) repeat;background-size:48px 24px;border-top:4px solid #5a3818;
+  box-shadow:0 -2px 0 #24150a,0 -10px 24px rgba(0,0,0,.5);transform:translateY(calc(100% + 70px));transition:transform .28s cubic-bezier(.2,.8,.3,1),visibility 0s .28s;visibility:hidden}
+#sheet.open{transform:translateY(0);visibility:visible;transition:transform .28s cubic-bezier(.2,.8,.3,1),visibility 0s}
+.sheet-grab{width:42px;height:5px;background:#8a5a2c;margin:5px auto 0;box-shadow:0 1px 0 #24150a}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:4px 10px 6px;border-bottom:3px solid #24150a;touch-action:none}
+#sheet-title{font-size:9px;color:#ffe27a;text-shadow:1px 1px 0 #1a0e06;letter-spacing:1px}
+#sheet-close{font-family:'Press Start 2P',monospace;font-size:9px;background:#3a2210;color:#ffe27a;border:2px solid #24150a;box-shadow:var(--bevel-soft);padding:5px 7px;cursor:pointer}
+#sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#sheet-body>div{padding-bottom:14px}
+#menu-panel{display:none;padding:8px 10px}
+#menu-panel.on{display:block}
+.menu-btns{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.menu-btn{display:flex;align-items:center;gap:8px;font-family:'Press Start 2P',monospace;font-size:8px;color:#fff0c8;text-align:left;
+  background:#3a2614;border:2px solid #1e1209;box-shadow:var(--bevel),var(--drop);padding:10px;cursor:pointer}
+.menu-btn:active{transform:translateY(2px)}
+.menu-btn span:first-of-type{flex:1}
+#menu-ach-count{color:#ffe27a}
+#menu-panel #skills-bar{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:none;border:none;padding:0;margin-bottom:12px}
+#menu-panel .skill-chip{padding:6px}
+#menu-panel .skill-chip{display:flex;gap:6px;align-items:center}
+#menu-panel .skill-info{flex:1;min-width:0}
+#menu-panel .skill-label{color:#fff0c8;font-size:7px}
+#menu-panel .skill-lvl{color:#ffe27a;font-size:7px}
+#menu-panel .skill-xp-wrap{width:100%}
+#menu-panel #footer span{color:#e8d0a0;font-size:7px;line-height:1.8}
+#menu-panel #footer{color:#e8d0a0;display:flex;flex-direction:column;gap:6px;background:rgba(20,12,6,.6);border:2px solid #24150a;padding:8px;font-size:7px}
+/* bottom bar */
+body.handheld #tabs{position:relative;z-index:16;flex:0 0 62px;height:62px;padding:4px 4px 6px;gap:3px;border-bottom:none;border-top:3px solid #24150a;
+  background:#1a0f07 var(--px-wood);background-size:48px 24px;padding-bottom:max(6px,env(safe-area-inset-bottom))}
+body.handheld .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px solid #24150a;padding:4px 1px;min-width:0}
+body.handheld .tab.on{transform:translateY(-2px);box-shadow:var(--bevel),0 2px 0 #24150a}
+body.handheld .tab-ic img.px{width:20px;height:20px}
+body.handheld .tab-tx{font-size:6px;white-space:nowrap}
+body.handheld #tab-animals{display:none}
+body.handheld #tab-animals.visible{display:flex}
+body.handheld #inv-badge,body.handheld #menu-badge{position:absolute;top:2px;right:4px}
+.tab-alert-dot{width:7px;height:7px;background:#e04040;border:1px solid #600}
+body.handheld #install-banner{bottom:62px}
+body.handheld #item-popup{z-index:60}
+/* landscape: same handheld column next to the sidebar */
+/* PC: popups centre over the game column, not the whole window */
+body.pc-mode #skill-overlay,body.pc-mode #ach-overlay,body.pc-mode #vil-dialogue-overlay,body.pc-mode #gift-chooser-overlay,body.pc-mode #ship-qty-overlay,body.pc-mode #season-overlay,body.pc-mode #summary,body.pc-mode #tut-letter,body.pc-mode #settings-overlay,body.pc-mode #dev-overlay,body.pc-mode #feat-overlay,body.pc-mode .screen-overlay{left:220px!important}
+body.handheld.pc-mode #pc-right{padding:0;overflow:hidden}
+body.handheld.pc-mode #gw{height:100vh}
+body.handheld.pc-mode #scene{height:clamp(190px,40%,320px)}
+body.handheld.pc-mode #plot{grid-template-columns:repeat(3,1fr)}
+body.handheld.pc-mode .tile{height:auto}
+body.handheld.pc-mode #field-panel,body.handheld.pc-mode #info-bar,body.handheld.pc-mode #tabs{padding-left:7px;padding-right:7px}
+/* bigger text for the handheld layout */
+body.handheld .gift-slot .gs-name,
+body.handheld .gift-slot .gs-fav{font-size:6px}
+body.handheld #craft-toggle,
+body.handheld .craft-name,
+body.handheld .craft-desc,
+body.handheld .craft-cost,
+body.handheld .craft-btn,
+body.handheld .craft-built,
+body.handheld .qb-count,
+body.handheld .qb-kind,
+body.handheld .qb-when,
+body.handheld .qb-line,
+body.handheld .qb-want,
+body.handheld .qb-reward,
+body.handheld .qb-btn,
+body.handheld .sb-count,
+body.handheld #dev-bar span,
+body.handheld .spd-btn,
+body.handheld .save-btn,
+body.handheld .animal-feed-all-btn,
+body.handheld .animal-status,
+body.handheld .animal-btn,
+body.handheld .water-btn,
+body.handheld #water-can-label,
+body.handheld .t-lbl,
+body.handheld .panel-label,
+body.handheld .sc-stat,
+body.handheld .sc-sub,
+body.handheld .sc-unlock,
+body.handheld .shc-name,
+body.handheld .shc-desc,
+body.handheld .shop-btn,
+body.handheld .inv-slot .is-qty,
+body.handheld .inv-slot .is-name,
+body.handheld #ship-all-btn,
+body.handheld #unship-all-btn,
+body.handheld .item-popup-btn,
+body.handheld .popup-energy,
+body.handheld #inv-ship-label,
+body.handheld .ship-row-left,
+body.handheld .ship-row-gold,
+body.handheld .unship-btn,
+body.handheld #inv-ship-total,
+body.handheld .act-energy-cost,
+body.handheld .act-desc,
+body.handheld .act-result,
+body.handheld .tree-hp-label,
+body.handheld #fish-instructions,
+body.handheld #fish-status,
+body.handheld #dig-header,
+body.handheld #dig-legend,
+body.handheld #dig-hint,
+body.handheld .skill-label,
+body.handheld #skill-xp-label,
+body.handheld #skill-xp-numbers,
+body.handheld .slr-perk,
+body.handheld .slr-xp,
+body.handheld .th-room-badge,
+body.handheld .th-req-left,
+body.handheld .th-req-progress,
+body.handheld .th-donate-btn,
+body.handheld .th-room-desc,
+body.handheld .th-room-complete-msg,
+body.handheld .th-reward-name,
+body.handheld .th-reward-desc,
+body.handheld .th-reward-btn,
+body.handheld #ach-progress-label,
+body.handheld .ach-name,
+body.handheld .ach-desc,
+body.handheld #ach-pop-name,
+body.handheld #ach-pop-label,
+body.handheld .th-overall-label,
+body.handheld .vil-role,
+body.handheld .vil-dialogue,
+body.handheld .vil-gift-label,
+body.handheld .vil-gift-btn,
+body.handheld .vil-gift-used,
+body.handheld .vil-shop-label,
+body.handheld .vil-item-name,
+body.handheld .vil-item-desc,
+body.handheld .vil-item-lock,
+body.handheld .vil-buy-btn,
+body.handheld .vil-fav,
+body.handheld #vil-dialogue-role,
+body.handheld #vil-dialogue-gift-preview,
+body.handheld #vil-dialogue-skip,
+body.handheld .gift-slot .gs-qty,
+body.handheld #gift-chooser-cancel,
+body.handheld #ship-qty-max,
+body.handheld #ship-qty-cancel,
+body.handheld .mine-floor-sub,
+body.handheld .mine-checkpoint,
+body.handheld .mine-rock-hp,
+body.handheld .mine-ladder-sub,
+body.handheld .mine-exit-btn,
+body.handheld .mine-status,
+body.handheld .mine-pickaxe-status,
+body.handheld .mine-cons-btn,
+body.handheld .mine-result,
+body.handheld .mine-locked-msg,
+body.handheld .mine-floor-sel-btn,
+body.handheld #footer span,
+body.handheld #sum-day,
+body.handheld .sl-sub,
+body.handheld #sum-bonus,
+body.handheld .fb-label,
+body.handheld .fb-desc,
+body.handheld .fb-input,
+body.handheld .fb-select,
+body.handheld .fb-state-box,
+body.handheld .fb-note,
+body.handheld #save-toast-sub,
+body.handheld #install-banner-sub,
+body.handheld #install-banner-btn,
+body.handheld .settings-desc,
+body.handheld .sett-btn,
+body.handheld .settings-info,
+body.handheld #import-area,
+body.handheld #import-feedback,
+body.handheld .sic-label,
+body.handheld .dev-badge,
+body.handheld .dev-chip-label,
+body.handheld .dev-toggle-label,
+body.handheld .dev-toggle-sub,
+body.handheld .dev-sp-btn,
+body.handheld .dev-skip-btn,
+body.handheld .dev-skip-result,
+body.handheld .dev-gold-btn,
+body.handheld .dev-energy-btn{font-size:7px}
+
+body.handheld #sheet [style*="font-size:3px"],body.handheld .screen-overlay [style*="font-size:3px"],body.handheld #item-popup [style*="font-size:3px"],body.handheld #summary [style*="font-size:3px"],body.handheld #vil-dialogue-overlay [style*="font-size:3px"],body.handheld #gift-chooser-overlay [style*="font-size:3px"],body.handheld #ship-qty-overlay [style*="font-size:3px"],body.handheld #skill-overlay [style*="font-size:3px"],body.handheld #ach-overlay [style*="font-size:3px"]{font-size:6px!important}
+body.handheld #sheet [style*="font-size:4px"],body.handheld .screen-overlay [style*="font-size:4px"],body.handheld #item-popup [style*="font-size:4px"],body.handheld #summary [style*="font-size:4px"],body.handheld #vil-dialogue-overlay [style*="font-size:4px"],body.handheld #gift-chooser-overlay [style*="font-size:4px"],body.handheld #ship-qty-overlay [style*="font-size:4px"],body.handheld #skill-overlay [style*="font-size:4px"],body.handheld #ach-overlay [style*="font-size:4px"]{font-size:6px!important}
+body.handheld #sheet [style*="font-size:5px"],body.handheld .screen-overlay [style*="font-size:5px"],body.handheld #item-popup [style*="font-size:5px"],body.handheld #summary [style*="font-size:5px"],body.handheld #vil-dialogue-overlay [style*="font-size:5px"],body.handheld #gift-chooser-overlay [style*="font-size:5px"],body.handheld #ship-qty-overlay [style*="font-size:5px"],body.handheld #skill-overlay [style*="font-size:5px"],body.handheld #ach-overlay [style*="font-size:5px"]{font-size:7px!important}
+body.handheld #sheet [style*="font-size:6px"],body.handheld .screen-overlay [style*="font-size:6px"],body.handheld #item-popup [style*="font-size:6px"],body.handheld #summary [style*="font-size:6px"],body.handheld #vil-dialogue-overlay [style*="font-size:6px"],body.handheld #gift-chooser-overlay [style*="font-size:6px"],body.handheld #ship-qty-overlay [style*="font-size:6px"],body.handheld #skill-overlay [style*="font-size:6px"],body.handheld #ach-overlay [style*="font-size:6px"]{font-size:7px!important}
 </style>
 </head>
 <body>
@@ -1085,11 +1534,11 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
   <div id="pc-right">
 <div id="gw">
   <div id="hud">
-    <span id="hud-title">⚑ FERNHOLLOW FARM</span>
+    <span id="hud-title">🌾 FERNHOLLOW</span>
     <div id="hud-right">
-      <div class="hstat"><div class="pip b"></div>DAY <span id="dn">1</span></div>
-      <div class="hstat"><div class="pip p"></div><span id="en">10</span></div>
-      <div class="hstat"><div class="pip g"></div><span id="cn">30</span>g</div>
+      <div class="hstat">📅 <span id="dn">1</span></div>
+      <div class="hstat" title="Energy">⚡<div class="stam-bar"><div id="stam-fill" style="width:100%"></div></div><span id="en">10</span></div>
+      <div class="hstat">🪙 <span id="cn">30</span></div>
       <button id="ach-hud-btn" onclick="openAchievements()" style="background:none;border:2px solid #5a3e1b;color:#c8a96e;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1;position:relative">⭐<span id="ach-badge"></span></button>
       <button onclick="openSettings()" style="background:none;border:2px solid #5a3e1b;color:#c8a96e;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1">⚙</button>
       <button id="dev-hud-btn" onclick="openDev()" style="display:none;background:#1a0808;border:2px solid #6a2010;color:#f09060;font-family:'Press Start 2P',monospace;font-size:7px;padding:2px 5px;cursor:pointer;line-height:1">🛠</button>
@@ -1151,6 +1600,9 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
 
   <div id="scene">
     <div id="sky"></div><div id="stars"></div>
+    <div id="scene-hills" class="scene-layer"></div>
+    <div id="scene-treeline" class="scene-layer"></div>
+    <div id="scene-ambient"></div>
     <img id="sun" class="pxs" data-px="sun_big" alt="">
     <img id="moon" class="pxs" data-px="moon_big" alt="">
     <img class="cloud pxs" id="cl1" data-px="cloud" alt="" style="top:10px;left:5%">
@@ -1161,10 +1613,20 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     <img class="tree pxs" id="tree-t1" data-px="tree" alt="" style="left:1%">
     <img class="tree pxs" id="tree-t2" data-px="tree" alt="" style="right:1%">
     <div class="house" onclick="clickHouse()" style="cursor:pointer" title="Tap to sleep">
+      <div id="chimney-smoke"><i></i><i></i><i></i></div>
       <img id="house-img" class="pxs" data-px="farmhouse" alt="Farmhouse">
       <div class="bld-label" id="house-sleep-label" style="color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000">💤 SLEEP</div>
     </div>
+    <div id="decor-fence" class="decor-fence" style="display:none"></div>
+    <img id="decor-path" class="pxs decor" alt="" style="display:none;left:50%;bottom:16px;transform:translateX(-50%)">
+    <img id="decor-flowers" class="pxs decor" alt="" style="display:none;left:38%;bottom:20px">
+    <img id="decor-beehouse" class="pxs decor" alt="" style="display:none;left:1%;bottom:18px">
+    <img id="decor-chest" class="pxs decor" alt="" style="display:none;left:61%;bottom:43px">
+    <img id="decor-lamp-l" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% - 50px);bottom:43px">
+    <img id="decor-lamp-r" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% + 40px);bottom:43px">
     <div id="scene-crops"></div>
+    <img id="decor-scarecrow" class="pxs decor" alt="" style="display:none;left:92%;bottom:6px;z-index:2">
+    <img id="decor-crow" class="pxs decor decor-crow" alt="" style="display:none;bottom:14px;z-index:2">
     <!-- COOP (left of house) -->
     <div id="scene-coop">
       <div id="scene-coop-building" style="display:none">
@@ -1187,10 +1649,13 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
         <div class="bld-label" style="color:#ff7060">BARN</div>
       </div>
     </div>
+    <div id="weather-fx"></div>
+    <div id="weather-flash"></div>
     <div id="ship-box" onclick="showTab('inv')">
       <img class="pxs" data-px="crate" alt="Shipping crate">
       <div class="sb-count" id="ship-count"></div>
     </div>
+    <div id="scene-animals"></div>
     <img id="farmer" class="pxs" data-px="farmer" alt="Farmer" style="left:19%">
   </div>
   <div id="dev-bar">
@@ -1210,11 +1675,12 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
   </div>
   <div id="info-bar">WELCOME BACK! SELECT A SEED AND TAP A PLOT TO PLANT.</div>
   <div id="tabs">
-    <button class="tab on" onclick="showTab('seeds')">🌱 SEEDS</button>
-    <button class="tab"    onclick="showTab('inv')">🎒 BAG <span id="inv-badge"></span></button>
-    <button class="tab"    id="tab-do" onclick="showTab('act')">🌲 VALLEY</button>
-    <button class="tab"    id="tab-animals" onclick="showTab('animals')">🐾 ANIMALS</button>
-    <button class="tab"    onclick="showTab('th')">🏛 TOWN</button>
+    <button class="tab" onclick="tapTab('seeds')"><span class="tab-ic">🌱</span><span class="tab-tx">SEEDS</span></button>
+    <button class="tab" onclick="tapTab('inv')"><span class="tab-ic">🎒</span><span class="tab-tx">BAG</span><span id="inv-badge"></span></button>
+    <button class="tab" id="tab-do" onclick="tapTab('act')"><span class="tab-ic">🌲</span><span class="tab-tx">VALLEY</span></button>
+    <button class="tab" id="tab-animals" onclick="tapTab('animals')"><span class="tab-ic">🐾</span><span class="tab-tx">ANIMALS</span></button>
+    <button class="tab" onclick="tapTab('th')"><span class="tab-ic">🏛</span><span class="tab-tx">TOWN</span></button>
+    <button class="tab" onclick="tapTab('menu')"><span class="tab-ic">⚙</span><span class="tab-tx">MENU</span><span id="menu-badge"></span></button>
   </div>
   <div id="seed-panel" class="on">
     <div class="panel-label">▸ SEEDS</div>
@@ -1232,6 +1698,10 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     <div class="panel-label" id="inv-panel-label">▸ INVENTORY — TAP ITEM TO EAT OR SHIP</div>
     <div id="inv-grid"></div>
     <button id="ship-all-btn" onclick="shipAll()">📦 SHIP ALL UNLOCKED ITEMS</button>
+    <div id="craft-area">
+      <button id="craft-toggle" onclick="toggleCrafting()">🔨 CRAFTING ▾</button>
+      <div id="craft-list"></div>
+    </div>
     <div id="inv-ship-area">
       <div id="inv-ship-label">📦 SHIPPING BOX — SELLS TONIGHT</div>
       <div id="inv-ship-list"></div>
@@ -1240,6 +1710,7 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     </div>
   </div>
   <div id="th-panel">
+    <div id="quest-board"></div>
     <div id="th-header">
       <div id="th-building-art">🏛</div>
       <div id="th-title">FERNHOLLOW VILLAGE HALL</div>
@@ -1277,37 +1748,20 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     <div class="act-section">
       <div class="act-header">
         <span class="act-title">🌿 FORAGE</span>
-        <span class="act-energy-cost">COSTS 2 ENERGY</span>
+        <span class="act-energy-cost">1 ENERGY/DIG</span>
       </div>
-      <div class="act-desc">Challenge the forest spirit to Rock Paper Scissors. Win more rounds = rarer finds!</div>
-      <button class="act-btn forage" id="forage-btn" onclick="startForageMini()">🌿 CHALLENGE THE SPIRIT</button>
+      <div class="act-desc">The Forest Spirit buries treasures in the forest floor. Dig for them: colours tell you how close the nearest find is. ✨ means something rare is nearby!</div>
+      <button class="act-btn forage" id="forage-btn" onclick="startForageMini()">🌿 DIG FOR FINDS</button>
       <div id="forage-minigame">
-        <div id="rps-arena">
-          <div id="rps-header">
-            <span id="rps-round-label">ROUND 1 OF 3</span>
-            <span id="rps-score">0 — 0</span>
-          </div>
-          <div id="rps-spirits">
-            <div class="rps-side">
-              <div class="rps-label">YOU</div>
-              <div class="rps-sprite" id="rps-player-sprite">❓</div>
-            </div>
-            <div id="rps-vs">VS</div>
-            <div class="rps-side">
-              <div class="rps-label">SPIRIT</div>
-              <div class="rps-sprite" id="rps-spirit-sprite">🌲</div>
-            </div>
-          </div>
-          <div id="rps-pip-row"></div>
-          <div id="rps-taunt"></div>
-          <div id="rps-round-msg"></div>
-          <div id="rps-choices">
-            <button class="rps-btn" id="rps-r" onclick="rpsPlay('rock')" title="Rock">🪨</button>
-            <button class="rps-btn" id="rps-p" onclick="rpsPlay('paper')" title="Paper">📄</button>
-            <button class="rps-btn" id="rps-s" onclick="rpsPlay('scissors')" title="Scissors">✂️</button>
-          </div>
-          <div id="rps-prize-preview"></div>
+        <div id="dig-header"><span id="dig-left">5 DIGS LEFT</span><span id="dig-found">FOUND 0/5</span></div>
+        <div id="dig-grid"></div>
+        <div id="dig-legend">
+          <span><i style="background:#e04030"></i>HOT 1</span><span><i style="background:#f09030"></i>2</span>
+          <span><i style="background:#e8c040"></i>3</span><span><i style="background:#60a8d8"></i>4</span>
+          <span><i style="background:#2a5cb0"></i>COLD 5+</span><span>✨ RARE NEAR</span>
         </div>
+        <div id="dig-hint"></div>
+        <button class="act-btn" id="dig-stop-btn" onclick="stopDig()" style="margin-top:6px">✓ STOP DIGGING</button>
       </div>
       <div class="act-result" id="forage-result"></div>
     </div>
@@ -1439,8 +1893,8 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
         </div>
         <div class="dev-toggle-row">
           <div class="dev-toggle-info">
-            <div class="dev-toggle-label">ALWAYS FORAGE RARE</div>
-            <div class="dev-toggle-sub">Foraging always finds the rarest item</div>
+            <div class="dev-toggle-label">SHOW RARE FIND</div>
+            <div class="dev-toggle-sub">Outlines where the rare forage find is buried</div>
           </div>
           <label class="toggle-switch"><input type="checkbox" id="dev-rare-forage" onchange="devToggle('rareForage',this.checked)"><span class="toggle-slider"></span></label>
         </div>
@@ -1818,6 +2272,10 @@ const PX_PAL={
   b:'#60b0f0', B:'#2a5cb0', c:'#b8ecff',
   v:'#a060d8', V:'#5c2c88',
   n:'#b07838', N:'#603814', t:'#f0c890', T:'#c08850', s:'#fff0c8', m:'#7a5028',
+  // texture colours (tilled soil, grass, wood planks)
+  a:'#8e5c32', A:'#6c4224', d:'#4e301a', D:'#331f10', f:'#62a83c', F:'#437f2c', h:'#86c656',
+  x:'#c4643c', X:'#8c3c24', // farmhouse roof shingles
+  i:'#3b2716', I:'#2f1f11', j:'#46301b', J:'#25170b', q:'#82502a', Q:'#5f391b', u:'#98623a', U:'#4a2c14',
 };
 const PX_SPRITES={
   // ── UI ──
@@ -1850,6 +2308,9 @@ const PX_SPRITES={
   tent:{r:['....krr...','....k.....','...kwk....','..kwrwk...','.kwrwrwk..','kwrwrwrwk.','kkkkkkkkk.','kwrkkkwrk.','kwrkNkwrk.','kkkkkkkkk.']},
   moon:{r:['...kkkk...','..kyyyk...','.kyyk.....','kyyk......','kyyk......','kyyk......','.kyyk.....','..kyyyk...','...kkkk...']},
   sun:{r:['....yy....','.y.kkkk.y.','..kyyyyk..','.kyywyyyk.','ykyyyyyyky','ykyyyyyyky','.kyyyyyYk.','..kyyyYk..','.y.kkkk.y.','....yy....']},
+  raincloud:{r:['...kkkk...','.kkWWWWkk.','kWWwwWWWWk','kWwWWWWWgk','kgWWWWWggk','.kkkkkkkk.','.b..b..b..','b..b..b...','..b..b..b.']},
+  stormcloud:{r:['...kkkk...','.kkggggkk.','kggWggggGk','kgWggggGGk','kGggggGGGk','.kkkkykkk.','....ky....','...kyk....','...yk.....']},
+  windleaf:{r:['.......kkk','.....kkllk','...kklleek','..kleeeek.','.kleeeEk..','kleeeEk...','keeEkk....','kEkk......','kk........']},
   snow:{r:['....c....','.c..c..c.','..c.c.c..','...ccc...','ccccwcccc','...ccc...','..c.c.c..','.c..c..c.','....c....']},
   zzz:{r:['......cccc','.......cc.','......cc..','cccc.cccc.','..cc......','.cc.......','cccc......']},
   fire:{r:['....k.....','...kok....','...koyk...','..koyyok..','.koyyyok.k','.koyyyyokk','kooyyyyook','kooyywyook','.koyyyyok.','..kkkkkk..']},
@@ -1977,30 +2438,88 @@ const PX_SPRITES={
   wine:{r:['.kkkkkk.','kwwwwwwk','kRRRRRRk','kRrrrRRk','.kRRRRk.','..kWWk..','...kk...','...kk...','.kkkkkk.']},
   jar:{r:['.kkkkkk.','.kGGGGk.','kkkkkkkk','kcwcccck','kwccccck','kcccccbk','kccccbbk','.kkkkkk.']},
 
+  // ── villager portraits (20×20, generated from layered parts) ──
+  pt_wren:{r:['....................','.......kkkkkk.......','......kbbcbbbk......','.....kbbcbbbbbk.....','...kkbbbbbbbbbbkk...','..kBBBBBBBBBBBBBBk..','...kkkOOOOOOOOkkk...','....kOttttttttOk....','....kOttOttOtTOk....','....kOttkttktTOk....','....kOtTttttTTOk....','....kOttTttTtTOk....','....kOtttRRttTOk....','....kOOttttttOOk....','....kOOkttTTkOOk....','....kOOkkTTkkOOk....','....keeewwwweeek....','...keeeeewweeeeEk...','..keeeeeeeeeeeeeEk..','..keeeeeeeeeeeeeEk..']},
+  pt_hob:{r:['....kwwwwwwwwwwk....','....kwwwwwwwwWwk....','....kwwwwwwwwwwk....','.....kwWwwwwwWk.....','.....kwwwwwwwwk.....','.....kWWWWWWWWk.....','......kttttttk......','.....kttttttttk.....','.....kttWttWtTk.....','.....kttkttktTk.....','.....ktttttttTk.....','.....ktpWWWWpTk.....','.....ktWtRRtWTk.....','......kttttttk......','.......kttTTk.......','.....kkkkTTkkkk.....','....kwwwwgwwwwwk....','...kwwwwwwgwwwwWk...','..kwwwwwwgwwwwwwWk..','..kwwwwwwwwwwwwwWk..']},
+  pt_sal:{r:['....................','....................','.......kkkkkk.......','.....kkvvvvvvkk.....','....kvvvyvvyvvvk....','....kvvvvvvvvvvk....','....kvVVVVVVVVvk....','....kvnnnnnnnnvvk...','....kvnnNnnNnNvkVk..','....kvnnknnknNvkk...','....kvnnnnnnnNvk....','...kyvnnnnnRnNvyk...','....kvnnnRRRnNvk....','.....kknnnnnnkk.....','.......knnNNk.......','.....kkkkNNkkkk.....','....kvvvyyyyvvvk....','...kvvvvvyyvvvvVk...','..kvvvvvvvvvvvvvVk..','..kvvvvvvvvvvvvvVk..']},
+  pt_bess:{r:['....................','.......kkkkkk.......','......kYYYYYYk......','.....kYYYYYYYYk.....','..kkkkrrrrrrrrkkkk..','.kYyyyyyyyyyyyyyyYk.','..kkkkyyyyyyyykkkk..','....kkyttttttykk....','...kyyttYttYtTyyk...','...kyyttkttktTyyk...','...kYytttttttTyYk...','...kyytpTttTpTyyk...','...kyytttRRttTyyk...','...kYykttttttkyYk...','...kyykkttTTkkyyk...','...kyykkkTTkkkyyk...','...kyybrrrrrrbyyk...','...krbbbbrrbbbbrk...','..kbbbbbbbbbbbbbBk..','..kbbbbbbbbbbbbbBk..']},
+  pt_ford:{r:['........kwwk........','......kkrrrrkk......','.....krrrrrrrrk.....','.....krrRrrRrrk.....','.....krrrrrrrrk.....','....kRRRRRRRRRRk....','.....kkttttttkk.....','.....kttttttttk.....','.....kttNttNtTk.....','.....kttkttktTk.....','.....ktttttttTk.....','.....kNNNNNNNNk.....','.....kNNNnnNNNk.....','.....kNNnNNNNNk.....','.....kNNNNNnNNk.....','.....kNNNNNNNNk.....','....kRrNNNNNNrRk....','...kRrrRNNNNrRrRk...','..kRrrRrrRrrRrrRRk..','..krrRrrRrrRrrRrRk..']},
+  pt_mayor:{r:['......kGGGGGGk......','......kGgGGGGk......','......kGGGGGGk......','......krrrrrrk......','....kkkGGGGGGkkk....','...kGGGGGGGGGGGGk...','....kkWWWWWWWWkk....','....kWttttttttWk....','....kWttWttytTWk....','....kWttktykyTWk....','....kWtttttytyWk....','....kWtWWWWWWyWk....','....kWtttRRttTWk....','.....kkttttttkk.....','.......kttTTk.......','.....kkkkTTkkkk.....','....kBBBwwwwBBBk....','...kBBBBBrrBBBBBk...','..kBBBBBBrBBBBBBBk..','..kBBBBBBBrBBBBBBk..']},
+  pt_bram:{r:['.........kk.........','.......kkcckk.......','.....kkyywwyykk.....','....kyyyywwyyyyk....','....kyYyywwyyYyk....','....kyyyyyyyyyyk....','...kYYYYYYYYYYYYk...','....kkTTTTTTGTkk....','.....kTTgTTgTnk.....','.....kTTkTTkTnk.....','.....kTGTTTTTnk.....','.....kggggggggk.....','.....kgWgRRgggk.....','.....kggggggWgk.....','.....kggggggggk.....','.....kkggggggkk.....','....kONggggggNOk....','...kOONOWWWWONOOk...','..kOOONOOOOOONOOOk..','..kOOONOOOOOONOOOk..']},
+  cake:{r:['...r..r...','...y..y...','..kkkkkk..','.kppppppk.','.kwwwwwwk.','kppppppppk','knnnnnnnnk','kwwrwwrwwk','knnnnnnnnk','.kkkkkkkk.']},
+  scarecrow:{r:['....kkkk....','...kYyyYk...','.kkkkkkkkkk.','...kttttk...','...ktkktk...','...kttttk...','...kkRRkk...','kkkkrrrrkkkk','yNnnrrrrnnNy','kkkkrrrrkkkk','...krrrrk...','...kRRRRk...','....knnk....','....knnk....','....knnk....','....knnk....','...kknnkk...']},
+  fence:{r:['.kk.....','knnk....','knnkkkkk','knnnnnnn','knnkkkkk','knnk....','knnkkkkk','knnnnnnn','knnkkkkk','kNNk....']},
+  path:{r:['..kkkkk...','.kgWWggk..','.kggggGk..','..kkkkk...','....kkkkk.','...kgWggk.','...kgggGk.','....kkkk..','.kkkkk....','kgWWggk...','kgggGGk...','.kkkkk....']},
+  flowerbed:{r:['..p...y...p...y.','.pyp.yoy.pyp.yoy','..e...e...e...e.','.kekkkekkkekkkek','knnnnnnnnnnnnnnk','kmmmmmmmmmmmmmmk','.kkkkkkkkkkkkkk.']},
+  lamp:{r:['.kkkk.','kyyyyk','kywyyk','kyyyyk','kkkkkk','..kk..','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','kkkkkk']},
+  beehouse:{r:['....kk....','..kkRRkk..','.kRrrrrRk.','kkkkkkkkkk','.knnnnnnk.','.knkkkknk.','.knkyyknk.','.knkkkknk.','.knnnnnnk.','.knnnnnnk.','.kkkkkkkk.','..kk..kk..']},
+  chest:{r:['.kkkkkkkkkk.','knnnnnnnnnnk','kNNNNNNNNNNk','kkkkkyykkkkk','knnnnyynnnnk','knnnnnnnnnnk','knnnnnnnnnnk','kNNNNNNNNNNk','kkkkkkkkkkkk']},
+  crow:{r:['......kk..','.....kGGk.','....kGkGoo','kk.kGGGGk.','kGkGGGGGk.','.kGGGGGk..','..kkGGk...','...o.o....']},
+  // ── tiling textures (flat: no auto-shading) ──
+  tx_soil:{flat:true,r:['aaaaaaaaaaaaaaaa','aaaTaaaaaaaaTaaa','aaaaaaaaaaaaaaaa','AAAAAAAAAAAAAAAA','NAAAANAAAAANAAAA','aaaaaaaaaaaaaaaa','aTaaaaaaaTaaaaaa','AAAAAAAAAAAAAAAA']},
+  tx_soil_wet:{flat:true,r:['dddddddddddddddd','dddAdddddddddAdd','dddddddddddddddd','DDDDDDDDDDDDDDDD','JDDDDJDDDDDJDDDD','dddddddddddddddd','dAddddddddAddddd','DDDDDDDDDDDDDDDD']},
+  tx_grass:{flat:true,r:['ffffffffffffffff','ffhfffffffffFfff','fFhFffffffffffff','ffffffffffhfffff','fffffffffhFhffff','ffffFfffffffffff','ffffffffffffffhf','fffhffffffffffFf']},
+  tx_wood:{flat:true,r:['jjjjjjjjjjJjjjjj','iiiiiiiIiiJiiiii','iiiiiiiiiiJiiIii','iiIiiiiiiiJiiiii','JJJJJJJJJJJJJJJJ','jjjJjjjjjjjjjjjj','iiiJiIiiiiiiiiii','iiiJiiiiiiIiiiii']},
+  tx_plank:{flat:true,r:['uuuuuuuuuuuQuuuu','qqqqqqqqqqqQqqqq','qqqqqUqqqqqQqqqq','qqqqqqqqqqqQqqqq','QQQQQQQQQQQQQQQQ','uuuuQuuuuuuuuuuu','qqqqQqqqqqqqUqqq','qqqqQqqqqqqqqqqq']},
+  hills:{flat:true,r:[
+    '..............................................ffff..............',
+    '..........hhhh.............................fffffffff............',
+    '.......hhhffffhh.........................fffFfffffffff..........',
+    '.....hhffffffffffh....................fffffffffffFfffff.........',
+    '...hhffffFfffffffffh...............ffffffFffffffffffffff........',
+    '..hffffffffffffFfffffh..........fffffffffffffffffffFffffff......',
+    '.hffffFffffffffffffffffhh....ffffFffffffffffffffffffffffffff....',
+    'hffffffffffffffffFffffffffffffffffffffffFfffffffffffffffffffffhh',
+    'ffffffffFffffffffffffffffffffffffFfffffffffffffffFffffffffffffff',
+    'ffffffffffffffffffffffffFfffffffffffffffffffffffffffffffffFfffff']},
+  hills_fall:{base:'hills',map:{f:'O',F:'N',h:'o'}},
+  hills_winter:{base:'hills',map:{f:'W',F:'g',h:'w'}},
+  hills_spring:{base:'hills',map:{h:'l'}},
+  treeline:{flat:true,r:[
+    '...E.......E....',
+    '..EEE.....EEE...',
+    '..EEE....EEEEE..',
+    '.EEEEE...EEEEE..',
+    '.EEEEE..EEEEEEE.',
+    'EEEEEEE.EEEEEEE.',
+    'EEEEEEEEEEEEEEEE',
+    'EEEEEEEEEEEEEEEE']},
+  treeline_fall:{base:'treeline',map:{E:'N'}},
+  treeline_winter:{base:'treeline',map:{E:'G'}},
+  bird:{flat:true,r:['k...k','.k.k.','..k..']},
   // ── farm scene (drawn at 2× in the scene) ──
   farmhouse:{r:[
-    '...........kk...kkk.....',
-    '..........krrk..kGk.....',
-    '.........krrrrk.kGk.....',
-    '........krrrrrrkkGk.....',
-    '.......krrrrrrrrkGk.....',
-    '......krrrrrrrrrrkk.....',
-    '.....krrrrrrrrrrrrk.....',
-    '....krrrrrrrrrrrrrrk....',
-    '...krrrrrrrrrrrrrrrrk...',
-    '..kRRRRRRRRRRRRRRRRRRk..',
-    '.kkkkkkkkkkkkkkkkkkkkkk.',
-    '...kttttttttttttttttk...',
-    '...ktkkkktkkkktkkkktk...',
-    '...ktkbbktkNNktkbbktk...',
-    '...ktkcbktkNNktkcbktk...',
-    '...ktkkkktkNNktkkkktk...',
-    '...kttttttkNykttttttk...',
-    '...kTTTTTTkNNkTTTTTTk...',
-    '...kkkkkkkkkkkkkkkkkk...']},
+    '....................kGGGGGk.....',
+    '..............kkkk...kgggk......',
+    '.............kxxxxk..kgGgk......',
+    '............kXxXxXxk.kgggk......',
+    '...........kxxxxxxxxkkgggk......',
+    '..........kxxxNNNNxxxkgGgk......',
+    '.........kXxXxNcbNXxXxgggk......',
+    '........kxxxxxNbbNxxxxxggk......',
+    '.......kxxxxxxNbbNxxxxxxgk......',
+    '......kXxXxXxXNNNNxXxXxXxk......',
+    '.....kxxxxxxxxxxxxxxxxxxxxk.....',
+    'kkkkkxxxxxxxxxxxxxxxxxxxxxxkkkkk',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN',
+    'kkkkNNNNNNNNNNNNNNNNNNNNNNNNkkkk',
+    '...kNsNNNNNssssNNsskkNNNNNsNk...',
+    '...kNsNcNbNssNNNNNNysNcNbNsNk...',
+    '...kNsNbNbNssNnnnnNksNbNbNsNk...',
+    '...kNsNNNNNssNnmmnNssNNNNNsNk...',
+    '...knnreyepnnNnnnnNnnreyepnnk...',
+    '...kNsnnnnnssNnmmyNssnnnnnsNk...',
+    'kkkkNsNNNNNssNnnnnNssNNNNNsNkkkk',
+    'elekNssssssssNnmmnNssssssTsNkele',
+    'leeeNsTssssssNnnnnNssssssssNelee',
+    'epEeNssssssssNnnnnNssssssssNeepE',
+    'eeeeWggWggWggWWWWWWWggWggWggeeee',
+    'eeeggGggGggGgWWWWWWgGggGggGggeee',
+    'kkkkkkkkkkkkkggggggkkkkkkkkkkkkk']},
   farmhouse_night:{base:'farmhouse',map:{b:'y',c:'s'}},
-  farmhouse_snow:{base:'farmhouse',map:{r:'w',R:'W'}},
-  farmhouse_snow_night:{base:'farmhouse',map:{r:'w',R:'W',b:'y',c:'s'}},
+  farmhouse_snow:{base:'farmhouse',map:{x:'w',X:'W'}},
+  farmhouse_snow_night:{base:'farmhouse',map:{x:'w',X:'W',b:'y',c:'s'}},
   coop:{r:[
     '........kk........',
     '.......kYYk.......',
@@ -2145,7 +2664,7 @@ const PX_EMOJI={
   '🪙':'coin','⭐':'star','⚡':'bolt','❤':'heart','💗':'heart_pink','💕':'heart_pink','💝':'heart_pink','💜':'heart_purple','♡':'heart_empty',
   '💧':'drop','💦':'drops','🫧':'amber','❓':'question','⚠':'warn','⬆':'up','⬇':'down','⏩':'ff','⚙':'gear','🔒':'lock','🔓':'unlock',
   '🎁':'gift','🥇':'medal_gold','🥈':'medal_silver','📦':'box','🏛':'townhall','🏠':'house','🏚':'house_old','🏮':'lantern','🎪':'tent',
-  '🌙':'moon','☀':'sun','❄':'snow','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
+  '🌙':'moon','☀':'sun','❄':'snow','🎂':'cake','🐦':'crow','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
   '💡':'bulb','📱':'phone','📲':'phone','🖥':'monitor','🎮':'gamepad','💬':'speech','📊':'chart','📅':'calendar','💾':'floppy','📧':'mail','🕐':'clock',
   '📄':'paper','📜':'scroll','💨':'puff','😄':'face_happy','😐':'face_meh','🤔':'face_think','😈':'face_devil','🧑':'person','👥':'person','👋':'hand','✊':'hand',
   '🤖':'robot','💰':'moneybag','🛒':'cart','👜':'bag','🎒':'bag','💼':'briefcase','🚧':'barrier','💥':'blast','💪':'arm','✂':'scissors','🚪':'door','🎩':'tophat','🐛':'bug',
@@ -2188,8 +2707,40 @@ function pxURL(name,square=true){
   const ox=Math.floor((cw-w)/2), oy=Math.floor((ch-h)/2);
   const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
   const ctx=cv.getContext('2d');
-  rows.forEach((row,y)=>{for(let x=0;x<w;x++){const col=PX_PAL[row[x]];if(col){ctx.fillStyle=col;ctx.fillRect(ox+x,oy+y,1,1);}}});
+  const px=PX_SPRITES[name]&&PX_SPRITES[name].flat?rows.map(r=>[...r].map(ch=>PX_PAL[ch]||null)):pxShade(rows);
+  px.forEach((row,y)=>row.forEach((col,x)=>{if(col){ctx.fillStyle=col;ctx.fillRect(ox+x,oy+y,1,1);}}));
   return PX_CACHE[key]=cv.toDataURL();
+}
+
+// ── Auto-shading: gives every flat sprite depth without redrawing it ──
+// • outline pixels on the silhouette take a dark, warm shade of the colour they wrap ("sel-out")
+// • fill pixels lit from the top-left get a warm highlight; bottom-right edges get a cool shadow
+// Interior 'k' details (eyes, seams) stay dark.
+const PX_SHADE={outline:'#2a160c',light:'#fff3c4',dark:'#2c2048',hi:0.22,lo:0.2,sel:0.55};
+function pxHex(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function pxMix(a,b,t){const A=pxHex(a),B=pxHex(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');}
+function pxShade(rows){
+  const h=rows.length,w=rows[0].length;
+  const col=(x,y)=>(x<0||y<0||x>=w||y>=h)?null:(PX_PAL[rows[y][x]]||null);
+  const isK=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&rows[y][x]==='k';
+  const empty=(x,y)=>col(x,y)===null;
+  // outline = 'k' pixel touching transparency (or the canvas edge)
+  const outl=rows.map((r,y)=>[...r].map((ch,x)=>ch==='k'&&(empty(x-1,y)||empty(x+1,y)||empty(x,y-1)||empty(x,y+1))));
+  const edge=(x,y)=>empty(x,y)||(x>=0&&y>=0&&x<w&&y<h&&outl[y][x]);
+  return rows.map((r,y)=>[...r].map((ch,x)=>{
+    const c=col(x,y);
+    if(!c) return null;
+    if(outl[y][x]){
+      // darken the most common neighbouring fill colour
+      const n=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>isK(x+dx,y+dy)?null:col(x+dx,y+dy)).filter(Boolean);
+      return n.length?pxMix(pxMix(n[0],'#000000',PX_SHADE.sel),PX_SHADE.outline,0.35):PX_SHADE.outline;
+    }
+    if(ch==='k') return c;
+    const lit=edge(x,y-1)||edge(x-1,y),shad=edge(x,y+1)||edge(x+1,y);
+    if(lit&&!shad) return pxMix(c,PX_SHADE.light,PX_SHADE.hi);
+    if(shad&&!lit) return pxMix(c,PX_SHADE.dark,PX_SHADE.lo);
+    return c;
+  }));
 }
 function pxSize(name){const r=pxResolve(name);return r?{w:r[0].length,h:r.length}:{w:0,h:0};}
 
@@ -2237,6 +2788,13 @@ function pxSetSprite(el,name,scale){
   el.src=url;el.style.width=z.w*scale+'px';el.style.height=z.h*scale+'px';
   el.dataset.cur=name;el.dataset.curScale=scale;
 }
+// Publish tiling textures as CSS variables (--px-soil, --px-wood, ...)
+function pxThemeVars(){
+  const root=document.documentElement.style;
+  [['--px-soil','tx_soil'],['--px-soil-wet','tx_soil_wet'],['--px-grass','tx_grass'],['--px-wood','tx_wood'],['--px-plank','tx_plank']]
+    .forEach(([v,n])=>root.setProperty(v,'url('+pxURL(n,false)+')'));
+}
+pxThemeVars();
 function pxStart(){
   document.querySelectorAll('img.pxs[data-px]').forEach(el=>{if(!el.dataset.cur)pxSetSprite(el,el.dataset.px);});
   pxScan(document.body);
@@ -2311,15 +2869,6 @@ const ALL_CROPS = [
 ];
 
 const UNLOCK_COSTS=[0,0,300,800,1500,3000];
-const SHOP_ITEMS=[
-  {id:'p3',name:'UNLOCK PLOT 3',desc:'3rd farm tile.',        cost:300,  act:'plot',  arg:2},
-  {id:'p4',name:'UNLOCK PLOT 4',desc:'4th farm tile.',        cost:800,  act:'plot',  arg:3},
-  {id:'p5',name:'UNLOCK PLOT 5',desc:'5th farm tile.',        cost:1500, act:'plot',  arg:4},
-  {id:'p6',name:'UNLOCK PLOT 6',desc:'6th farm tile.',        cost:3000, act:'plot',  arg:5},
-  {id:'rod1',name:'BAMBOO ROD', desc:'+10% chance of rare fish (T4–T6).',cost:500,  act:'rod',arg:1},
-  {id:'rod2',name:'FIBRE ROD',  desc:'+25% chance of rare fish (T4–T6).',cost:1500, act:'rod',arg:2},
-  {id:'rod3',name:'MASTER ROD', desc:'+50% chance of rare fish (T4–T6).',cost:5000, act:'rod',arg:3},
-];
 const N=6;
 const SAVE_KEY='pelican_farm_v1';
 
@@ -2393,6 +2942,10 @@ let salStockWindow=0;    // which window (seasonDay÷5 floor) was last stocked
 let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
 // ── KITCHEN / EVENTS ──
 let cookBuffs={};     // today's meal buffs {day, fishing, mining, wood, luck} — cleared each new day
+let weatherToday='sun',weatherTomorrow='sun'; // see WEATHER
+let quests={daily:null,weekly:null,done:0}; // notice board — see QUESTS
+let crafted={};   // crafted farm items, e.g. {scarecrow:1, chest:2} — see CRAFTS
+let beeDays=0;    // days since the bee house last made honey
 let knownRecipes={};  // recipe ids Hob has taught the player
 let eventsSeen={};    // festival rewards claimed, keyed 'eventId_year'
 let clockFrozenAt=null; // seconds into the day while the clock is frozen (title screen / app hidden)
@@ -2400,7 +2953,7 @@ let titleScreenOpen=true; // day clock stays frozen until the player taps START/
 const MAX_ENERGY_CAP=50; // 30 base + two Angel Fruits
 
 function defaultState(){
-  coins=60;day=1;hvst=0;totalEarned=0;energy=30;speed=1;fertilized=false;
+  coins=60;day=1;hvst=0;totalEarned=0;energy=30;speed=1;fertilized=0;
   seasonIndex=0;seasonDay=1;
   seasonHarvests={spring:0,summer:0,fall:0,winter:0};
   sel=ALL_CROPS[0];
@@ -2435,6 +2988,9 @@ function defaultState(){
   salStockWindow=0;
   salBulkDealUsed=false;
   cookBuffs={};knownRecipes={};eventsSeen={};
+  weatherToday='sun';weatherTomorrow='sun';
+  quests={daily:null,weekly:null,done:0};
+  crafted={};beeDays=0;
 }
 
 function saveGame(){
@@ -2450,7 +3006,7 @@ function saveGame(){
     luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
     daySecs:getSessionSec(),dayPenaltyEnergy,
-    cookBuffs,knownRecipes,eventsSeen,
+    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,quests,crafted,beeDays,
     salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
@@ -2472,7 +3028,7 @@ function loadGame(){
     if(!raw)return false;
     const d=JSON.parse(raw);
     coins=typeof d.coins==='number'?d.coins:30;day=d.day||1;hvst=d.hvst||0;totalEarned=d.totalEarned||0;
-    energy=typeof d.energy==='number'?d.energy:30;fertilized=d.fertilized||false;
+    energy=typeof d.energy==='number'?d.energy:30;fertilized=typeof d.fertilized==='number'?d.fertilized:0;
     seasonIndex=d.seasonIndex||0;seasonDay=d.seasonDay||1;
     seasonHarvests=d.seasonHarvests||{spring:0,summer:0,fall:0,winter:0};
     if(d.skills) skills=d.skills;
@@ -2542,6 +3098,12 @@ function loadGame(){
     if(cookBuffs.day!==d.day) cookBuffs={};
     knownRecipes=d.knownRecipes||{};
     eventsSeen=d.eventsSeen||{};
+    weatherToday=WEATHER[d.weatherToday]?d.weatherToday:'sun';
+    weatherTomorrow=WEATHER[d.weatherTomorrow]?d.weatherTomorrow:'sun';
+    quests=(d.quests&&typeof d.quests==='object')?d.quests:{daily:null,weekly:null,done:0};
+    quests.done=quests.done||0;
+    crafted=(d.crafted&&typeof d.crafted==='object')?d.crafted:{};
+    beeDays=d.beeDays||0;
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
@@ -2592,6 +3154,11 @@ function applySeasonVisuals(){
   ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)pxSetSprite(el,treeSprite);});
   updateSeasonBar();
   updateEventBanner();
+  _weatherFxType=null;renderWeatherFx(); // leaf colours follow the season
+  const suf={spring:'_spring',summer:'',fall:'_fall',winter:'_winter'}[s.id];
+  const hl=document.getElementById('scene-hills'),tl=document.getElementById('scene-treeline');
+  if(hl) hl.style.backgroundImage='url('+pxURL('hills'+suf,false)+')';
+  if(tl) tl.style.backgroundImage='url('+pxURL('treeline'+(s.id==='fall'?'_fall':s.id==='winter'?'_winter':''),false)+')';
 }
 
 function updateSeasonBar(){
@@ -2699,7 +3266,7 @@ function nextEventInfo(){
 function grantFestivalGift(f){
   if(f.id==='blossom'){fertilized=(fertilized||0)+3;}
   else if(f.id==='derby'){luckyBaitReady=true;}
-  else if(f.id==='supper'){registerRecipeItems();addToInventory('farm_stew',1);}
+  else if(f.id==='supper'){registerRecipeItems();if(!addToInventory('farm_stew',1)){energy=Math.min(maxEnergy,energy+35);upEnergy();}} // full bag: eat it there
   else if(f.id==='lantern'){mineConsumables.blast=(mineConsumables.blast||0)+2;}
 }
 // Called each morning (and when the game opens): greet the player on festival days
@@ -2730,8 +3297,12 @@ function updateEventBanner(){
   const el=document.getElementById('status-bar');
   if(!el) return;
   const parts=[];
+  const w=WEATHER[weatherToday]||WEATHER.sun,wt=WEATHER[weatherTomorrow]||WEATHER.sun;
+  parts.push(`<span class="sb-weather" title="${w.note||''}">${w.icon} ${w.name}</span><span class="sb-forecast">TMRW ${wt.icon}</span>`);
   const f=getEventToday();
   if(f) parts.push(`<span class="sb-event">${f.icon} ${f.name} TODAY</span>`);
+  const bd=(typeof birthdayToday==='function')?birthdayToday():null;
+  if(bd) parts.push(`<span class="sb-event">🎂 ${bd.name}'S BIRTHDAY</span>`);
   else{
     const nx=nextEventInfo();
     if(nx&&nx.days<=7) parts.push(`<span>${nx.fest.icon} ${nx.fest.name} IN ${nx.days} DAY${nx.days===1?'':'S'}</span>`);
@@ -2741,6 +3312,324 @@ function updateEventBanner(){
   el.innerHTML=parts.join('<span style="color:var(--dim)"> · </span>');
   el.style.display=parts.length?'flex':'none';
   if(f) el.title=f.effect;
+}
+
+// ══════════════════════════════════════
+// WEATHER — rolled a day ahead so the player gets a forecast
+// ══════════════════════════════════════
+const WEATHER={
+  sun:  {icon:'☀', name:'SUNNY', wet:false},
+  rain: {icon:'🌧',name:'RAIN',  wet:true,  note:'Crops watered · rare fish bite more'},
+  storm:{icon:'⛈',name:'STORM', wet:true,  note:'Crops watered · rare fish bite more · lightning!'},
+  snow: {icon:'❄', name:'SNOW',  wet:true,  note:'Crops watered by the snowmelt'},
+  wind: {icon:'🍃',name:'WINDY', wet:false, note:'+1 forage dig — the wind stirs up finds'},
+};
+const WEATHER_ODDS={ // weights per season
+  spring:{sun:55,rain:30,storm:5,wind:10},
+  summer:{sun:65,rain:15,storm:15,wind:5},
+  fall:  {sun:50,rain:30,storm:5,wind:15},
+  winter:{sun:45,snow:45,wind:10},
+};
+function weatherWet(){return !!(WEATHER[weatherToday]||{}).wet;}
+// Weather for a given season/day: day 1 of a season and festival days are always sunny
+function rollWeather(sIdx,sDay){
+  const s=SEASONS[sIdx];
+  if(sDay===1||FESTIVALS.some(f=>f.season===s.id&&f.day===sDay)) return 'sun';
+  const odds=WEATHER_ODDS[s.id];
+  return weightedRandom(Object.entries(odds).map(([id,weight])=>({id,weight}))).id;
+}
+// Called after the day advances: tomorrow's forecast becomes today, roll a new forecast
+function advanceWeather(){
+  weatherToday=weatherTomorrow;
+  let ns=seasonIndex,nd=seasonDay+1;
+  if(nd>SEASONS[ns].daysPerSeason){nd=1;ns=(ns+1)%SEASONS.length;}
+  weatherTomorrow=rollWeather(ns,nd);
+  const msgs=[];
+  if(weatherWet()){
+    let n=0;
+    tiles.forEach((t,i)=>{if(t.st==='grow'&&t.crop){t.watered=true;t.waterDueDay=day+1;renderTile(i);n++;}});
+    if(n) msgs.push(WEATHER[weatherToday].icon+' THE '+(weatherToday==='snow'?'SNOW':'RAIN')+' WATERED YOUR CROPS');
+  }
+  if(weatherToday==='storm'&&Math.random()<0.3){
+    // lightning splits a tree — free wood by the stump
+    const hit=treeHp>0?1:tree2Hp>0?2:0;
+    if(hit){
+      if(hit===1){treeHp=0;treeRespawnDaysLeft=3;}else{tree2Hp=0;tree2RespawnDaysLeft=3;}
+      const got=bagCanTake('wood')&&addToInventory('wood',4);
+      msgs.push('⚡ LIGHTNING SPLIT A TREE'+(got?' — 4 🪵 WOOD LEFT BY THE STUMP':''));
+    }
+  }
+  return msgs;
+}
+
+// Scene weather: falling particles, darker sky, lightning flashes
+let _weatherFxType=null,_lightningTimer=null;
+function renderWeatherFx(){
+  const fx=document.getElementById('weather-fx');
+  if(!fx) return;
+  const type=weatherToday;
+  if(type===_weatherFxType) return;
+  _weatherFxType=type;
+  fx.innerHTML='';fx.className='wx-'+type;
+  const kinds={rain:'wx-drop',storm:'wx-drop',snow:'wx-flake',wind:'wx-leaf'};
+  const k=kinds[type];
+  if(k){
+    const n=type==='storm'?46:type==='rain'?34:type==='snow'?26:10;
+    const leafColors=currentSeason().id==='spring'?['#f890a8','#ffd0dc']:currentSeason().id==='fall'?['#f09030','#e04030','#f8e048']:['#98e050','#50a830'];
+    for(let i=0;i<n;i++){
+      const d=document.createElement('i');d.className=k;
+      d.style.left=(Math.random()*110-5)+'%';
+      d.style.animationDelay=(-Math.random()*3)+'s';
+      d.style.animationDuration=(type==='snow'?3+Math.random()*3:type==='wind'?2.5+Math.random()*2:0.5+Math.random()*0.4)+'s';
+      if(k==='wx-leaf') d.style.background=leafColors[i%leafColors.length];
+      fx.appendChild(d);
+    }
+  }
+  clearTimeout(_lightningTimer);
+  if(type==='storm') scheduleLightning();
+}
+function scheduleLightning(){
+  _lightningTimer=setTimeout(()=>{
+    if(weatherToday!=='storm') return;
+    const fl=document.getElementById('weather-flash');
+    if(fl&&!document.hidden){fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');setTimeout(()=>playSound('thunder'),350);}
+    scheduleLightning();
+  },7000+Math.random()*14000);
+}
+
+// ══════════════════════════════════════
+// QUESTS — town notice board: one daily request + one weekly request
+// ══════════════════════════════════════
+// A quest asks for items matched with ingMatches() (same spec as Kitchen ingredients).
+const QUEST_LINES={
+  hob:  ['I\'m cooking for the whole street tonight!','A new recipe needs testing — could you help?','My pantry\'s looking bare, farmer.'],
+  mayor:['The town feast needs fresh produce!','I promised the council a harvest display.','Our visitors would love a taste of Fernhollow.'],
+  wren: ['I\'m studying the river — I need samples.','The heron took my catch again...','A friend upriver is asking for fish.'],
+  bram: ['My forge has gone cold. Bring me ore!','I\'m shoring up the mine shaft.','A buyer in the city wants good stone.'],
+  ford: ['Winter\'s coming and the woodpile\'s low.','I\'m building a new bridge over the creek.','Got a big carving order in.'],
+  bess: ['The market wants farm-fresh goods.','I\'m making cheese and need supplies.','My animals miss your visits — bring treats!'],
+  sal:  ['I\'ve got a buyer paying top coin.','Rare goods sell well this time of year.','A trader from the coast wants a crate.'],
+};
+// Bonus items for weekly requests
+const QUEST_BONUS=[
+  {label:'3x SUPER FERTILIZER',give:()=>{fertilized=(fertilized||0)+3;}},
+  {label:'LUCKY BAIT',give:()=>{luckyBaitReady=true;}},
+  {label:'2x BLAST POWDER',give:()=>{mineConsumables.blast=(mineConsumables.blast||0)+2;}},
+  {label:'GROWTH DUST',give:()=>{wcInstaGCharges++;}},
+  {label:'3x 🫧 SAP',give:()=>{if(!bagCanTake('sap')||!addToInventory('sap',3)){coins+=60;upCoins();}}},
+];
+// Every request type the player can currently fill, given what they've unlocked
+function questCandidates(kind){
+  const weekly=kind==='weekly',out=[];
+  const harvested=seasonHarvests[currentSeason().id]||0;
+  const crops=seasonCrops().filter(c=>harvested>=c.unlock&&cropTier(c)<=(weekly?4:3));
+  crops.forEach(c=>{
+    const t=cropTier(c);
+    const qty=weekly?Math.max(3,10-t*2):Math.max(1,5-t);
+    out.push({vil:Math.random()<0.5?'hob':'mayor',ing:{type:'cropId',id:c.id,qty},value:c.sell*qty});
+  });
+  if(hasAxe) out.push({vil:'ford',ing:{type:'item',id:'wood',qty:weekly?30:10},value:(weekly?30:10)*4});
+  if(fishingUnlocked){
+    if(weekly&&skills.fishing.level>=4) out.push({vil:'wren',ing:{type:'fish',minTier:3,qty:2},value:2*20});
+    else out.push({vil:'wren',ing:{type:'fish',qty:weekly?5:2},value:(weekly?5:2)*8});
+  }
+  if(mineUnlocked){
+    const ore=weekly&&mineCheckpoint>=30?'iron_ore':mineCheckpoint>=10?'copper_ore':'coal';
+    const q=weekly?8:4;
+    out.push({vil:'bram',ing:{type:'item',id:ore,qty:q},value:getItemInfo(ore).sell*q*3});
+  }
+  out.push({vil:'sal',ing:{type:'forage',qty:weekly?6:3},value:(weekly?6:3)*6});
+  if(animals.length) out.push({vil:'bess',ing:{type:'animal',qty:weekly?6:2},value:(weekly?6:2)*45});
+  if(weekly&&typeof thRoomComplete==='function'&&thRoomComplete('kitchen')){
+    const known=TH_RECIPES.filter(recipeKnown);
+    const r=known[Math.floor(Math.random()*known.length)];
+    if(r) out.push({vil:'hob',ing:{type:'item',id:r.id,qty:1},value:r.sells*1.5});
+  }
+  return out;
+}
+function questMake(kind){
+  const c=questCandidates(kind);
+  const pick=c[Math.floor(Math.random()*c.length)];
+  if(!pick) return null;
+  const weekly=kind==='weekly';
+  const lines=QUEST_LINES[pick.vil]||['Could you help me out?'];
+  return {kind,vil:pick.vil,ing:pick.ing,
+    line:lines[Math.floor(Math.random()*lines.length)],
+    gold:Math.round(pick.value*(weekly?2.2:1.6)/5)*5+(weekly?100:25),
+    xp:weekly?60:25,
+    bonus:weekly?Math.floor(Math.random()*QUEST_BONUS.length):-1,
+    expires:day+(weekly?6:0),done:false};
+}
+// New day: fresh daily request; a weekly one on season days 1/8/15/22 (or when none is open)
+function questsNewDay(){
+  if(!quests.daily||quests.daily.done||quests.daily.expires<day) quests.daily=questMake('daily');
+  const weeklyDay=(seasonDay-1)%7===0;
+  if(!quests.weekly||quests.weekly.expires<day||(weeklyDay&&quests.weekly.done)) quests.weekly=questMake('weekly');
+  updateQuestBadge();
+}
+function questHave(q){ return q?ingHave(q.ing):0; }
+function questDeliver(kind){
+  const q=quests[kind];
+  if(!q||q.done){return;}
+  if(questHave(q)<q.ing.qty){info('YOU NEED '+ingLabel(q.ing)+' FOR THIS REQUEST.');playSound('error');return;}
+  let need=q.ing.qty;
+  ingCandidates(q.ing).forEach(id=>{
+    if(need<=0) return;
+    const take=Math.min(need,inventory[id]);
+    inventory[id]-=take;if(inventory[id]<=0) delete inventory[id];
+    need-=take;
+  });
+  q.done=true;quests.done=(quests.done||0)+1;
+  coins+=q.gold;upCoins();
+  vilAddXP(q.vil,q.xp);
+  let bonusLabel='';
+  if(q.bonus>=0&&QUEST_BONUS[q.bonus]){QUEST_BONUS[q.bonus].give();bonusLabel=' + '+QUEST_BONUS[q.bonus].label;}
+  const v=VILLAGERS.find(x=>x.id===q.vil);
+  juice(document.getElementById('quest-board'),'+'+q.gold+'g',{sparks:12,buzz:20,color:'#ffe27a'});
+  info('📜 REQUEST DONE! '+(v?v.name:'')+' PAID '+q.gold+'g'+bonusLabel+' · +'+q.xp+' HEART XP');
+  playSound('levelup');
+  pcAddLog('📜 Request for '+(v?v.name:'?')+' done (+'+q.gold+'g)');
+  checkAchievements();saveGame();renderInv();updateInvBadge();renderTownHall();renderActivities();
+}
+function renderQuestBoard(){
+  const el=document.getElementById('quest-board');
+  if(!el) return;
+  const card=(kind,title)=>{
+    const q=quests[kind];
+    if(!q) return `<div class="qb-card qb-empty"><div class="qb-kind">${title}</div><div class="qb-line">Nothing posted yet.</div></div>`;
+    const v=VILLAGERS.find(x=>x.id===q.vil)||{name:'?',avatar:'❓'};
+    if(q.done) return `<div class="qb-card qb-done"><div class="qb-kind">${title}</div><div class="qb-who">${v.avatar} ${v.name}</div><div class="qb-line">✓ DONE — THANK YOU!${kind==='daily'?' A NEW REQUEST TOMORROW.':''}</div></div>`;
+    const have=questHave(q),ready=have>=q.ing.qty;
+    const left=q.expires-day;
+    const when=left<=0?'ENDS TONIGHT':left+' DAY'+(left===1?'':'S')+' LEFT';
+    const bonus=q.bonus>=0&&QUEST_BONUS[q.bonus]?' + '+QUEST_BONUS[q.bonus].label:'';
+    return `<div class="qb-card${ready?' qb-ready':''}">
+      <div class="qb-top"><span class="qb-kind">${title}</span><span class="qb-when">${when}</span></div>
+      <div class="qb-who">${vilPortrait(q.vil,'qb-portrait')||v.avatar} ${v.name}</div>
+      <div class="qb-line">"${q.line}"</div>
+      <div class="qb-want">WANTS: ${ingLabel(q.ing)} <span style="color:${ready?'var(--green)':'var(--muted)'}">(${Math.min(have,q.ing.qty)}/${q.ing.qty})</span></div>
+      <div class="qb-reward">REWARD: ${q.gold}g · ❤ +${q.xp}${bonus}</div>
+      <button class="qb-btn" onclick="questDeliver('${kind}')" ${ready?'':'disabled'}>${ready?'📦 DELIVER':'NOT ENOUGH YET'}</button>
+    </div>`;
+  };
+  el.innerHTML=`<div class="qb-title">📜 NOTICE BOARD <span class="qb-count">${quests.done||0} DONE</span></div>${card('daily','DAILY')}${card('weekly','WEEKLY')}`;
+}
+// "!" on the TOWN tab when a request can be delivered
+function updateQuestBadge(){
+  const tab=[...document.querySelectorAll('.tab')].find(b=>(b.getAttribute('onclick')||'').includes("'th'"));
+  if(!tab) return;
+  let dot=tab.querySelector('.tab-alert');
+  const ready=['daily','weekly'].some(k=>quests[k]&&!quests[k].done&&questHave(quests[k])>=quests[k].ing.qty);
+  if(ready&&!dot){dot=document.createElement('span');dot.className='tab-alert';dot.textContent='!';tab.appendChild(dot);}
+  if(!ready&&dot) dot.remove();
+}
+
+// ══════════════════════════════════════
+// CRAFTING & FARM DECOR (+ crows)
+// ══════════════════════════════════════
+// Costs use the Kitchen ingredient spec (ingMatches). `max` = how many can be built.
+const CRAFTS=[
+  {id:'scarecrow',name:'SCARECROW',  sprite:'scarecrow',max:1,desc:'Keeps crows away from your crops.',
+   cost:[{type:'item',id:'wood',qty:10},{type:'item',id:'coal',qty:2},{type:'crop',qty:1}]},
+  {id:'fence',    name:'FENCE',      sprite:'fence',    max:1,desc:'A sturdy fence around the field.',
+   cost:[{type:'item',id:'wood',qty:15}]},
+  {id:'path',     name:'STONE PATH', sprite:'path',     max:1,desc:'A tidy stone path to your door.',
+   cost:[{type:'item',id:'stone',qty:10}]},
+  {id:'flowers',  name:'FLOWER BED', sprite:'flowerbed',max:1,desc:'Wildflowers out front. Pretty!',
+   cost:[{type:'item',id:'wood',qty:5},{type:'forage',qty:3}]},
+  {id:'lamp',     name:'LAMP POSTS', sprite:'lamp',     max:1,desc:'Warm light around the house at night.',
+   cost:[{type:'item',id:'wood',qty:5},{type:'item',id:'copper_ingot',qty:1},{type:'item',id:'coal',qty:2}]},
+  {id:'beehouse', name:'BEE HOUSE',  sprite:'beehouse', max:1,desc:'Makes a jar of honey every 3 days.',
+   cost:[{type:'item',id:'wood',qty:15},{type:'item',id:'sap',qty:2},{type:'item',id:'copper_ingot',qty:1}]},
+  {id:'chest',    name:'STORAGE CHEST',sprite:'chest',  max:2,desc:'+10 bag slots each (up to 2).',
+   cost:[{type:'item',id:'wood',qty:20},{type:'item',id:'copper_ingot',qty:2}]},
+];
+let craftOpen=false;
+function toggleCrafting(){craftOpen=!craftOpen;renderCrafting();}
+function craftCanMake(c){
+  if((crafted[c.id]||0)>=c.max) return false;
+  const used={};
+  return c.cost.every(ing=>{
+    let need=ing.qty;
+    for(const id of ingCandidates(ing)){const take=Math.min(need,inventory[id]-(used[id]||0));if(take>0){used[id]=(used[id]||0)+take;need-=take;}if(need<=0)break;}
+    return need<=0;
+  });
+}
+function craftItem(id){
+  const c=CRAFTS.find(x=>x.id===id);
+  if(!c) return;
+  if((crafted[c.id]||0)>=c.max){info('YOU ALREADY HAVE '+c.name+'!');return;}
+  if(!craftCanMake(c)){info('NOT ENOUGH MATERIALS FOR '+c.name+'.');playSound('error');return;}
+  c.cost.forEach(ing=>{
+    let need=ing.qty;
+    ingCandidates(ing).forEach(k=>{if(need<=0)return;const take=Math.min(need,inventory[k]);inventory[k]-=take;if(inventory[k]<=0)delete inventory[k];need-=take;});
+  });
+  crafted[c.id]=(crafted[c.id]||0)+1;
+  achFlags.craft_first=true;
+  juice(document.getElementById('craft-toggle'),'🔨 '+c.name,{sparks:10,buzz:20});
+  playSound('build');
+  info('🔨 '+c.name+' BUILT! '+c.desc.toUpperCase());
+  pcAddLog('🔨 Built '+c.name);
+  renderFarmDecor();checkAchievements();saveGame();renderInv();updateInvBadge();
+}
+function renderCrafting(){
+  const btn=document.getElementById('craft-toggle'),list=document.getElementById('craft-list');
+  if(!btn||!list) return;
+  const built=CRAFTS.filter(c=>(crafted[c.id]||0)>=c.max).length;
+  btn.textContent='🔨 CRAFTING ('+built+'/'+CRAFTS.length+') '+(craftOpen?'▴':'▾');
+  if(!craftOpen){list.innerHTML='';return;}
+  list.innerHTML=CRAFTS.map(c=>{
+    const have=crafted[c.id]||0,done=have>=c.max,can=craftCanMake(c);
+    const costs=c.cost.map(i=>`<span style="color:${ingHave(i)>=i.qty?'var(--green)':'var(--muted)'}">${ingLabel(i)}</span>`).join(' + ');
+    return `<div class="craft-row${done?' done':''}">
+      <img class="craft-icon" src="${pxURL(c.sprite)}" alt="">
+      <div class="craft-info"><div class="craft-name">${c.name}${c.max>1?' ('+have+'/'+c.max+')':''}</div>
+        <div class="craft-desc">${c.desc}</div>${done?'':`<div class="craft-cost">${costs}</div>`}</div>
+      ${done?'<span class="craft-built">✓ BUILT</span>':`<button class="craft-btn" onclick="craftItem('${c.id}')" ${can?'':'disabled'}>CRAFT</button>`}
+    </div>`;
+  }).join('');
+}
+// Show crafted decor in the farm scene
+function renderFarmDecor(){
+  const set=(id,on,sprite)=>{const el=document.getElementById(id);if(!el)return;el.style.display=on?'block':'none';if(on&&sprite)pxSetSprite(el,sprite);};
+  set('decor-scarecrow',crafted.scarecrow,'scarecrow');
+  set('decor-path',crafted.path,'path');
+  set('decor-flowers',crafted.flowers,'flowerbed');
+  set('decor-beehouse',crafted.beehouse,'beehouse');
+  set('decor-chest',crafted.chest,'chest');
+  set('decor-lamp-l',crafted.lamp,'lamp');set('decor-lamp-r',crafted.lamp,'lamp');
+  const fence=document.getElementById('decor-fence');
+  if(fence){fence.style.display=crafted.fence?'block':'none';if(crafted.fence)fence.style.backgroundImage='url('+pxURL('fence',false)+')';}
+  updateCrowVisual();
+}
+// Crows: from day 5, on dry nights with no scarecrow, a crow may eat one growing crop
+function crowsNight(){
+  if(crafted.scarecrow||day<5||weatherWet()) return null;
+  const growing=tiles.map((t,i)=>({t,i})).filter(o=>o.t.st==='grow'&&o.t.crop);
+  if(!growing.length||Math.random()>=0.12) return null;
+  const pick=growing[Math.floor(Math.random()*growing.length)];
+  const name=pick.t.crop.icon+' '+pick.t.crop.name;
+  tiles[pick.i]={st:'empty',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
+  renderTile(pick.i);
+  return '🐦 A CROW ATE YOUR '+name+'! CRAFT A SCARECROW (BAG TAB)';
+}
+// A crow hops about the field while crops are unprotected — a hint to build a scarecrow
+function updateCrowVisual(){
+  const el=document.getElementById('decor-crow');
+  if(!el) return;
+  const show=!crafted.scarecrow&&day>=5&&tiles.some(t=>t.st==='grow');
+  el.style.display=show?'block':'none';
+  if(show){pxSetSprite(el,'crow');el.style.left=(20+((day*37)%45))+'%';}
+}
+// Bee house: a jar of honey every 3 days (waits in the hive if the bag is full)
+function beesNight(){
+  if(!crafted.beehouse) return null;
+  beeDays++;
+  if(beeDays<3) return null;
+  if(!ALL_ITEMS_MAP.honey) ALL_ITEMS_MAP.honey={icon:'🍯',name:'HONEY',sell:60,energy:8};
+  if(!bagCanTake('honey')) return '🍯 HONEY IS READY BUT YOUR BAG IS FULL';
+  addToInventory('honey',1);beeDays=0;
+  return '🍯 YOUR BEES MADE A JAR OF HONEY';
 }
 
 // ── SKY ──
@@ -2810,9 +3699,14 @@ function buildStars(){
 }
 function getRealH(){ return getGameH(); }
 function updateSky(){
-  const h=getRealH(),{sky,gr}=getSky(h);
+  const h=getRealH();
+  let {sky,gr}=getSky(h);
+  // overcast skies on wet days
+  const dim={rain:0.45,storm:0.62,snow:0.3}[weatherToday];
+  if(dim){sky=lerpHex(sky,weatherToday==='snow'?'#8a96a8':'#4a5260',dim);gr=lerpHex(gr,'#2a3420',dim*0.4);}
   document.getElementById('sky').style.background=sky;
-  document.getElementById('ground').style.background=gr;
+  document.getElementById('ground').style.backgroundColor=gr;
+  const yd=document.getElementById('yard');if(yd)yd.style.backgroundColor=gr;
   const co=getCloudOp(h);
   ['cl1','cl2','cl3'].forEach(id=>document.getElementById(id).style.opacity=co);
   starOpacity=lerp(starOpacity,(h>=19.5||h<5.5)?1:0,0.03);
@@ -2833,6 +3727,7 @@ function updateSky(){
   const night=h>=19||h<6;
   const houseImg=document.getElementById('house-img');
   if(houseImg) pxSetSprite(houseImg,'farmhouse'+(currentSeason().id==='winter'?'_snow':'')+(night?'_night':''));
+  document.querySelectorAll('.decor-lamp').forEach(el=>el.classList.toggle('lit',night)); // lamps glow after dark
   // Sleep label: gold pulse in evening, white during day, dim before 8am
   const sleepLbl=document.getElementById('house-sleep-label');
   if(sleepLbl){
@@ -2842,9 +3737,9 @@ function updateSky(){
   }
   // winter snow on ground
   if(currentSeason().id==='winter'){
-    document.getElementById('soil-strip').style.background='#c8dce8';
+    document.getElementById('soil-strip').style.backgroundColor='#c8dce8';document.getElementById('scene').classList.add('winter');
   }else{
-    document.getElementById('soil-strip').style.background='#7a5230';
+    document.getElementById('soil-strip').style.backgroundColor='#7a5230';document.getElementById('scene').classList.remove('winter');
   }
 }
 
@@ -2888,7 +3783,29 @@ function getGameTimeStr(){
   return pad2(hDisp)+':'+pad2(mm)+' '+ampm;
 }
 
+// Ambient scene life: a bird crosses the sky now and then by day; fireflies on summer/spring nights
+let _nextBirdAt=0;
+function sceneAmbientTick(){
+  const amb=document.getElementById('scene-ambient');
+  if(!amb||document.hidden) return;
+  const h=getGameH(),night=h>=20||h<6;
+  const now=Date.now();
+  if(!night&&!weatherWet()&&now>_nextBirdAt&&clockFrozenAt===null){
+    _nextBirdAt=now+15000+Math.random()*25000;
+    const b=document.createElement('img');b.className='pxs scene-bird';b.alt='';
+    b.style.top=(10+Math.random()*30)+'px';amb.appendChild(b);pxSetSprite(b,'bird',2);
+    setTimeout(()=>b.remove(),9000);
+  }
+  const wantFlies=night&&(currentSeason().id==='summer'||currentSeason().id==='spring')&&!weatherWet();
+  const flies=amb.querySelectorAll('.firefly');
+  if(wantFlies&&!flies.length){
+    for(let i=0;i<8;i++){const f=document.createElement('i');f.className='firefly';f.style.left=(5+Math.random()*90)+'%';f.style.bottom=(20+Math.random()*50)+'px';f.style.animationDelay=(-Math.random()*4)+'s';amb.appendChild(f);}
+  }else if(!wantFlies&&flies.length) flies.forEach(f=>f.remove());
+  const smoke=document.getElementById('chimney-smoke');
+  if(smoke) smoke.style.display=(currentSeason().id==='summer'&&!night)?'none':'block';
+}
 function clockTick(){
+  sceneAmbientTick();
   const sec=getSessionSec();
   const timeEl=document.getElementById('real-time');
   if(timeEl) timeEl.textContent=getGameTimeStr();
@@ -2921,6 +3838,7 @@ function clickHouse(){
   // Show confirm popup
   const overlay=document.createElement('div');
   overlay.id='sleep-confirm-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65)';
   const shipped=Object.keys(shipping).filter(k=>(shipping[k]||0)>0).length;
   const total=getShipTotal();
@@ -2945,8 +3863,12 @@ function forceSleep(){
   doSleep();
 }
 function doSleep(){
+  closeSheet();
   // Stop music cleanly before new day sequence
   if(musicPlaying) musicStop();
+  // a forced 1am sleep can land mid-minigame — wrap those up first
+  if(fishActive) endFishing(false);
+  if(digActive) endDig(digGrid.every(c=>!c.prize||c.dug));
   const shipped=Object.entries(shipping).filter(([,q])=>q>0);
   const total=getShipTotal();
   triggerNewDay(shipped,total);
@@ -2955,21 +3877,34 @@ function doSleep(){
 // ── HELPERS ──
 const $=id=>document.getElementById(id);
 const upCoins=()=>{$('cn').textContent=coins;pcUpdate();}
-const upEnergy=()=>{energy=Math.min(energy,maxEnergy);$('en').textContent=energy;pcUpdate();}
-const info=m=>$('info-bar').textContent=m;
+const upEnergy=()=>{
+  energy=Math.min(energy,maxEnergy);$('en').textContent=energy;
+  const f=$('stam-fill');
+  if(f){const r=maxEnergy?energy/maxEnergy:0;f.style.width=Math.round(r*100)+'%';f.className=r<=0.2?'low':r<=0.5?'mid':'';}
+  pcUpdate();
+}
+// Messages pop up as a note under the top bar, then fade
+let _infoTimer=null;
+const info=m=>{
+  const el=$('info-bar');if(!el) return;
+  el.textContent=m;
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  clearTimeout(_infoTimer);_infoTimer=setTimeout(()=>el.classList.remove('show'),Math.min(6000,2600+m.length*25));
+};
 
 // ── INVENTORY ──
+// Can the bag take this item? (existing stacks always grow; a new item needs a free slot)
+function bagSlotsUsed(){return Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;}
+// total slots = bag (upgraded via Sal) + 10 per crafted storage chest
+function bagCap(){return bagCapacity+(crafted.chest||0)*10;}
+function bagCanTake(id){return (inventory[id]||0)>0||bagSlotsUsed()<bagCap();}
+function bagFullMsg(){info('🎒 BAG FULL! ('+bagCap()+' SLOTS) — SHIP OR USE SOMETHING, OR BUY A BIGGER BAG FROM SAL.');playSound('error');}
+// Returns true if added. Callers that would otherwise lose the item must check bagCanTake() first.
 function addToInventory(cropId,qty){
-  // if item already in bag, always allow adding more to existing stack
-  // if new item, check bag capacity
-  const currentSlots=Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;
-  if(!inventory[cropId]&&currentSlots>=bagCapacity){
-    info('BAG FULL! ('+ bagCapacity +' SLOTS) — BUY A BIGGER BAG FROM SAL IN THE TOWN TAB.');
-    playSound('error');
-    return;
-  }
+  if(!bagCanTake(cropId)){bagFullMsg();return false;}
   inventory[cropId]=(inventory[cropId]||0)+qty;
   renderInv();updateInvBadge();
+  return true;
 }
 function updateInvBadge(){
   const total=Object.values(inventory).reduce((a,b)=>a+b,0);
@@ -2985,7 +3920,7 @@ function renderInv(){
   const entries=Object.entries(inventory).filter(([,q])=>q>0);
   // update label with capacity
   const lbl=$('inv-panel-label');
-  if(lbl) lbl.textContent='▸ BAG — '+entries.length+'/'+bagCapacity+' SLOTS — TAP ITEM TO EAT OR SHIP';
+  if(lbl) lbl.textContent='▸ BAG — '+entries.length+'/'+bagCap()+' SLOTS — TAP ITEM TO EAT OR SHIP';
   if(entries.length===0){
     const e=document.createElement('div');
     e.style.cssText='grid-column:1/-1;font-size:4px;color:#5a4030;text-align:center;padding:10px 0';
@@ -3022,6 +3957,8 @@ function renderInv(){
     g.appendChild(hint);
   }
   renderShipList();
+  updateQuestBadge();
+  renderCrafting();
 }
 
 // ── ITEM POPUP ──
@@ -3191,6 +4128,8 @@ function triggerNewDay(shipped,total){
   advanceCropDay();
   advanceSeason();
   day++;$('dn').textContent=day;
+  const weatherMsgs=advanceWeather();
+  [crowsNight(),beesNight()].forEach(m=>{if(m)weatherMsgs.push(m);});
   const wasPenalised=dayPenaltyEnergy;
   const newEnergy=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
   dayPenaltyEnergy=false;
@@ -3204,7 +4143,9 @@ function triggerNewDay(shipped,total){
     tree2RespawnDaysLeft--;
     if(tree2RespawnDaysLeft===0){tree2Hp=treeMaxHp;info('THE TREES HAVE REGROWN!');}
   }
-  showSummary(shipped,total,wasPenalised);
+  questsNewDay();
+  updateCrowVisual();
+  showSummary(shipped,total,wasPenalised,weatherMsgs);
   shipping={};updateShipCount();renderInv();
   if((townHall.sprinklerTier||0)>0) applySprinkler(); // sprinklers run at dawn, not up to a minute later
   renderWaterBtn();
@@ -3224,7 +4165,7 @@ function triggerNewDay(shipped,total){
   if(clockFrozenAt!==null) clockFrozenAt=0;
   saveGame();
 }
-function showSummary(shipped,total,wasPenalised){
+function showSummary(shipped,total,wasPenalised,weatherMsgs){
   $('sum-day').textContent='DAY '+day+'  |  '+currentSeason().icon+' '+currentSeason().name;
   const lines=$('sum-lines');lines.innerHTML='';
   $('summary').className='show';
@@ -3256,7 +4197,10 @@ function showSummary(shipped,total,wasPenalised){
     const energyAmt=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
     const penaltyNote=wasPenalised?' ⚠ STAYED UP TILL 1AM -10%':'';
     $('sum-bonus').style.opacity=1;
-    $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED';
+    const w=WEATHER[weatherToday]||WEATHER.sun;
+    $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED'
+      +'\n'+w.icon+' TODAY: '+w.name+'  ·  TOMORROW: '+(WEATHER[weatherTomorrow]||WEATHER.sun).icon
+      +((weatherMsgs&&weatherMsgs.length)?'\n'+weatherMsgs.join('\n'):'');
   },d+500);
   setTimeout(()=>$('sum-sleep').style.opacity=1,d+900);
 }
@@ -3267,7 +4211,11 @@ function dismissSummary(){
   updateSky();
   renderSeeds();
   if(musicEnabled) musicStart();
-  info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. HAPPY FARMING!');
+  const w=WEATHER[weatherToday]||WEATHER.sun;
+  info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. '+w.icon+' '+w.name+(w.note?' — '+w.note.toUpperCase():'')+'.');
+  renderWeatherFx();updateEventBanner();
+  const bd=birthdayToday();
+  if(bd) setTimeout(()=>info('🎂 IT\'S '+bd.name+'\'S BIRTHDAY! GIFTS COUNT TRIPLE TODAY.'),4000);
   renderActivities();
   if(document.getElementById('th-panel').className==='on') renderTownHall();
   setTimeout(announceEventToday,700);
@@ -3297,18 +4245,18 @@ function renderTile(i){
     el.className='tile';
     el.innerHTML='<div style="font-size:15px;color:#8a6840">+</div><div class="t-lbl">EMPTY</div>';
   }else if(t.st==='grow'){
+    const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
+    const stage=cropStageIcon(t,pct); // seed → sprout → leafy → crop
     if(!t.watered){
       el.className='tile needs-water';
-      el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl" style="color:var(--blue)">💧 WATER!</div>`;
+      el.innerHTML=`<div class="t-icon">${stage}</div><div class="t-lbl" style="color:#8fd0ff">💧 WATER!</div>`;
     }else if(t.waterDueDay>0&&day>=t.waterDueDay){
-      const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
       el.className='tile paused';
-      el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl" style="color:var(--blue)">💧 WATER!</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:var(--blue)"></div></div>`;
+      el.innerHTML=`<div class="t-icon">${stage}</div><div class="t-lbl" style="color:#8fd0ff">💧 WATER!</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:var(--blue)"></div></div>`;
     }else{
       const daysLeft=Math.max(0,t.growDays-(t.daysGrown||0));
-      const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
-      el.className='tile';
-      el.innerHTML=`<div class="t-icon">${t.crop.icon}</div><div class="t-lbl">${formatTime(daysLeft)}</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%"></div></div>`;
+      el.className='tile wet'; // watered soil is dark
+      el.innerHTML=`<div class="t-icon">${stage}</div><div class="t-lbl">${formatTime(daysLeft)}</div><div class="pbar-wrap"><div class="pbar" style="width:${pct}%"></div></div>`;
     }
   }else{
     el.className='tile ready';
@@ -3318,6 +4266,41 @@ function renderTile(i){
 }
 
 
+// Growth stage shown on plot tiles and in the scene
+function cropStageIcon(t,pct){
+  if(pct<34) return '🌱';
+  if(pct<67) return '🌿';
+  return t.crop.icon;
+}
+// ── JUICE: floating text, sparkles and a tiny vibration for satisfying feedback ──
+function juice(el,text,opts={}){
+  if(!el||!el.getBoundingClientRect) return;
+  // cap on-screen effects so rapid tapping can't pile up hundreds of nodes
+  const live=document.querySelectorAll('.float-txt,.spark');
+  for(let i=0;i<live.length-30;i++) live[i].remove();
+  const r=el.getBoundingClientRect();
+  const x=r.left+r.width/2,y=r.top+r.height*0.35;
+  if(text){
+    const f=document.createElement('div');
+    f.className='float-txt';f.textContent=text;
+    f.style.left=x+'px';f.style.top=y+'px';
+    if(opts.color) f.style.color=opts.color;
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1150);
+  }
+  if(opts.sparks){
+    const cols=opts.sparkColors||['#ffe27a','#fff3c4','#8ee060'];
+    for(let i=0;i<opts.sparks;i++){
+      const sp=document.createElement('div');sp.className='spark';
+      const a=Math.random()*Math.PI*2,dist=14+Math.random()*18;
+      sp.style.left=x+'px';sp.style.top=y+'px';sp.style.background=cols[i%cols.length];
+      sp.style.setProperty('--dx',Math.cos(a)*dist+'px');sp.style.setProperty('--dy',(Math.sin(a)*dist-10)+'px');
+      document.body.appendChild(sp);setTimeout(()=>sp.remove(),650);
+    }
+  }
+  if(opts.pop) setTimeout(()=>{el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');},0); // after any re-render
+  if(opts.buzz&&navigator.vibrate){try{navigator.vibrate(opts.buzz);}catch(e){}}
+}
 // Scene crop sprite positions — 6 slots spread across the soil strip
 // avoiding the house (centre) and ship box (far left)
 // 6 crop positions: 3 left of house, 3 right — avoiding ship box (now at ~148px) and house (~167-207px)
@@ -3349,10 +4332,8 @@ function updateSceneCrop(i){
   if(t.st==='grow'){
     const pct=t.growDays>0?Math.min(100,Math.round(((t.daysGrown||0)/t.growDays)*100)):0;
     // 3 growth stages
-    let icon,sz;
-    if(pct<25){icon='🌱';sz=9;}
-    else if(pct<60){icon='🌿';sz=12;}
-    else{icon=t.crop.icon;sz=15;}
+    const icon=cropStageIcon(t,pct);
+    const sz=pct<34?9:pct<67?12:15;
     el.innerHTML=
       `<div class="scene-crop-plant">` +
         `<div class="scene-crop-mound"></div>` +
@@ -3387,9 +4368,11 @@ function plantTile(i){
   tiles[i]={st:'grow',crop:sel,plantedDay:day,growDays,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
   moveFarmer(i);
   info('PLANTED '+sel.icon+' '+sel.name+'! 💧 NOW WATER IT!');
+  juice($('t'+i),'-'+sel.cost+'g',{pop:true,color:'#ffd27a'});
   playSound('plant');
   pcAddLog('Planted '+sel.icon+' '+sel.name);
   tutHook('firstPlant');
+  updateCrowVisual();
   renderTile(i);
   renderWaterBtn();
   saveGame();
@@ -3397,6 +4380,8 @@ function plantTile(i){
 function harvestTile(i){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! BUY FOOD FROM HOB IN TOWN.');return}
   const c=tiles[i].crop;
+  // need room for every quality of this crop we might get — otherwise the harvest would vanish
+  if(!['', '|silver','|gold'].every(q=>bagCanTake(c.id+q))&&bagSlotsUsed()>=bagCap()){bagFullMsg();return;}
   const dblChance=getFarmingDoubleChance();
   const bonus=((c.id==='potato'||c.id==='wheat'||c.id==='yam'||c.id==='crocus')&&Math.random()<dblChance)?2:1;
   const quality=getFarmingQuality();
@@ -3419,6 +4404,8 @@ function harvestTile(i){
   addToInventory(invKey,bonus);
   const qLabel=quality==='gold'?' 🥇 GOLD!':quality==='silver'?' 🥈 SILVER!':'';
   info('HARVESTED '+c.icon+' '+c.name+qLabel+(bonus===2?' (DOUBLE!)':'')+' → BAG');
+  juice($('t'+i),'+'+bonus+' '+c.icon+(quality==='gold'?'🥇':quality==='silver'?'🥈':''),{sparks:quality==='normal'?6:12,pop:true,buzz:12,
+    sparkColors:quality==='gold'?['#ffe27a','#ffd24a','#fff3c4']:undefined});
   playSound('harvest');
   pcAddLog('Harvested '+c.icon+' '+c.name+(qLabel||''));
   // farming XP: T1=1 T2=2 T3=4 T4=7 T5=11 T6=18 — higher tiers give more xp/day
@@ -3494,6 +4481,7 @@ function waterTile(i){
     t.waterDueDay=0;
   }
   playSound('plant');
+  juice($('t'+i),'💧',{color:'#8fd0ff',sparks:4,sparkColors:['#8fd0ff','#c8ecff']});
   tutHook('firstWater');
   renderTile(i);renderWaterBtn();updateSceneCrop(i);
   info('💧 WATERED '+t.crop.icon+' '+t.crop.name+'!');
@@ -3558,60 +4546,9 @@ function renderSeeds(){
 <div class="sc-stats"><div class="sc-stat">SELL <span>${c.sell}g</span></div><div class="sc-stat">GROWS <span>${formatTime(c.baseDays)}</span></div></div>
 <div class="sc-sub">${c.desc}</div>
 ${lkd?`<div class="sc-unlock">NEED ${remaining} MORE 🌾 THIS SEASON</div>`:`<div style="font-size:4px;color:#60aa40;margin-top:2px">COST: ${c.cost}g</div>`}`;
-    if(!lkd)d.onclick=()=>{sel=c;info('SELECTED: '+c.name+' | '+c.cost+'g | SELLS '+c.sell+'g');renderSeeds();tutHook('seedSelected');};
+    if(!lkd)d.onclick=()=>{sel=c;renderSeeds();tutHook('seedSelected');if(!tutActive){closeSheet();info('🌱 '+c.name+' SELECTED ('+c.cost+'g) — TAP AN EMPTY PLOT TO PLANT');}};
     g.appendChild(d);
   });
-}
-
-// ── SHOP ──
-function renderShop(){
-  const g=$('shop-grid');g.innerHTML='';
-  SHOP_ITEMS.forEach(it=>{
-    let dis=coins<it.cost;
-    let purchased=false;
-    if(it.act==='plot'&&tiles[it.arg]&&tiles[it.arg].st!=='locked'){dis=true;purchased=true;}
-    if(it.act==='build'&&buildings[it.arg]===true){dis=true;purchased=true;}
-    if(it.act==='build'&&buildings[it.arg]==='building'){dis=true;}
-    if(it.act==='build'&&it.woodCost&&(inventory['wood']||0)<it.woodCost)dis=true;
-    if(it.act==='autofeeder'&&autoFeeder){dis=true;purchased=true;}
-    if(it.act==='rod'&&fishingRod>=it.arg){dis=true;purchased=true;}
-    const d=document.createElement('div');d.className='shop-card';
-    const woodLabel=it.woodCost&&!purchased?`<div style="font-size:3px;color:#c87828;margin-top:2px">🪵 ${it.woodCost} WOOD REQUIRED</div>`:'';
-    const woodShort=it.woodCost&&!purchased?` + ${it.woodCost}🪵`:'';
-    const isBuilding=it.act==='build'&&buildings[it.arg]==='building';
-    const btn=purchased
-      ?`<button class="shop-btn" disabled style="border-color:var(--green2);color:var(--green);opacity:1">✓ PURCHASED</button>`
-      :isBuilding
-      ?`<button class="shop-btn" disabled style="border-color:#c87828;color:#c87828;opacity:1">🚧 UNDER CONSTRUCTION</button>`
-      :`<button class="shop-btn"${dis?' disabled':''} onclick="doBuy('${it.id}')">${it.cost}g${woodShort} — BUY</button>`;
-    d.innerHTML=`<div class="shc-name">${it.name}</div><div class="shc-desc">${it.desc}</div>${woodLabel}
-${btn}`;
-    g.appendChild(d);
-  });
-}
-function doBuy(id){
-  const it=SHOP_ITEMS.find(x=>x.id===id);if(!it||coins<it.cost)return;
-  // check wood requirement
-  if(it.woodCost){
-    const woodHave=inventory['wood']||0;
-    if(woodHave<it.woodCost){info('NEED '+it.woodCost+'x 🪵 WOOD TO BUILD! YOU HAVE '+woodHave+'.');return;}
-    inventory['wood']=woodHave-it.woodCost;
-    if(inventory['wood']<=0)delete inventory['wood'];
-    updateInvBadge();
-  }
-  coins-=it.cost;upCoins();
-  if(it.act==='plot'){tiles[it.arg].st='empty';renderTile(it.arg);info('PLOT '+(it.arg+1)+' UNLOCKED!');}
-  else if(it.act==='energy'){energy=Math.min(maxEnergy,energy+it.arg);upEnergy();info('DRANK COFFEE! +'+it.arg+' ENERGY.');}
-  else if(it.act==='fert'){fertilized=getFertilizerCharges();info('FERTILIZER READY! NEXT '+fertilized+' PLANT'+(fertilized>1?'S':'')+' 50% FASTER.');}
-  else if(it.act==='build'){buildings[it.arg]='building';updateSceneBuildings();renderAnimals();showAnimalTab();info('🚧 '+(it.arg==='coop'?'COOP':'BARN')+' CONSTRUCTION STARTED! READY IN 1 IN-GAME DAY.');}
-  else if(it.act==='autofeeder'){autoFeeder=true;info('AUTO FEEDER INSTALLED! ANIMALS WILL BE FED EACH DAY AUTOMATICALLY.');}
-  else if(it.act==='rod'){
-    fishingRod=it.arg;
-    const names=['','BAMBOO ROD','FIBRE ROD','MASTER ROD'];
-    info('🎣 '+names[it.arg]+' EQUIPPED! RARE FISH MORE LIKELY.');
-    pcAddLog('🎣 Bought '+names[it.arg]);
-  }
-  
 }
 
 function triggerMayorFirstMeet(){
@@ -3625,17 +4562,39 @@ function triggerMayorFirstMeet(){
   },600);
 }
 
-function showTab(t){
-  // highlight correct tab — match by onclick attribute
+// ── HANDHELD UI: tabs open a slide-up sheet over the yard ──
+const SHEET_TITLES={seeds:'🌱 SEEDS',inv:'🎒 BAG',act:'🌲 VALLEY',animals:'🐾 ANIMALS',th:'🏛 TOWN',menu:'⚙ MENU'};
+let sheetTab=null;
+function markTab(t){
+  // highlight by onclick attribute; classList keeps .visible on the Animals tab
   document.querySelectorAll('.tab').forEach(b=>{
     const fn=b.getAttribute('onclick')||'';
-    b.className='tab'+(fn.includes("'"+t+"'")||fn.includes('"'+t+'"')?' on':'');
+    b.classList.toggle('on',!!t&&fn.includes("'"+t+"'"));
   });
+}
+// bottom-bar tap: tapping the open tab again closes the sheet
+function tapTab(t){ if(sheetTab===t){closeSheet();return;} showTab(t); }
+function openSheet(t){
+  sheetTab=t;
+  const sh=$('sheet');if(!sh) return;
+  $('sheet-title').textContent=SHEET_TITLES[t]||'';
+  sh.classList.add('open');sh.setAttribute('aria-hidden','false');
+}
+function closeSheet(){
+  sheetTab=null;markTab(null);
+  const sh=$('sheet');if(!sh) return;
+  sh.classList.remove('open');sh.setAttribute('aria-hidden','true');
+}
+function showTab(t){
+  markTab(t);
   $('seed-panel').className=t==='seeds'?'on':'';
   $('inv-panel').className=t==='inv'?'on':'';
   $('act-panel').className=t==='act'?'on':'';
   $('animal-panel').className=t==='animals'?'on':'';
   $('th-panel').className=t==='th'?'on':'';
+  const mp=$('menu-panel');if(mp){mp.className=t==='menu'?'on':'';if(t==='menu')renderMenu();}
+  openSheet(t);
+  const body=$('sheet-body');if(body&&sheetTab!==t)body.scrollTop=0;
   if(t==='inv'){renderInv();setTimeout(()=>showTabTip('bag'),400);}
   if(t==='act'){renderActivities();tutHook('actTabVisited');setTimeout(()=>showTabTip('valley'),400);}
   if(t==='animals')renderAnimals();
@@ -3782,6 +4741,7 @@ function doChop(){
   if(!hasAxe){info('VISIT FORD IN THE 🏛 TOWN TAB TO GET AN AXE FIRST!');return;}
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');$('chop-result').textContent='NO ENERGY LEFT!';return;}
   if(treeHp<=0){$('chop-result').textContent='TREE IS A STUMP! WAIT '+treeRespawnDaysLeft+' DAYS.';return;}
+  if(!bagCanTake('wood')){bagFullMsg();return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
 
   // sharpen: double damage per swing
@@ -3819,6 +4779,7 @@ function doChop(){
     }
     $('chop-result').textContent=msg;
     info(msg);
+    juice($('chop-btn'),'+'+woodQty+' 🪵',{sparks:8,buzz:15,sparkColors:['#c8902a','#7a5028','#ffe27a']});
     skillAddXP('chopping',5);
     achFlags.first_fell=true;
     checkAchievements();
@@ -3832,6 +4793,7 @@ function doChop(){
 
 function doGrowthDust(){
   if(wcInstaGCharges<=0){info('NO GROWTH DUST! BUY FROM FORD IN THE 🏛 TOWN TAB.');return;}
+  if(!bagCanTake('wood')){bagFullMsg();return;}
   wcInstaGCharges--;
   const woodBonus=getWoodDropBonus()+axeTier;
   // Fell whichever trees are alive, regrow both
@@ -3875,6 +4837,7 @@ function doChop2(){
   if(!hasAxe){info('VISIT FORD IN THE 🏛 TOWN TAB TO GET AN AXE FIRST!');return;}
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY!');$('chop-result').textContent='NO ENERGY LEFT!';return;}
   if(tree2Hp<=0){$('chop-result').textContent='TREE 2 IS A STUMP! WAIT '+tree2RespawnDaysLeft+' DAYS.';return;}
+  if(!bagCanTake('wood')){bagFullMsg();return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
   let dmg=1;
   if(wcSharpenCharges>0){dmg=2;wcSharpenCharges--;$('chop-result').textContent='SHARP SWING! ('+wcSharpenCharges+' CHARGES LEFT)';}
@@ -3922,6 +4885,7 @@ function startFishing(){
   if(!fishingUnlocked){info('VISIT WREN IN THE 🏛 TOWN TAB TO GET A FISHING ROD FIRST!');return;}
   if(energy<2&&!devFlags.unlimitedEnergy){info('NEED 2 ENERGY TO FISH!');$('fish-result').textContent='NOT ENOUGH ENERGY!';return}
   if(fishActive)return;
+  if(bagSlotsUsed()>=bagCap()){bagFullMsg();$('fish-result').textContent='BAG FULL — MAKE ROOM FIRST!';return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-2);upEnergy();}
   const season=currentSeason().id;
   const allFish=FISH_BY_SEASON[season]||FISH_BY_SEASON.spring;
@@ -3932,7 +4896,7 @@ function startFishing(){
   const baseWeights=[64,32,16,8,4,2];
   // rod bonus: adds flat weight to T4(idx3), T5(idx4), T6(idx5)
   const rodBonus=[0,10,25,50];
-  const bonus=rodBonus[fishingRod]||0;
+  const bonus=(rodBonus[fishingRod]||0)+(weatherWet()&&weatherToday!=='snow'?15:0); // rain/storm: rare fish bite more
   const pool=allFish
     .filter(f=>fishLv>=(tierUnlock[(f.tier||1)-1]||1))
     .map(f=>({...f, weight:baseWeights[(f.tier||1)-1]+(f.tier>=4?bonus:0)}));
@@ -4068,6 +5032,7 @@ function endFishing(success){
     addToInventory(fishTarget.id+'_fish',catchQty);
     if(!ALL_ITEMS_MAP[fishTarget.id+'_fish'])
       ALL_ITEMS_MAP[fishTarget.id+'_fish']={icon:fishTarget.icon,name:fishTarget.name,sell:fishTarget.sell};
+    juice($('fish-btn'),'+'+catchQty+' '+fishTarget.icon,{sparks:10,buzz:20,sparkColors:['#8fd0ff','#ffffff','#ffe27a']});
     const catchMsg=catchQty>1?'CAUGHT '+catchQty+'x '+fishTarget.icon+' '+fishTarget.name+(derby?' — DERBY! 🎣':' — NET! 🕸'):'CAUGHT '+fishTarget.icon+' '+fishTarget.name+'!';
     $('fish-result').textContent=catchMsg;
     info(catchMsg+' ADDED TO BAG.');
@@ -4089,7 +5054,7 @@ function renderActivities(){
   renderTreeHp();
   renderTreeHp2();
   const noEnergy=energy<2&&!devFlags.unlimitedEnergy;
-  const fb=$('forage-btn');if(fb)fb.disabled=noEnergy;
+  const fb=$('forage-btn');if(fb)fb.disabled=(energy<1&&!devFlags.unlimitedEnergy)||digActive;
   const cb=$('chop-btn');
   if(cb){
     if(!hasAxe){cb.disabled=true;cb.textContent='GET AXE FROM FORD';}
@@ -4127,187 +5092,151 @@ function renderActivities(){
   renderMine();
 }
 
-// ── FORAGE RPS MINIGAME ──
-const RPS_MOVES=['rock','paper','scissors'];
-const RPS_ICONS={rock:'🪨',paper:'📄',scissors:'✂️'};
-// Season biases — spirit slightly favours one move, observant players can exploit
-const SPIRIT_BIAS={spring:'rock',summer:'paper',fall:'scissors',winter:'rock'};
-const SPIRIT_TAUNTS={
-  idle:['THE FOREST SPIRIT AWAITS...','CHOOSE WISELY, FARMER.','THE WOODS ARE WATCHING.'],
-  win: ['HA! THE FOREST WINS!','NATURE CANNOT BE BEATEN!','FOOLISH FARMER!','TRY HARDER!'],
-  lose:['...you fought well.','THE FOREST BOWS... FOR NOW.','WELL PLAYED, FARMER.','IMPRESSIVE.'],
-  draw:['A TIE. INTERESTING.','WE ARE EVENLY MATCHED.','THE FOREST IS PATIENT.'],
-};
-let rpsActive=false,rpsRound=0,rpsPlayerScore=0,rpsSpiritScore=0,rpsHistory=[];
+// ── FORAGE: HOT & COLD DIG ──
+// A 5×5 patch of forest floor hides 5 finds: 1 rare (T5–6), 2 uncommon (T3–4), 2 common (T1–2).
+// Each empty dig is coloured by its distance (in steps) to the nearest find still buried, and shows ✨
+// when the rare find is within forageShimmerRange(). Hints update as finds are dug up.
+const DIG_SIZE=5;
+let digActive=false,digGrid=[],digLeft=0,digTotal=0;
 
+function forageDigCount(){
+  const lv=skills.foraging.level;
+  return 5+(lv>=3?1:0)+(lv>=7?1:0)+(cookBuffs.forage?1:0)+(weatherToday==='wind'?1:0); // Forager's Salad / windy day: +1 dig
+}
+function forageShimmerRange(){ return skills.foraging.level>=5?3:2; }
+
+// Pick the 5 hidden finds for this season, respecting skill-gated items (skillMin)
+function forageBuildPrizes(){
+  const all=FORAGE_ITEMS[currentSeason().id]||FORAGE_ITEMS.spring;
+  const lv=skills.foraging.level;
+  const available=all.filter(i=>lv>=(i.skillMin||1));
+  const tier=i=>all.indexOf(i)+1;
+  // best item in a tier band, or the best one below it if the band isn't unlocked yet
+  const band=(lo,hi)=>{
+    const pool=available.filter(i=>tier(i)>=lo&&tier(i)<=hi);
+    if(pool.length) return weightedRandom(pool);
+    const below=available.filter(i=>tier(i)<=hi);
+    return below[below.length-1]||all[0];
+  };
+  const rare=lv>=10?available[available.length-1]:band(5,6); // LV10: always the season's rarest
+  return [{it:rare,rare:true},{it:band(3,4)},{it:band(3,4)},{it:band(1,2)},{it:band(1,2)}];
+}
+
+// Starting a hunt is free; every dig costs 1 energy (like chopping or mining)
 function startForageMini(){
-  if(energy<2&&!devFlags.unlimitedEnergy){info('NEED 2 ENERGY TO FORAGE!');return}
-  if(rpsActive)return;
-  if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-2);upEnergy();}
-  rpsActive=true;rpsRound=0;rpsPlayerScore=0;rpsSpiritScore=0;rpsHistory=[];
+  if(energy<1&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! EAT SOMETHING TO KEEP FORAGING.');return}
+  if(digActive)return;
+  digActive=true;
+  digTotal=digLeft=forageDigCount();
+  digGrid=Array(DIG_SIZE*DIG_SIZE).fill(0).map(()=>({prize:null,dug:false}));
+  // scatter the prizes on distinct cells
+  const cells=[...digGrid.keys()].sort(()=>Math.random()-0.5);
+  forageBuildPrizes().forEach((pz,i)=>{digGrid[cells[i]].prize=pz;});
   $('forage-minigame').className='show';
   $('forage-btn').disabled=true;
-  $('forage-btn').textContent='CHALLENGING...';
+  $('forage-btn').textContent='DIGGING...';
   $('forage-result').textContent='';
-  $('rps-player-sprite').textContent='❓';
-  $('rps-spirit-sprite').textContent='🌲';
-  $('rps-round-msg').textContent='CHOOSE YOUR MOVE!';
-  $('rps-round-msg').style.color='var(--cream)';
-  const tauntList=SPIRIT_TAUNTS.idle;
-  $('rps-taunt').textContent=tauntList[Math.floor(Math.random()*tauntList.length)];
-  updateRpsHeader();
-  renderRpsPips();
-  updateRpsPrizePreview();
-  setRpsEnabled(true);
-  info('CHALLENGE THE FOREST SPIRIT! WIN 2 OF 3 ROUNDS FOR BETTER LOOT.');
+  renderDig();
+  info('DIG FOR WILD FINDS! EACH DIG COSTS 1 ENERGY. RED = HOT (CLOSE), BLUE = COLD. ✨ = RARE FIND NEARBY.');
 }
 
-function spiritChoose(){
-  const bias=SPIRIT_BIAS[currentSeason().id];
-  // bias chance reduces at foraging lv5+ (spirit gets weaker)
-  if(Math.random()<getRpsSpiritBias()) return bias;
-  return RPS_MOVES[Math.floor(Math.random()*3)];
+function digDist(a,b){
+  return Math.abs(a%DIG_SIZE-b%DIG_SIZE)+Math.abs(Math.floor(a/DIG_SIZE)-Math.floor(b/DIG_SIZE));
+}
+// distance from cell i to the nearest buried find, and whether the buried rare is within shimmer range
+function digClue(i){
+  let near=99,shine=false;
+  digGrid.forEach((c,j)=>{
+    if(!c.prize||c.dug) return;
+    const d=digDist(i,j);
+    if(d<near) near=d;
+    if(c.prize.rare&&d<=forageShimmerRange()) shine=true;
+  });
+  return {near,shine};
 }
 
-function rpsPlay(playerMove){
-  if(!rpsActive)return;
-  setRpsEnabled(false);
-  const spiritMove=devFlags.rareForage?'rock':spiritChoose();
-  $('rps-player-sprite').textContent=RPS_ICONS[playerMove];
-  $('rps-spirit-sprite').textContent='🤔';
-  setTimeout(()=>{
-    $('rps-spirit-sprite').textContent=RPS_ICONS[spiritMove];
-    $('rps-spirit-sprite').className='rps-sprite shake';
-    $('rps-player-sprite').className='rps-sprite shake';
-    setTimeout(()=>{
-      $('rps-spirit-sprite').className='rps-sprite';
-      $('rps-player-sprite').className='rps-sprite';
-    },300);
-    const outcome=rpsOutcome(playerMove,spiritMove);
-    rpsHistory.push(outcome);
-    rpsRound++;
-    if(outcome==='win'){
-      rpsPlayerScore++;
-      $('rps-round-msg').style.color='#7fba60';
-      $('rps-round-msg').textContent='YOU WIN THIS ROUND! 😄';
-      setTaunt('lose');
-      skillAddXP('foraging',1);
-      playSound('rpswin');
-    }else if(outcome==='lose'){
-      rpsSpiritScore++;
-      $('rps-round-msg').style.color='#e06060';
-      $('rps-round-msg').textContent='SPIRIT WINS THIS ROUND! 😈';
-      setTaunt('win');
-      playSound('rpslose');
+function renderDig(){
+  const g=$('dig-grid');if(!g)return;
+  g.innerHTML='';
+  const ended=!digActive;
+  digGrid.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='dig-cell';
+    if(c.dug&&c.prize){
+      el.className+=' dug found'+(c.prize.rare?' rare':'');
+      el.textContent=c.prize.it.icon;
+    }else if(c.dug){
+      const {near,shine}=digClue(i);
+      el.className+=' dug'+(near<99?' d'+Math.min(near,5):'');
+      el.textContent=near<99?(near>=5?'5+':near):'';
+      if(shine){const sh=document.createElement('span');sh.className='dig-shine';sh.textContent='✨';el.appendChild(sh);}
+    }else if(ended&&c.prize){
+      el.className+=' missed';el.textContent=c.prize.it.icon; // show what was left behind
     }else{
-      $('rps-round-msg').style.color='#c8a96e';
-      $('rps-round-msg').textContent='A DRAW — NO WINNER! 😐';
-      setTaunt('draw');
+      if(devFlags.rareForage&&c.prize&&c.prize.rare) el.style.outline='2px dashed var(--gold)';
+      el.onclick=()=>forageDig(i);
     }
-    updateRpsHeader();
-    renderRpsPips();
-    if(rpsRound>=3) setTimeout(endRps,1000);
-    else setTimeout(()=>{
-      $('rps-player-sprite').textContent='❓';
-      $('rps-spirit-sprite').textContent='🌲';
-      setRpsEnabled(true);
-    },900);
-  },450);
+    g.appendChild(el);
+  });
+  const found=digGrid.filter(c=>c.dug&&c.prize).length;
+  $('dig-left').textContent=digLeft+' DIG'+(digLeft===1?'':'S')+' LEFT';
+  $('dig-found').textContent='FOUND '+found+'/5';
+  const rareGot=digGrid.some(c=>c.dug&&c.prize&&c.prize.rare);
+  $('dig-hint').textContent=ended?'':(rareGot?'RARE FIND DUG UP! KEEP DIGGING FOR THE REST.':
+    'HIDDEN: 1 RARE ✨ · 2 UNCOMMON · 2 COMMON — '+(forageShimmerRange())+'-STEP SHIMMER RANGE');
 }
 
-function rpsOutcome(p,s){
-  if(p===s)return 'draw';
-  if((p==='rock'&&s==='scissors')||(p==='paper'&&s==='rock')||(p==='scissors'&&s==='paper'))return 'win';
-  return 'lose';
-}
-
-function setTaunt(type){
-  const list=SPIRIT_TAUNTS[type];
-  $('rps-taunt').textContent=list[Math.floor(Math.random()*list.length)];
-}
-
-function updateRpsHeader(){
-  const left=3-rpsRound;
-  $('rps-round-label').textContent=rpsRound>=3?'DONE!':`ROUND ${rpsRound+1} OF 3`;
-  $('rps-score').textContent='YOU '+rpsPlayerScore+' — '+rpsSpiritScore+' SPIRIT';
-}
-
-function renderRpsPips(){
-  const row=$('rps-pip-row');row.innerHTML='';
-  for(let i=0;i<3;i++){
-    const pip=document.createElement('div');
-    pip.className='rps-pip'+(rpsHistory[i]?' '+rpsHistory[i]:'');
-    row.appendChild(pip);
-  }
-}
-
-function updateRpsPrizePreview(){
-  const items=FORAGE_ITEMS[currentSeason().id]||[];
-  const bias=SPIRIT_BIAS[currentSeason().id];
-  const tell=`SPIRIT HINT: OFTEN PLAYS ${RPS_ICONS[bias]}`;
-  const common=items.find(i=>i.rarity==='common');
-  const uncommon=items.find(i=>i.rarity==='uncommon');
-  const rare=items.find(i=>i.rarity==='rare');
-  let lines=[];
-  if(common)   lines.push('1 WIN  → '+common.icon+' '+common.name+'  ('+common.sell+'g)');
-  if(uncommon) lines.push('2 WINS → '+uncommon.icon+' '+uncommon.name+' ('+uncommon.sell+'g)');
-  if(rare)     lines.push('3 WINS → '+rare.icon+' '+rare.name+' ('+rare.sell+'g) ✦');
-  $('rps-prize-preview').textContent=lines.join('\n')+'\n\n'+tell;
-}
-
-function setRpsEnabled(on){
-  ['rps-r','rps-p','rps-s'].forEach(id=>{const b=$(id);if(b)b.disabled=!on;});
-}
-
-function endRps(){
-  rpsActive=false;
-  $('forage-minigame').className='';
-  $('forage-btn').disabled=false;
-  $('forage-btn').textContent='🌿 CHALLENGE THE SPIRIT';
-  const allItems=FORAGE_ITEMS[currentSeason().id]||[];
-  const forageLv=skills.foraging.level;
-  // filter to items unlocked by skill level
-  const available=allItems.filter(i=>forageLv>=(i.skillMin||1));
-  // Tier = position in the season's list (T1..T6). Previously this bucketed by
-  // crop-sized sell values, so every forage item (1–32g) landed in tier 1.
-  const getTier=i=>allItems.indexOf(i)+1;
-  // 1 win = tier 1-2, 2 wins = tier 3-4, 3 wins = tier 5-6
-  // If the player's skill hasn't unlocked that band yet, give the best item they CAN find below it.
-  function pickFromTiers(minTier,maxTier){
-    const pool=available.filter(i=>{const t=getTier(i);return t>=minTier&&t<=maxTier;});
-    if(pool.length) return weightedRandom(pool);
-    const below=available.filter(i=>getTier(i)<=maxTier);
-    return below[below.length-1]||allItems[0];
-  }
-  let prize,msg;
-  if(rpsPlayerScore===3){
-    // LV10 perk: a perfect sweep always yields the season's rarest find
-    prize=(devFlags.rareForage||skills.foraging.level>=10)?available[available.length-1]:pickFromTiers(5,6);
-    msg='PERFECT 3-0! THE SPIRIT YIELDS ITS RAREST TREASURE! ✦';
-    skillAddXP('foraging',2);
-    achFlags.sweep_spirit=true;
-  }else if(rpsPlayerScore===2){
-    prize=pickFromTiers(3,4);
-    msg='2-1 VICTORY! THE FOREST RESPECTS YOUR SKILL.';
-  }else if(rpsPlayerScore===1){
-    prize=pickFromTiers(1,2);
-    msg='1 WIN — THE SPIRIT GIVES A SMALL OFFERING.';
+function forageDig(i){
+  if(!digActive||digLeft<=0) return;
+  const c=digGrid[i];
+  if(!c||c.dug) return;
+  if(energy<1&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! EAT SOMETHING OR STOP DIGGING.');playSound('error');return;}
+  if(c.prize&&!bagCanTake(c.prize.it.id+'_forage')){bagFullMsg();return;} // leave it buried until there's room
+  c.dug=true;digLeft--;
+  if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
+  if(c.prize){
+    const pz=c.prize.it;
+    const key=pz.id+'_forage';
+    if(!ALL_ITEMS_MAP[key]) ALL_ITEMS_MAP[key]={icon:pz.icon,name:pz.name,sell:pz.sell};
+    const qty=c.prize.rare&&skills.foraging.level>=9?2:1; // LV9: rare finds come in pairs
+    addToInventory(key,qty);
+    skillAddXP('foraging',c.prize.rare?3:1);
+    achFlags.first_forage=true;
+    if(c.prize.rare){achFlags.sweep_spirit=true;playSound('levelup');}
+    else playSound('rpswin');
+    juice(document.querySelectorAll('.dig-cell')[i],'+'+pz.icon,{sparks:c.prize.rare?14:6,buzz:c.prize.rare?25:10});
+    const msg=(c.prize.rare?'✨ RARE FIND! ':'FOUND ')+pz.icon+' '+pz.name+(qty>1?' ×'+qty:'')+'!';
+    $('forage-result').textContent=msg;info(msg);
+    pcAddLog('🌿 Foraged '+pz.icon+' '+pz.name+(qty>1?' x'+qty:''));
+    checkAchievements();
   }else{
-    $('forage-result').textContent='0-3... THE SPIRIT LAUGHS. NOTHING FOUND.';
-    info('THE FOREST SPIRIT DEFEATED YOU. NO LOOT TODAY.');
-    return;
+    playSound('plant');
+    const {near,shine}=digClue(i);
+    $('forage-result').textContent=near<99?(near===1?'RIGHT NEXT TO SOMETHING! ':near<=2?'WARM... ':'COLD. ')+(shine?'✨ SOMETHING RARE GLINTS NEARBY!':''):'';
   }
-  achFlags.first_forage=true;
-  const key=prize.id+'_forage';
-  if(!ALL_ITEMS_MAP[key]) ALL_ITEMS_MAP[key]={icon:prize.icon,name:prize.name,sell:prize.sell};
-  const bonusItems=getForageBonus(rpsPlayerScore)+(cookBuffs.forage?1:0);
-  addToInventory(key,1+bonusItems);
-  const bonusStr=bonusItems>0?' (+'+bonusItems+' BONUS!)':'';
-  $('forage-result').textContent=msg+' GOT: '+prize.icon+' '+prize.name+bonusStr+'!';
-  if(rpsPlayerScore>0)playSound('forage');
-  pcAddLog('🌿 Foraged '+prize.icon+' '+prize.name+(bonusItems>0?' x'+(1+bonusItems):''));
-  info(msg+(bonusItems>0?' FORAGING SKILL BONUS: +'+bonusItems+' EXTRA!':''));
-  checkAchievements();
+  const allFound=digGrid.every(cell=>!cell.prize||cell.dug);
+  if(digLeft<=0||allFound) endDig(allFound);
+  else renderDig();
+}
+
+function stopDig(){
+  if(!digActive) return;
+  endDig(digGrid.every(c=>!c.prize||c.dug));
+}
+function endDig(allFound){
+  digActive=false;
+  $('forage-btn').disabled=false;
+  $('forage-btn').textContent='🌿 DIG FOR FINDS';
+  const found=digGrid.filter(c=>c.dug&&c.prize);
+  if(allFound){skillAddXP('foraging',2);playSound('levelup');}
+  const summary=found.length===0?'NOTHING THIS TIME... THE FINDS LEFT BEHIND ARE SHOWN.'
+    :(allFound?'YOU FOUND EVERYTHING! +2 BONUS XP. ':'FOUND '+found.length+'/5. ')+found.map(c=>c.prize.it.icon).join(' ');
+  $('forage-result').textContent=summary;
+  info('🌿 FORAGING DONE — '+summary);
+  renderDig();
+  setTimeout(()=>{if(!digActive)$('forage-minigame').className='';},2600);
+  renderActivities();
+  saveGame();
 }
 
 // ── DEV TOOLS ──
@@ -4348,7 +5277,7 @@ function devToggle(flag,val){
     else info('DEV: INSTANT GROW OFF.');
   }
   if(flag==='rareForage'){
-    info(val?'DEV: RARE FORAGE ON — ALWAYS FINDS RAREST ITEM.':'DEV: RARE FORAGE OFF.');
+    info(val?'DEV: RARE FIND OUTLINED WHEN FORAGING.':'DEV: RARE FIND HIDDEN.');
   }
   devSyncAll();
 }
@@ -4507,7 +5436,7 @@ function importSaveData(jsonStr){
     refreshAllSceneCrops();updateAllSkillUI();
     renderAnimals();updateSceneBuildings();showAnimalTab();
     renderWaterBtn();renderActivities();renderTownHall();
-    updateAchBadge();pcUpdate();updateEventBanner();
+    updateAchBadge();pcUpdate();updateEventBanner();renderFarmDecor();
     if(clockFrozenAt!==null){clockFrozenAt=null;freezeClock();} // re-freeze at the imported time
     saveGame();
     renderSaveInfo();
@@ -4574,7 +5503,8 @@ function doReset(){
 
   // Abandon any minigame in progress
   if(fishActive) endFishing(false);
-  rpsActive=false;
+  digActive=false;
+  {const fm=document.getElementById('forage-minigame');if(fm)fm.className='';}
   // Reset dev mode
   devMode=false;
   devFlags={unlimitedEnergy:false,instantGrow:false,rareForage:false};
@@ -4588,6 +5518,8 @@ function doReset(){
   // Reset all state to defaults
   defaultState();
   clockFrozenAt=null;titleScreenOpen=true;freezeClock();
+  questsNewDay();
+  renderFarmDecor();
   for(const k in ALL_ITEMS_MAP) delete ALL_ITEMS_MAP[k];
   forgeIngotReady();
 
@@ -4616,7 +5548,7 @@ function doReset(){
   pcUpdate();
   updateEventBanner();
   const animalTab=document.getElementById('tab-animals');if(animalTab)animalTab.className='tab';
-  showTab('seeds');
+  closeSheet();
 
   document.getElementById('dn').textContent=day;
   document.getElementById('hvn').textContent=hvst;
@@ -4662,8 +5594,8 @@ const ACHIEVEMENTS=[
   {id:'earn_25000',    cat:'🪙 ECONOMY',   icon:'💰', name:'TYCOON',            desc:'Earn 25,000g total from shipping.',       check:()=>totalEarned>=25000},
   {id:'big_day',       cat:'🪙 ECONOMY',   icon:'💰', name:'BUMPER HARVEST',    desc:'Earn 1,000g in a single day payout.',    check:()=>!!achFlags.big_day},
   // FORAGING
-  {id:'first_forage',  cat:'🌿 FORAGING',  icon:'🌿', name:'FOREST FRIEND',     desc:'Win your first foraging session.',        check:()=>!!achFlags.first_forage},
-  {id:'sweep_spirit',  cat:'🌿 FORAGING',  icon:'✊', name:'SPIRIT CRUSHER',    desc:'Win 3-0 against the Forest Spirit.',      check:()=>!!achFlags.sweep_spirit},
+  {id:'first_forage',  cat:'🌿 FORAGING',  icon:'🌿', name:'FOREST FRIEND',     desc:'Dig up your first forage find.',        check:()=>!!achFlags.first_forage},
+  {id:'sweep_spirit',  cat:'🌿 FORAGING',  icon:'✨', name:'TREASURE HUNTER',   desc:'Dig up the rare find while foraging.',      check:()=>!!achFlags.sweep_spirit},
   {id:'forage_lv5',    cat:'🌿 FORAGING',  icon:'🌿', name:"NATURE'S CHOSEN",   desc:'Reach Foraging level 5.',                 check:()=>skills.foraging.level>=5},
   {id:'forage_lv10',   cat:'🌿 FORAGING',  icon:'🌿', name:'SPIRIT MASTER',     desc:'Reach Foraging level 10.',                check:()=>skills.foraging.level>=10},
   // FISHING
@@ -4690,10 +5622,13 @@ const ACHIEVEMENTS=[
   {id:'full_barn',     cat:'🐾 ANIMALS',   icon:'🐄', name:'FULL HOUSE',        desc:'Own 2 cows and 2 sheep in your barn.',    check:()=>animals.filter(a=>a.type==='cow').length>=2&&animals.filter(a=>a.type==='sheep').length>=2},
   {id:'auto_collect',  cat:'🐾 ANIMALS',   icon:'🤖', name:'HANDS FREE',        desc:'Buy the Auto Collector from Bess.',       check:()=>autoCollect},
   // TOWN
-  {id:'meet_all',      cat:'🏛 TOWN',      icon:'👋', name:'SOCIAL BUTTERFLY',  desc:'Meet all 6 villagers.',                   check:()=>Object.keys(vilMet).length>=6},
+  {id:'meet_all',      cat:'🏛 TOWN',      icon:'👋', name:'SOCIAL BUTTERFLY',  desc:'Meet all 7 villagers.',                   check:()=>VILLAGERS.every(v=>vilMet[v.id])},
   {id:'max_hearts',    cat:'🏛 TOWN',      icon:'❤️', name:'BELOVED',           desc:'Max hearts (5) with any villager.',       check:()=>Object.values(villagerState).some(s=>s.hearts>=5)},
   {id:'town_restored', cat:'🏛 TOWN',      icon:'🏛', name:'TOWN RESTORED',     desc:'Complete all 4 Town Hall rooms.',         check:()=>thCompleteCount()>=4},
   {id:'first_ingot',   cat:'🏛 TOWN',      icon:'🔥', name:'FORGEMASTER',       desc:'Smelt your first ingot.',                 check:()=>!!achFlags.first_ingot},
+  {id:'quests_10',     cat:'🏛 TOWN',      icon:'📜', name:'GOOD NEIGHBOUR',    desc:'Complete 10 notice board requests.',      check:()=>(quests.done||0)>=10},
+  {id:'craft_first',   cat:'🏛 TOWN',      icon:'🔨', name:'HANDY',             desc:'Craft your first farm item.',             check:()=>!!achFlags.craft_first},
+  {id:'decorated',     cat:'🏛 TOWN',      icon:'🏠', name:'HOME SWEET HOME',   desc:'Build every crafting item for your farm.',check:()=>CRAFTS.every(c=>(crafted[c.id]||0)>=c.max)},
   {id:'first_meal',    cat:'🏛 TOWN',      icon:'🍳', name:'HOME COOKING',      desc:'Cook your first meal in the Kitchen.',    check:()=>!!achFlags.first_meal},
   {id:'all_recipes',   cat:'🏛 TOWN',      icon:'👑', name:'MASTER CHEF',       desc:'Cook every Kitchen recipe at least once.',check:()=>TH_RECIPES.every(r=>achFlags['cooked_'+r.id])},
   // SPECIAL
@@ -4732,6 +5667,7 @@ function updateAchBadge(){
   const total=Object.keys(achUnlocked).length;
   const seen=parseInt(localStorage.getItem('hh_ach_seen')||'0');
   badge.style.display=total>seen?'block':'none';
+  const mb=document.getElementById('menu-badge');if(mb)mb.className=total>seen?'tab-alert-dot':'';
 }
 
 function openAchievements(){
@@ -4798,6 +5734,7 @@ function showSkillIntroTip(){
   if(existing) existing.remove();
   const overlay=document.createElement('div');
   overlay.id='tab-tip-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);';
   overlay.innerHTML=`
     <div style="background:var(--deep);border:2px solid var(--gold);padding:14px 12px;max-width:340px;width:92%;">
@@ -4805,7 +5742,7 @@ function showSkillIntroTip(){
       <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--cream);line-height:1.9;white-space:pre-wrap;">Skills grow as you play and unlock powerful perks!
 
 🌾 FARMING — harvest crops
-🌿 FORAGING — win at Rock Paper Scissors
+🌿 FORAGING — dig up wild finds
 🎣 FISHING — reel in catches
 🪓 WOODCUTTING — chop down trees
 ⛏ MINING — break rocks underground
@@ -4823,7 +5760,7 @@ const TAB_TIPS={
   },
   valley:{
     title:'🌲 THE VALLEY',
-    body:'Four activities await here:\n\n🌿 FORAGE — play Rock Paper Scissors vs the Forest Spirit for wild items.\n\n🎣 FISH — hold to raise your zone, release to drop. Head to TOWN to unlock.\n\n🪓 CHOP — swing your axe to fell trees for wood. Head to TOWN to unlock.\n\n⛏ MINE — descend 100 floors for rare ores. Head to TOWN to unlock.\n\nActivities cost energy. Restock by eating food from your BAG!',
+    body:'Four activities await here:\n\n🌿 FORAGE — dig the forest floor for wild finds. Colours tell you when you are close!\n\n🎣 FISH — hold to raise your zone, release to drop. Head to TOWN to unlock.\n\n🪓 CHOP — swing your axe to fell trees for wood. Head to TOWN to unlock.\n\n⛏ MINE — descend 100 floors for rare ores. Head to TOWN to unlock.\n\nActivities cost energy. Restock by eating food from your BAG!',
   },
   town:{
     title:'🏛 WELCOME TO TOWN',
@@ -4844,6 +5781,7 @@ function showTabTip(key){
   if(existing) existing.remove();
   const overlay=document.createElement('div');
   overlay.id='tab-tip-overlay';
+  overlay.className='screen-overlay';
   overlay.style.cssText='position:absolute;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);';
   overlay.innerHTML=`
     <div style="background:var(--deep);border:2px solid var(--gold);padding:14px 12px;max-width:340px;width:92%;position:relative;">
@@ -4903,7 +5841,7 @@ const TUT_STEPS=[
     body:'Tap the 🏠 farmhouse to end your day. A popup will ask you to confirm.\n\nYour shipped items sell overnight and the next morning begins!',
     target:'scene',
     waitFor:'none',
-    tabTo:'seeds',
+    tabTo:null,
     showBtn:true,
     btnLabel:'GOT IT ▸',
   },
@@ -4913,7 +5851,7 @@ const TUT_STEPS=[
     body:'Visit THE VALLEY tab for foraging, fishing, chopping and mining. Head to TOWN to meet the villagers!',
     target:'tab-do',
     waitFor:'none',
-    tabTo:'seeds',
+    tabTo:null,
     showBtn:true,
     btnLabel:'START FARMING! ▸',
   },
@@ -4941,10 +5879,10 @@ function showTutStep(idx){
   if(idx>=TUT_STEPS.length){endTutorial();return;}
   tutStep=idx;
   const step=TUT_STEPS[idx];
-  if(step.tabTo) showTab(step.tabTo);
+  if(step.tabTo) showTab(step.tabTo); else closeSheet();
   document.getElementById('tut-overlay').className='show';
-  // wait a frame for tab panel to render before measuring
-  requestAnimationFrame(()=>_positionTutStep(idx));
+  // wait for the sheet to finish sliding before measuring the target
+  setTimeout(()=>_positionTutStep(idx),360);
 }
 
 function _positionTutStep(idx){
@@ -5371,7 +6309,7 @@ function submitFeatureRequest(){
     'FEATURE REQUEST\n'+desc+
     '\n\nCATEGORY\n'+catLabel+
     '\n\nWHY THIS WOULD BE GREAT\n'+(why||'Not provided')+
-    '\n\nGame version: v1.2 | Day: '+day+' | Season: '+currentSeason().name
+    '\n\nGame version: v2.1 | Day: '+day+' | Season: '+currentSeason().name
   );
   sendFeedback('feature',decodeURIComponent(subject),decodeURIComponent(body),subject,body);
   closeFeatureRequest();
@@ -5393,7 +6331,7 @@ function endTutorial(){
   // re-enable any pointer events that may have been blocked
   const ig=document.getElementById('inv-grid');
   if(ig) ig.style.pointerEvents='';
-  showTab('seeds');
+  closeSheet();
   info('HAPPY FARMING! VISIT THE VALLEY AND TOWN TABS TO EXPLORE!');
   // prompt PWA install after tutorial
   setTimeout(scheduleInstallBanner,3000);
@@ -5460,7 +6398,7 @@ function showLevelUp(skillName, newLevel){
   pop.className='lvl-up-pop';
   pop.textContent=(icons[skillName]||'⭐')+' LV'+newLevel+'!';
   const gw=document.getElementById('gw');
-  pop.style.top='40%';pop.style.left='30%';
+  pop.style.top='40%';pop.style.left='50%';pop.style.transform='translateX(-50%)';
   gw.appendChild(pop);
   setTimeout(()=>{if(pop.parentNode)pop.parentNode.removeChild(pop);},1400);
 }
@@ -5498,8 +6436,9 @@ function getFarmingSellMultiplier(){
   return skills.farming.level>=10?1.1:1.0;
 }
 
-function getFertilizerCharges(){
-  return skills.farming.level>=5?2:1;
+// Farming LV5 perk: each fertilizer charge bought counts double
+function getFertilizerCharges(base){
+  return (base||1)*(skills.farming.level>=5?2:1);
 }
 
 // ── FISHING SKILL PERKS ──
@@ -5534,20 +6473,7 @@ function getSapChance(){
   return skills.chopping.level>=5?0.6:0.4;
 }
 
-// ── FORAGING SKILL PERKS ──
-function getForageBonus(wins){
-  // extra items based on wins and foraging level
-  const lv=skills.foraging.level;
-  let bonus=0;
-  if(wins>=2&&lv>=3) bonus+=1;
-  if(wins>=3&&lv>=7) bonus+=1;
-  return bonus;
-}
-
-function getRpsSpiritBias(){
-  // lv5+ gives slight advantage — spirit bias weakens
-  return skills.foraging.level>=5?0.35:0.45;
-}
+// ── FORAGING SKILL PERKS ── see forageDigCount() / forageShimmerRange() / forageBuildPrizes()
 
 // ══════════════════════════════════════
 // ANIMAL SYSTEM
@@ -5575,6 +6501,7 @@ function buyAnimal(type){
   if(coins<d.cost){info('NEED '+d.cost+'g TO BUY A '+d.name+'!');return;}
   coins-=d.cost;upCoins();
   animals.push({id:Date.now(),type,fed:false,hasProduct:false,daysSinceProduct:0});
+  renderSceneAnimals();
   renderAnimals();
   updateSceneBuildings();
   renderWaterBtn();
@@ -5609,6 +6536,7 @@ function collectAnimal(id){
   const a=animals.find(x=>x.id===id);
   if(!a||!a.hasProduct)return;
   const d=ANIMAL_DATA[a.type];
+  if(!bagCanTake(a.type+'_product')){bagFullMsg();return;}
   const key=d.type+'_product_'+a.type;
   const itemKey=a.type+'_product';
   if(!ALL_ITEMS_MAP[itemKey]) ALL_ITEMS_MAP[itemKey]={icon:d.product,name:d.productName,sell:d.productSell};
@@ -5659,9 +6587,7 @@ function animalNewDay(){
         const d=ANIMAL_DATA[a.type];
         const itemKey=a.type+'_product';
         if(!ALL_ITEMS_MAP[itemKey]) ALL_ITEMS_MAP[itemKey]={icon:d.product,name:d.productName,sell:d.productSell};
-        addToInventory(itemKey,1);
-        a.hasProduct=false;
-        collected++;
+        if(addToInventory(itemKey,1)){a.hasProduct=false;collected++;} // full bag: product waits in the barn
       }
     });
     if(collected>0){
@@ -5754,7 +6680,29 @@ function renderAnimals(){
   }
 }
 
+// Your animals wander outside their buildings
+function renderSceneAnimals(){
+  const box=document.getElementById('scene-animals');
+  if(!box) return;
+  const want=[];
+  const chickens=animals.filter(a=>a.type==='chicken').length,cows=animals.filter(a=>a.type==='cow').length,sheep=animals.filter(a=>a.type==='sheep').length;
+  if(buildings.coop===true) for(let i=0;i<Math.min(chickens,2);i++) want.push({s:'chicken',left:(7+i*8)+'%',dur:6+i*2});
+  if(buildings.barn===true){
+    if(cows) want.push({s:'cow',right:'22%',dur:9});
+    if(sheep) want.push({s:'sheep',right:'32%',dur:11});
+  }
+  const key=want.map(w=>w.s).join(',');
+  if(box.dataset.key===key) return;
+  box.dataset.key=key;box.innerHTML='';
+  want.forEach(w=>{
+    const im=document.createElement('img');im.className='pxs scene-animal';im.alt='';
+    if(w.left) im.style.left=w.left; else im.style.right=w.right;
+    im.style.animationDuration=w.dur+'s';
+    box.appendChild(im);pxSetSprite(im,w.s,2);
+  });
+}
 function updateSceneBuildings(){
+  renderSceneAnimals();
   ['coop','barn'].forEach(b=>{
     const el=document.getElementById('scene-'+b);
     const buildingEl=document.getElementById('scene-'+b+'-building');
@@ -5776,7 +6724,7 @@ const SKILL_META={
       'Rare chance of Silver 🥈 crops — worth 25% more gold.',
       'Silver crops becoming more common.',
       'Gold 🥇 crops unlocked — rare chance, worth 50% more gold.',
-      'Fertilizer lasts 2 crops instead of 1.',
+      'Super Fertilizer gives double charges (6 crops instead of 3).',
       'Gold crops becoming common. Most harvests are Silver or Gold.',
       'Mostly Silver and Gold harvests. Normal crops rare.',
       'Double yield chance rises from 25% to 35%.',
@@ -5787,16 +6735,16 @@ const SKILL_META={
   foraging:{
     icon:'🌿', name:'FORAGING', color:'#7ec850',
     perks:[
-      'Standard RPS rewards. Win more rounds for rarer loot.',
-      'You start to read the spirit\'s patterns.',
-      '2-win matches reward a bonus item.',
-      'The spirit\'s moves become more predictable.',
-      'Spirit bias weakens — easier to counter consistently.',
-      'Forage item quality improves across all wins.',
-      '3-win sweeps reward an extra bonus item.',
-      'The spirit struggles against experienced foragers.',
-      'Rare items appear more often in win rewards.',
-      'Perfect 3-0 sweep always yields a jackpot rare item. ✦',
+      '5 digs per hunt. Colours show how close the nearest find is.',
+      'Tier 2 finds start turning up.',
+      '+1 dig per hunt (6 digs).',
+      'Tier 3 finds start turning up.',
+      'The rare-find shimmer ✨ reaches 3 steps instead of 2.',
+      'Tier 4 finds start turning up.',
+      '+1 dig per hunt (7 digs).',
+      'Tier 5 rare finds start turning up.',
+      'Rare finds come in pairs — dig one up, get two.',
+      'The rare find is always the season\'s rarest treasure. ✦',
     ]
   },
   fishing:{
@@ -5936,6 +6884,7 @@ function playSound(type){
       case 'rpswin':    sfxRpsWin(ctx);    break;
       case 'rpslose':   sfxRpsLose(ctx);   break;
       case 'titlestart':sfxTitleStart(ctx);break;
+      case 'thunder':   sfxThunder(ctx);   break;
     }
   }catch(e){}
 }
@@ -6052,6 +7001,17 @@ function sfxBuild(ctx){
   osc(ctx,'sine',220,0.1,0.08,0.18);
   osc(ctx,'sine',330,0.22,0.3,0.22); // satisfying finish
   osc(ctx,'sine',440,0.32,0.3,0.18);
+}
+function sfxThunder(ctx){
+  // low rolling rumble
+  const dur=2.2,buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate),d=buf.getChannelData(0);
+  let last=0;for(let i=0;i<d.length;i++){last=(last+0.04*(Math.random()*2-1))/1.04;d[i]=last*3.5;}
+  const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+  src.buffer=buf;f.type='lowpass';f.frequency.value=180;
+  src.connect(f);f.connect(g);g.connect(ctx.destination);
+  g.gain.setValueAtTime(0.001,ctx.currentTime);g.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.08);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+  src.start();src.stop(ctx.currentTime+dur);
 }
 function sfxSleep(ctx){
   // soft descending lullaby — gentle night tones fading out
@@ -6181,7 +7141,8 @@ function showVilDialogue(villager, lines, giftInfo, onComplete){
   vilDialogueIdx=0;
   vilDialogueGift=giftInfo||null;
   vilDialogueCb=onComplete||null;
-  $('vil-dialogue-avatar').textContent=villager.avatar;
+  const pt=vilPortrait(villager.id,'vil-dialogue-portrait');
+  if(pt) $('vil-dialogue-avatar').innerHTML=pt; else $('vil-dialogue-avatar').textContent=villager.avatar;
   $('vil-dialogue-name').textContent=villager.name;
   $('vil-dialogue-role').textContent=villager.role;
   $('vil-dialogue-overlay').className='show';
@@ -6201,7 +7162,7 @@ function vilDialogueRender(){
     gp.style.display='none';
   }
   const btn=$('vil-dialogue-next');
-  btn.textContent=isLast?'ACCEPT ✓':'NEXT ▸';
+  btn.textContent=isLast?(vilDialogueGift?'ACCEPT ✓':'BYE ▸'):'NEXT ▸';
   // hide skip on last line
   $('vil-dialogue-skip').style.display=isLast?'none':'block';
 }
@@ -6305,23 +7266,26 @@ function openGiftChooser(vilId){
   if(s.giftedToday){info('ALREADY GIFTED '+v.name+' TODAY!');return;}
   const g=$('gift-chooser-grid');
   g.innerHTML='';
-  // gold special case for Sal
-  if(v.favourite.type==='gold'){
-    // just confirm directly
-    vilGift(vilId);
-    return;
-  }
   const entries=Object.entries(inventory).filter(([,q])=>q>0);
-  if(entries.length===0){info('YOUR BAG IS EMPTY — NOTHING TO GIFT!');return;}
+  // Sal's favourite is gold: offer a 100g tile alongside the bag (her loved gems are items)
+  if(v.favourite.type==='gold'&&coins>0){
+    const slot=document.createElement('div');
+    slot.className='gift-slot fav';
+    slot.innerHTML=`<div class="gs-icon">🪙</div><div class="gs-qty">${Math.min(100,coins)}g</div><div class="gs-name">GOLD</div><div class="gs-fav">⭐ FAV</div>`;
+    slot.onclick=()=>{closeGiftChooser();vilGift(vilId);};
+    g.appendChild(slot);
+  }
+  if(entries.length===0&&!g.children.length){info('YOUR BAG IS EMPTY — NOTHING TO GIFT!');return;}
   $('gift-chooser-title').textContent='🎁 GIFT TO '+v.name+' (FAV: '+v.favourite.icon+' '+v.favourite.label+')';
   entries.forEach(([id,qty])=>{
     const item=getItemInfo(id);
     const xp=vilGiftValue(vilId,id);
     if(xp===0)return; // skip non-giftable items like sap
     const isFav=vilIsFav(vilId,id);
+    const loved=xp>=60&&vilGetState(vilId).hearts>=2; // loved items are revealed at 2 hearts
     const slot=document.createElement('div');
     slot.className='gift-slot'+(isFav?' fav':'');
-    slot.innerHTML=`<div class="gs-icon">${item.icon}${item.badge?`<span style="font-size:8px">${item.badge}</span>`:''}</div><div class="gs-qty">x${qty}</div><div class="gs-name">${item.name.slice(0,7)}</div>${isFav?'<div class="gs-fav">⭐ FAV</div>':''}`;
+    slot.innerHTML=`<div class="gs-icon">${item.icon}${item.badge?`<span style="font-size:8px">${item.badge}</span>`:''}</div><div class="gs-qty">x${qty}</div><div class="gs-name">${item.name.slice(0,7)}</div>${loved?'<div class="gs-fav">💝 LOVE</div>':isFav&&xp<60?'<div class="gs-fav">⭐ FAV</div>':''}`;
     slot.onclick=()=>doGiftItem(vilId,id);
     g.appendChild(slot);
   });
@@ -6335,7 +7299,7 @@ function doGiftItem(vilId,itemId){
   closeGiftChooser();
   const item=getItemInfo(itemId);
   if(!inventory[itemId]){return;}
-  const xp=vilGiftValue(vilId,itemId)*eventGiftMult();
+  const xp=vilGiftValue(vilId,itemId)*vilGiftMult(vilId);
   inventory[itemId]--;
   if(inventory[itemId]<=0) delete inventory[itemId];
   const s=vilGetState(vilId);
@@ -6343,7 +7307,9 @@ function doGiftItem(vilId,itemId){
   vilAddXP(vilId,xp);
   const isFav=vilIsFav(vilId,itemId);
   const v=VILLAGERS.find(x=>x.id===vilId);
-  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+xp+' XP'+(isFav?' ⭐ FAVOURITE!':'')+(eventGiftMult()>1?' 🎉 FESTIVAL BONUS!':''));
+  const loved=vilGiftValue(vilId,itemId)>=60;
+  info('GIFTED '+item.icon+' '+item.name+' TO '+v.name+'! +'+xp+' XP'+(loved?' 💝 THEY LOVE IT!':isFav?' ⭐ FAVOURITE!':'')+(isBirthday(vilId)?' 🎂 BIRTHDAY ×3!':'')+(eventGiftMult()>1?' 🎉 FESTIVAL BONUS!':''));
+  if(loved) achFlags['loved_'+vilId]=true;
   playSound('collect');
   checkAchievements();
   renderInv();updateInvBadge();
@@ -6428,7 +7394,56 @@ function shipCropOne(id){
   updateShipCount();
 }
 
+// Rearranges the page into the Handheld layout: farm scene + yard on top, HUD chips over the
+// scene, a slide-up sheet for tab panels and a bottom bar. Every element keeps its id.
+function buildHandheld(){
+  const gw=$('gw');if(!gw||$('play')) return;
+  const mk=(tag,id,cls)=>{const e=document.createElement(tag);if(id)e.id=id;if(cls)e.className=cls;return e;};
+  const play=mk('div','play'),yard=mk('div','yard'),hud=mk('div','hud-overlay');
+  const left=mk('div',null,'hud-col'),right=mk('div',null,'hud-col hud-col-r');
+  ['season-bar','clock-bar','status-bar'].forEach(id=>{const e=$(id);if(e)left.appendChild(e);});
+  const hr=$('hud-right');if(hr)right.appendChild(hr);
+  hud.append(left,right);
+  const scene=$('scene');
+  gw.insertBefore(play,scene);
+  play.append(scene,yard,hud);
+  // yard: the field of plots plus a little pond and wildlife
+  yard.appendChild($('field-panel'));
+  yard.insertAdjacentHTML('beforeend',`<div class="yard-pond"><i style="left:12px;top:10px"></i><i style="left:46px;top:20px"></i><i style="left:64px;top:7px"></i></div>
+    <span class="butterfly" style="--c:#f8a8c8;top:18%;left:10%"></span><span class="butterfly" style="--c:#fff3a0;top:70%;left:66%;animation-delay:-3s"></span>`);
+  play.appendChild($('info-bar'));
+  // sheet with the tab panels + a new Menu panel
+  const sheet=mk('div','sheet');sheet.setAttribute('aria-hidden','true');
+  sheet.innerHTML='<div class="sheet-grab"></div><div class="sheet-head"><span id="sheet-title"></span><button id="sheet-close" onclick="closeSheet()" aria-label="Close">✕</button></div><div id="sheet-body"></div>';
+  const body=sheet.querySelector('#sheet-body');
+  ['seed-panel','inv-panel','act-panel','animal-panel','th-panel'].forEach(id=>body.appendChild($(id)));
+  const menu=mk('div','menu-panel');
+  menu.innerHTML=`<div class="menu-btns">
+      <button class="menu-btn" onclick="openAchievements()">⭐<span>ACHIEVEMENTS</span><span id="menu-ach-count"></span></button>
+      <button class="menu-btn" onclick="openSettings()">⚙<span>SETTINGS &amp; SAVE</span></button>
+      <button class="menu-btn" id="menu-dev-btn" onclick="openDev()" style="display:none">🛠<span>DEV TOOLS</span></button>
+    </div>
+    <div class="panel-label">▸ SKILLS — TAP FOR PERKS</div>`;
+  menu.appendChild($('skills-bar'));
+  menu.insertAdjacentHTML('beforeend','<div class="panel-label">▸ YOUR FARM</div>');
+  menu.appendChild($('footer'));
+  body.appendChild(menu);
+  gw.insertBefore(sheet,$('tabs'));
+  gw.insertBefore($('tabs'),sheet.nextSibling);
+  // swipe the sheet down to close it
+  let sy=null;
+  sheet.querySelector('.sheet-head').addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+  sheet.querySelector('.sheet-head').addEventListener('touchend',e=>{if(sy!==null&&e.changedTouches[0].clientY-sy>50)closeSheet();sy=null;});
+  // the yard's grass follows the time of day and season
+  ['seed-panel'].forEach(id=>$(id).className='');
+  document.body.classList.add('handheld');
+}
+function renderMenu(){
+  const c=$('menu-ach-count');if(c)c.textContent=Object.keys(achUnlocked).length+'/'+ACHIEVEMENTS.length;
+  const d=$('menu-dev-btn');if(d)d.style.display=devMode?'':'none';
+}
 function init(){
+  buildHandheld();
   const loaded=loadGame();
   if(!loaded) defaultState();
 
@@ -6458,6 +7473,10 @@ function init(){
   forgeIngotReady(); // register ingots in ALL_ITEMS_MAP
   if(!townHall.forgeQueue) townHall.forgeQueue=[];
   if(!townHall.preserveQueue) townHall.preserveQueue=[];
+  if(!quests.daily&&!quests.weekly) questsNewDay();
+  if(!ALL_ITEMS_MAP.honey) ALL_ITEMS_MAP.honey={icon:'🍯',name:'HONEY',sell:60,energy:8};
+  renderFarmDecor();
+  renderSceneAnimals();
   checkAchievements();
   updateAchBadge();
   // apply axe tier to tree max HP (axeTier takes precedence over skill)
@@ -6761,7 +7780,7 @@ const VILLAGERS=[
     ],
     favourite:{type:'gold',label:'Gold coins',icon:'🪙'},
     shop:[
-      {id:'pv_fert2', name:'SUPER FERT',   desc:'Next 3 crops grow 1 day faster.', cost:150, act:'fert3',   arg:3,    heartReq:1},
+      {id:'pv_fert2', name:'SUPER FERT',   desc:'Next 3 crops grow 1 day faster (6 at Farming LV5).', cost:150, act:'fert3',   arg:3,    heartReq:1},
       {id:'pv_bag1',  name:'SATCHEL',      desc:'Bag capacity: 30 → 40 slots.',    cost:500, act:'bagup',   arg:40,   heartReq:2},
       {id:'pv_bag2',  name:'LARGE BAG',    desc:'Bag capacity: 40 → 60 slots.',    cost:1200,act:'bagup',   arg:60,   heartReq:3},
       {id:'pv_bag3',  name:'MERCHANT BAG', desc:'Bag capacity: 60 → 80 slots.',    cost:2500,act:'bagup',   arg:80,   heartReq:4},
@@ -6853,6 +7872,95 @@ const VILLAGERS=[
   },
 ];
 
+// ── VILLAGER LIFE: portraits, birthdays, loved gifts, daily talk ──
+const VIL_LIFE={
+  wren: {portrait:'pt_wren', birthday:{season:'summer',day:9},  loves:['pike_fish','salmon_fish']},
+  hob:  {portrait:'pt_hob',  birthday:{season:'fall',day:21},   loves:['pumpkin','tomato']},
+  sal:  {portrait:'pt_sal',  birthday:{season:'winter',day:5},  loves:['ruby','emerald']},
+  bess: {portrait:'pt_bess', birthday:{season:'spring',day:18}, loves:['sheep_product','blueberry']},
+  ford: {portrait:'pt_ford', birthday:{season:'fall',day:3},    loves:['sap','maple_pancakes']},
+  mayor:{portrait:'pt_mayor',birthday:{season:'spring',day:7},  loves:['tulip','sunflower']},
+  bram: {portrait:'pt_bram', birthday:{season:'winter',day:24}, loves:['gold_ingot','topaz']},
+};
+const VIL_TALK={
+  wren:{spring:['The trout are waking up. Can you feel the river changing?','Spring melt makes the water fast. Hold your rod tight.'],
+        summer:['Hot days, lazy fish. Try the evenings.','I saw a pufferfish sunbathing. Rude of it, honestly.'],
+        fall:['Salmon are running upriver. Beautiful, isn\'t it?','The leaves on the water look like little boats.'],
+        winter:['Ice fishing teaches patience. And cold toes.','Even under the ice, the river keeps moving.'],
+        rain:['Rain! The best fishing weather there is.','Don\'t mind me, I\'m soaked and happy.'],
+        any:['The river doesn\'t care how busy you are. That\'s why I like it.','Have you tried casting near the reeds?']},
+  hob:{spring:['Fresh parsnips! Nothing beats a spring roast.','I\'m planting herbs behind the kitchen. Wish me luck.'],
+       summer:['Tomato season! I could eat them like apples.','Too hot to stand by the stove... I\'m doing it anyway.'],
+       fall:['Pumpkin soup weather. My favourite time of year.','The harvest is when a cook really earns his apron.'],
+       winter:['Stew bubbling all day keeps the whole house warm.','Winter roots are sweeter after a frost, you know.'],
+       rain:['Rainy days are for baking. The oven\'s already on.','Come in out of the wet — there\'s soup.'],
+       any:['A full belly makes for a good day\'s work.','Taste this. No, really, taste it.']},
+  sal:{spring:['New season, new stock. Business is blooming.','Spring buyers are generous. Sell while you can.'],
+       summer:['Tourists from the coast — they\'ll pay anything.','Hot weather, cold drinks, warm profits.'],
+       fall:['Harvest prices dip when everyone sells at once. Be clever.','I\'ve a buyer who wants grapes. Lots of grapes.'],
+       winter:['Winter\'s quiet. Perfect time to count coins.','Rare gems sell best when the nights are long.'],
+       rain:['Rain keeps the gossips indoors. Good for business.','I don\'t close for weather. Weather closes for me.'],
+       any:['Everything has a price, farmer. Even friendship — mine\'s just high.','Buy low, sell high, smile always.']},
+  bess:{spring:['Lambs everywhere! I can hardly keep count.','The hens love spring. More eggs than baskets!'],
+        summer:['Make sure your animals have shade and water.','The cows are grumpy in the heat. So am I.'],
+        fall:['Time to stock up on hay before the frost.','The sheep\'s wool is coming in thick this year.'],
+        winter:['Keep your barn warm and your animals happy.','I knit scarves for my sheep. Don\'t tell anyone.'],
+        rain:['The ducks are loving this. The chickens are not.','Muddy boots, happy pigs. That\'s a rainy day.'],
+        any:['Animals know who cares for them.','Have you named your chickens yet? You should.']},
+  ford:{spring:['Sap\'s rising. Good time to tap a tree.','New shoots everywhere. The forest is busy.'],
+        summer:['Long days for chopping. I like long days.','Mind the bees in the old oak.'],
+        fall:['Firewood season. Stack it high.','Leaves come down, the wood shows its grain.'],
+        winter:['Cold axe, warm hands. Keep moving.','Snow on the pines. Quiet out there.'],
+        rain:['Wet wood is heavy wood.','Rain\'s good for the saplings.'],
+        any:['Hm.','Good steel, good work.']},
+  mayor:{spring:['Spring in Fernhollow! The flowers outside the hall are blooming.','The Blossom Fair is the pride of our town.'],
+         summer:['A splendid summer! The town is lively again.','The children have been racing down to the river all week.'],
+         fall:['The harvest supper brings us all together. Wonderful.','Our town grows stronger with every harvest.'],
+         winter:['The lanterns on Lantern Night are a sight to behold.','Even in winter, Fernhollow has a warm heart.'],
+         rain:['A little rain never stopped Fernhollow!','My hat is waterproof. Mostly.'],
+         any:['The town hall project is my life\'s work. Thank you for helping.','Fernhollow is lucky to have you, farmer.']},
+  bram:{spring:['Spring floods seep into the lower shafts. Careful down there.','Found a quartz vein the size of my arm.'],
+        summer:['The mine stays cool in summer. Best place in town.','Hot out here. Cold down there. I know where I\'d rather be.'],
+        fall:['Gold glints brighter in autumn light. Old miner\'s tale.','Stocking up on lamp oil for the long nights.'],
+        winter:['Deep rock stays warm. Funny how that works.','Lantern Night\'s my favourite. The mine glows.'],
+        rain:['Rain on the hills means drips in the tunnels.','Good day to be underground.'],
+        any:['The mountain gives what you earn.','Mind your head on floor twelve.']},
+};
+function vilLife(id){return VIL_LIFE[id]||{};}
+function vilPortrait(id,cls){const l=vilLife(id);return l.portrait?`<img class="${cls||'vil-portrait'}" src="${pxURL(l.portrait)}" alt="">`:'';}
+function isBirthday(id){const b=vilLife(id).birthday;return !!b&&b.season===currentSeason().id&&b.day===seasonDay;}
+function birthdayToday(){return VILLAGERS.find(v=>isBirthday(v.id))||null;}
+function vilGiftMult(id){return eventGiftMult()*(isBirthday(id)?3:1);} // festival ×2, birthday ×3
+// A line for today: birthday > festival > weather > season > general, plus the heart-level line
+function vilTalkLine(id){
+  const t=VIL_TALK[id];if(!t) return '...';
+  const v=VILLAGERS.find(x=>x.id===id);
+  if(isBirthday(id)) return 'It\'s my birthday today! You remembered? That means a lot.';
+  const f=getEventToday();
+  if(f){
+    const fname=f.name.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+    return f.host===id?'Welcome to the '+fname+'! I\'ve been looking forward to this all season.':'Happy '+fname+'! Isn\'t the whole town lovely today?';
+  }
+  const pools=[];
+  if(weatherWet()&&weatherToday!=='snow') pools.push(t.rain);
+  pools.push(t[currentSeason().id]||[],t.any);
+  const flat=pools.flat();
+  const s=vilGetState(id);
+  if(s.hearts>=1&&Math.random()<0.35&&v) return v.dialogues[Math.min(s.hearts,4)][0];
+  return flat[(day+id.length)%flat.length]; // changes daily, stable within a day
+}
+function vilTalk(id){
+  vilInitState();
+  const v=VILLAGERS.find(x=>x.id===id);if(!v) return;
+  const s=villagerState[id];
+  const first=!s.talkedToday;
+  s.talkedToday=true;
+  showVilDialogue(v,[vilTalkLine(id)],null,()=>{
+    if(first){vilAddXP(id,isBirthday(id)?20:10);info('💬 YOU CHATTED WITH '+v.name+'. +'+(isBirthday(id)?20:10)+' HEART XP');}
+    saveGame();renderVillagers();
+  });
+}
+
 // villagerState, villagerOpen, mining/fishing/woodcutting state — declared in state block above
 
 // ── SAL SPECIAL STOCK ──
@@ -6917,6 +8025,7 @@ function buySalSpecial(){
   if(!salStockAvailableToday()){info('SAL\'S DELIVERY ISN\'T DUE YET!');playSound('error');return;}
   if(salStockRemaining<=0){info('SAL\'S STOCK IS SOLD OUT! BACK IN 5 DAYS.');playSound('error');return;}
   if(coins<crop.buyPrice){info('NEED '+crop.buyPrice+'g FOR '+crop.name+'!');playSound('error');return;}
+  if(!bagCanTake(crop.cropId)){bagFullMsg();return;}
   coins-=crop.buyPrice;upCoins();
   salStockRemaining--;
   // Register crop in ALL_ITEMS_MAP if needed
@@ -6967,6 +8076,8 @@ function vilAddXP(id,xp){
 function vilGiftValue(vilId,itemId){
   const v=VILLAGERS.find(x=>x.id===vilId);
   if(!v)return 0;
+  const base=itemId.split('|')[0];
+  if((vilLife(vilId).loves||[]).some(l=>l===itemId||l===base)) return 60; // loved gift
   const fav=v.favourite;
   let isMatch=false;
   if(fav.type==='fish'&&itemId.endsWith('_fish'))isMatch=true;
@@ -6987,7 +8098,7 @@ function vilGift(vilId){
     if(donate<=0){info('NO GOLD TO DONATE TO SAL!');playSound('error');return;}
     coins-=donate;upCoins();
     s.giftedToday=true;
-    vilAddXP(vilId,30*eventGiftMult());
+    vilAddXP(vilId,30*vilGiftMult(vilId));
     info('💰 DONATED '+donate+'g TO SAL! RELATIONSHIP IMPROVED!');
     playSound('coin');saveGame();renderTownHall();return;
   }
@@ -7004,7 +8115,7 @@ function vilGift(vilId){
   inventory[bestId]--;
   if(inventory[bestId]<=0)delete inventory[bestId];
   s.giftedToday=true;
-  vilAddXP(vilId,bestXp*eventGiftMult());
+  vilAddXP(vilId,bestXp*vilGiftMult(vilId));
   const item=getItemInfo(bestId);
   const isFav=bestXp>=30;
   info('🎁 GIFTED '+item.icon+' '+item.name+' TO '+v.name+'!'+(isFav?' FAVOURITE GIFT! 💕':''));
@@ -7032,6 +8143,7 @@ function vilBuy(vilId,itemId){
       playSound('error');return;
     }
   }
+  if(it.act==='energy'&&energy>=maxEnergy&&!devFlags.unlimitedEnergy){info('YOU\'RE ALREADY FULL OF ENERGY!');playSound('error');return;}
   if(it.act==='buyanimal'){
     const bld={chicken:'coop',cow:'barn',sheep:'barn'}[it.arg];
     const max={chicken:4,cow:2,sheep:2}[it.arg];
@@ -7053,13 +8165,13 @@ function vilBuy(vilId,itemId){
   else if(it.act==='buyanimal'){
     const newId=animals.length?Math.max(...animals.map(a=>a.id))+1:1;
     animals.push({id:newId,type:it.arg,fed:false,hasProduct:false,daysSinceProduct:0});
+    renderSceneAnimals();
     renderAnimals();showAnimalTab();info('🐾 NEW '+it.arg.toUpperCase()+' ADDED!');}
-  else if(it.act==='fert'){fertilized=getFertilizerCharges();info('FERTILIZER READY!');}
-  else if(it.act==='fert3'){fertilized=(fertilized||0)+3;info('SUPER FERTILIZER! NEXT '+fertilized+' CROPS GROW 1 DAY FASTER.');}
+  else if(it.act==='fert3'){fertilized=(fertilized||0)+getFertilizerCharges(3);info('SUPER FERTILIZER! NEXT '+fertilized+' CROPS GROW 1 DAY FASTER.'+(skills.farming.level>=5?' (FARMING LV5: DOUBLE CHARGES!)':''));}
   else if(it.act==='allplots'){for(let i=0;i<N;i++){if(tiles[i].st==='locked'){tiles[i].st='empty';renderTile(i);}}info('ALL PLOTS UNLOCKED!');}
   else if(it.act==='bagup'){
     bagCapacity=it.arg;
-    info('👜 BAG UPGRADED! NOW HOLDS '+bagCapacity+' ITEM SLOTS.');
+    info('👜 BAG UPGRADED! NOW HOLDS '+bagCap()+' ITEM SLOTS.');
   }
   else if(it.act==='bulk_deal'){
     // Refund the 0g cost (nothing was charged), just activate the deal
@@ -7158,7 +8270,7 @@ function vilItemOwned(it){
 
 function vilNewDay(){
   vilInitState();
-  Object.keys(villagerState).forEach(id=>{villagerState[id].giftedToday=false;});
+  Object.keys(villagerState).forEach(id=>{villagerState[id].giftedToday=false;villagerState[id].talkedToday=false;});
   // Reset Sal stock and bulk deal on Day 1 of each season
   if(seasonDay===1){salStockRemaining=3;salStockWindow=0;salBulkDealUsed=false;}
   // Restock on new 5-day window
@@ -7256,6 +8368,7 @@ function mineSwing(rockIdx){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! EXIT THE MINE TO REST.');return;}
   const rock=mineRocks[rockIdx];
   if(!rock||rock.broken)return;
+  if(!bagCanTake(rock.ore.id)){bagFullMsg();return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
 
   const mineLv=skills.mining.level;
@@ -7276,6 +8389,7 @@ function mineSwing(rockIdx){
     if(mineLv>=9&&Math.random()<0.05){
       const gems=MINE_ORE_TIERS.filter(o=>o.minFloor>=50);
       finalOre=gems[Math.floor(Math.random()*gems.length)]||ore;
+      if(!bagCanTake(finalOre.id)) finalOre=ore;
       if(!ALL_ITEMS_MAP[finalOre.id]) ALL_ITEMS_MAP[finalOre.id]={icon:finalOre.icon,name:finalOre.name,sell:finalOre.sell};
     }
 
@@ -7286,16 +8400,15 @@ function mineSwing(rockIdx){
     // LV2: 20% bonus ore drop | LV5: 40% bonus ore drop
     const bonusChance=mineLv>=5?0.40:mineLv>=2?0.20:0;
     if(bonusChance>0&&Math.random()<bonusChance){
-      addToInventory(finalOre.id,1);
-      resultMsg+=' (×2 BONUS!)';
+      if(bagCanTake(finalOre.id)){addToInventory(finalOre.id,1);resultMsg+=' (×2 BONUS!)';}
     }
-    if(eventActive('lantern')){ addToInventory(finalOre.id,1); resultMsg+=' 🏮+1'; } // Lantern Night
+    if(eventActive('lantern')&&bagCanTake(finalOre.id)){ addToInventory(finalOre.id,1); resultMsg+=' 🏮+1'; } // Lantern Night
 
     // LV10: rare extra gem on any break
     if(mineLv>=10&&Math.random()<0.08){
       const topGems=MINE_ORE_TIERS.filter(o=>o.minFloor>=70);
       const legGem=topGems[Math.floor(Math.random()*topGems.length)];
-      if(legGem){
+      if(legGem&&bagCanTake(legGem.id)){
         if(!ALL_ITEMS_MAP[legGem.id]) ALL_ITEMS_MAP[legGem.id]={icon:legGem.icon,name:legGem.name,sell:legGem.sell};
         addToInventory(legGem.id,1);
         resultMsg+=' + '+legGem.icon+' LEGENDARY!';
@@ -7307,6 +8420,7 @@ function mineSwing(rockIdx){
     if(ore.minFloor>=20) achFlags.first_gem=true; // quartz+ counts as gem
     checkAchievements();
     $('mine-result').textContent=resultMsg+'!';
+    {const rel=document.querySelectorAll('.mine-rock')[rockIdx];juice(rel,'+'+finalOre.icon,{sparks:6,sparkColors:['#c8c4b8','#ffe27a']});}
     playSound('fell');
     pcAddLog('⛏ Mined '+finalOre.icon+' '+finalOre.name+' (F'+mineFloor+')');
   }
@@ -7388,6 +8502,7 @@ function mineUseConsumable(type){
     // find first unbroken rock and break it
     const rock=mineRocks.find(r=>!r.broken);
     if(!rock){info('NO ROCKS TO BLAST!');return;}
+    if(!bagCanTake(rock.ore.id)){bagFullMsg();return;}
     mineConsumables.blast--;
     rock.hp=0;rock.broken=true;
     const ore=rock.ore;
@@ -7558,8 +8673,8 @@ function renderVillagers(){
     card.className='vil-card';
     card.innerHTML=`
       <div class="vil-header" onclick="vilToggleOpen('${v.id}')">
-        <span class="vil-avatar">${v.avatar}</span>
-        <div class="vil-info"><div class="vil-name">${v.name}</div><div class="vil-role">${v.role}</div></div>
+        <span class="vil-avatar">${vilPortrait(v.id)||v.avatar}</span>
+        <div class="vil-info"><div class="vil-name">${v.name}${isBirthday(v.id)?' 🎂':''}</div><div class="vil-role">${v.role}</div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
           <div class="vil-hearts">${heartsHtml}</div>
           <div style="display:flex;align-items:center;gap:4px;width:80px">
@@ -7570,9 +8685,11 @@ function renderVillagers(){
       </div>
       <div class="vil-body ${isOpen?'open':''}">
         <div class="vil-dialogue">"${dialogue}"</div>
-        <div class="vil-fav">💝 FAVOURITE: ${v.favourite.icon} ${v.favourite.label}</div>
+        <div class="vil-fav">⭐ FAVOURITE: ${v.favourite.icon} ${v.favourite.label}</div>
+        <div class="vil-fav">💝 LOVES: ${s.hearts>=2?(vilLife(v.id).loves||[]).map(id=>{const it=getItemInfo(id);return it.icon+' '+it.name;}).join(' · '):'??? (BEFRIEND TO FIND OUT)'}</div>
+        <div class="vil-fav">🎂 BIRTHDAY: ${(()=>{const b=vilLife(v.id).birthday;return b?b.season.toUpperCase()+' '+b.day:'?';})()}${isBirthday(v.id)?' — TODAY! GIFTS ×3':''}</div>
         <div class="vil-gift-row">
-          <span class="vil-gift-label">DAILY GIFT</span>
+          <button class="vil-gift-btn" onclick="vilTalk('${v.id}');event.stopPropagation()">💬 ${s.talkedToday?'CHAT':'TALK'}</button>
           ${giftBtn}
         </div>
         <div class="vil-shop-section">
@@ -7684,7 +8801,7 @@ const MEAL_BUFFS={
   fishing:{icon:'🎣',label:'BIGGER FISHING ZONE'},
   mining: {icon:'⛏', label:'ROCKS -1 HP'},
   wood:   {icon:'🪓',label:'+2 WOOD PER FELL'},
-  forage: {icon:'🌿',label:'+1 FORAGE ITEM ON A WIN'},
+  forage: {icon:'🌿',label:'+1 DIG WHEN FORAGING'},
   farm:   {icon:'🌾',label:'+50% FARMING XP'},
 };
 // fish id → tier, for "T5+ fish" ingredients
@@ -7699,6 +8816,7 @@ function recipeKnown(r){ return (vilGetState('hob').hearts||0)>=(r.hobHeart||0);
 
 function ingMatches(ing,invId){
   if(ing.type==='item') return invId===ing.id;
+  if(ing.type==='cropId') return invId.split('|')[0]===ing.id; // a specific crop, any quality
   if(ing.type==='crop'){
     const [base,q]=invId.split('|');
     const crop=ALL_CROPS.find(c=>c.id===base);
@@ -7713,7 +8831,7 @@ function ingMatches(ing,invId){
   return false;
 }
 function ingLabel(ing){
-  if(ing.type==='item'){const it=getItemInfo(ing.id);return ing.qty+'x '+it.icon+' '+it.name;}
+  if(ing.type==='item'||ing.type==='cropId'){const it=getItemInfo(ing.id);return ing.qty+'x '+it.icon+' '+it.name;}
   if(ing.type==='crop') return ing.qty+'x '+(ing.quality==='gold'?'🥇 GOLD ':'')+(ing.minTier?'T'+ing.minTier+'+ ':'')+'CROP';
   if(ing.type==='fish') return ing.qty+'x '+(ing.minTier?'T'+ing.minTier+'+ ':'')+'FISH';
   if(ing.type==='animal') return ing.qty+'x ANIMAL PRODUCT';
@@ -7862,6 +8980,7 @@ function thCountAnimalProducts(){
 }
 
 function thDonate(roomIdx){
+  thInitState(); // room data is otherwise only created when the Town tab renders
   if(!thRoomUnlocked(roomIdx)){
     const prev=TH_ROOMS[roomIdx-1];
     info('🔒 COMPLETE '+(prev?prev.name:'THE PREVIOUS ROOM')+' FIRST!');
@@ -8097,7 +9216,7 @@ function thCook(id){
   registerRecipeItems();
   // meals stack in an existing slot even when the bag is full; otherwise need a free slot
   const slots=Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;
-  if(!inventory[r.id]&&slots>=bagCapacity){
+  if(!inventory[r.id]&&slots>=bagCap()){
     // bag full — eat it on the spot rather than lose it
     energy=Math.min(maxEnergy,energy+r.energy);upEnergy();
     info(r.icon+' BAG FULL — YOU ATE THE '+r.name+' RIGHT AWAY! +'+r.energy+'⚡'+applyMealBuff(r.buff));
@@ -8243,6 +9362,13 @@ function forgeIngotReady(){
   registerRecipeItems();
 }
 
+// warn at most once a minute that finished Town Hall items are waiting for bag space
+let _queueWarnAt=0;
+function _queueFullWarn(){
+  if(Date.now()-_queueWarnAt<60000) return;
+  _queueWarnAt=Date.now();
+  info('🎒 BAG FULL — FINISHED FORGE/STOREROOM ITEMS ARE WAITING. MAKE ROOM TO COLLECT THEM.');
+}
 function checkPreserveQueue(){
   if(!thRoomComplete('storeroom')) return;
   if(!townHall.preserveQueue||!townHall.preserveQueue.length) return;
@@ -8253,6 +9379,7 @@ function checkPreserveQueue(){
       const itemId=job.itemId||(job.type+'_'+job.cropId+(job.quality&&job.quality!=='normal'?'_'+job.quality:''));
       if(!ALL_ITEMS_MAP[itemId])
         ALL_ITEMS_MAP[itemId]={icon:job.craftIcon,name:job.craftName,sell:job.sellValue};
+      if(!bagCanTake(itemId)){_queueFullWarn();return true;} // keep the jar waiting until the bag has room
       addToInventory(itemId,1);
       info(job.craftIcon+' '+job.craftName+' READY FROM THE STOREROOM! SELLS '+job.sellValue+'g.');
       playSound('build');
@@ -8277,6 +9404,7 @@ function checkForgeQueue(){
       const ig=TH_INGOTS.find(x=>x.id===job.id);
       if(ig){
         forgeIngotReady();
+        if(!bagCanTake(ig.id)){_queueFullWarn();return true;} // keep the ingot in the forge until there's room
         addToInventory(ig.id,1);
         info('🔥 '+ig.icon+' '+ig.name+' READY FROM THE FORGE!');
         playSound('build');
@@ -8353,6 +9481,7 @@ function thQueueSmelt(id){
 
 function renderTownHall(){
   thInitState();
+  renderQuestBoard();
   const container=$('th-rooms');
   if(!container)return;
 
@@ -8539,7 +9668,7 @@ document.addEventListener('click',function startMusicOnce(){
     <div id="ts-tagline">Plant. Grow. Harvest.<br>The land is yours now.</div>
     <button id="ts-start-btn" onclick="titleStart()">▸ START GAME</button>
     <div id="ts-continue-badge"></div>
-    <div id="ts-version">v1.2 — FERNHOLLOW FARM</div>
+    <div id="ts-version">v2.1 — FERNHOLLOW FARM</div>
   </div>
 </div>
 
