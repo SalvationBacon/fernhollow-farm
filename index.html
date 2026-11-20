@@ -132,6 +132,24 @@ img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-web
 #weather-flash.on{animation:wxFlash .7s ease-out}
 @keyframes wxFlash{0%{opacity:0}8%{opacity:.75}20%{opacity:.1}30%{opacity:.5}100%{opacity:0}}
 #status-bar .sb-weather{color:var(--cream)}
+/* crafting + decor */
+#craft-area{margin:6px 0 8px}
+#craft-toggle{width:100%;font-family:'Press Start 2P',monospace;font-size:6px;padding:6px;background:var(--mid);border:2px solid var(--rim);color:var(--gold);cursor:pointer;text-align:left}
+.craft-row{display:flex;align-items:center;gap:7px;background:var(--mid);border:1px solid var(--rim);border-top:none;padding:6px}
+.craft-row.done{opacity:.65}
+img.craft-icon{width:28px;height:28px;image-rendering:pixelated;flex-shrink:0}
+.craft-info{flex:1}
+.craft-name{font-size:6px;color:var(--cream);margin-bottom:2px}
+.craft-desc{font-size:5px;color:var(--muted);line-height:1.6}
+.craft-cost{font-size:5px;margin-top:2px;line-height:1.7}
+.craft-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:5px 7px;background:var(--lift);border:2px solid var(--green2);color:var(--green);cursor:pointer}
+.craft-btn:disabled{opacity:.4;cursor:default;border-color:var(--border);color:var(--muted)}
+.craft-built{font-size:5px;color:var(--green)}
+img.decor{position:absolute;pointer-events:none}
+.decor-fence{position:absolute;left:0;right:0;bottom:17px;height:20px;background-repeat:repeat-x;background-size:16px 20px;image-rendering:pixelated;pointer-events:none}
+.decor-crow{animation:crowHop 1.6s steps(2) infinite}
+.decor-lamp.lit{filter:drop-shadow(0 -2px 5px #ffe080) drop-shadow(0 0 10px rgba(255,210,100,.6))}
+@keyframes crowHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 /* notice board */
 #quest-board{margin-bottom:10px}
 .qb-title{font-size:7px;color:var(--gold);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
@@ -1200,7 +1218,16 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
       <img id="house-img" class="pxs" data-px="farmhouse" alt="Farmhouse">
       <div class="bld-label" id="house-sleep-label" style="color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000">💤 SLEEP</div>
     </div>
+    <div id="decor-fence" class="decor-fence" style="display:none"></div>
+    <img id="decor-path" class="pxs decor" alt="" style="display:none;left:50%;bottom:16px;transform:translateX(-50%)">
+    <img id="decor-flowers" class="pxs decor" alt="" style="display:none;left:38%;bottom:20px">
+    <img id="decor-beehouse" class="pxs decor" alt="" style="display:none;left:1%;bottom:18px">
+    <img id="decor-chest" class="pxs decor" alt="" style="display:none;left:61%;bottom:43px">
+    <img id="decor-lamp-l" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% - 40px);bottom:43px">
+    <img id="decor-lamp-r" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% + 30px);bottom:43px">
     <div id="scene-crops"></div>
+    <img id="decor-scarecrow" class="pxs decor" alt="" style="display:none;left:92%;bottom:6px;z-index:2">
+    <img id="decor-crow" class="pxs decor decor-crow" alt="" style="display:none;bottom:14px;z-index:2">
     <!-- COOP (left of house) -->
     <div id="scene-coop">
       <div id="scene-coop-building" style="display:none">
@@ -1270,6 +1297,10 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     <div class="panel-label" id="inv-panel-label">▸ INVENTORY — TAP ITEM TO EAT OR SHIP</div>
     <div id="inv-grid"></div>
     <button id="ship-all-btn" onclick="shipAll()">📦 SHIP ALL UNLOCKED ITEMS</button>
+    <div id="craft-area">
+      <button id="craft-toggle" onclick="toggleCrafting()">🔨 CRAFTING ▾</button>
+      <div id="craft-list"></div>
+    </div>
     <div id="inv-ship-area">
       <div id="inv-ship-label">📦 SHIPPING BOX — SELLS TONIGHT</div>
       <div id="inv-ship-list"></div>
@@ -2011,6 +2042,14 @@ const PX_SPRITES={
   pt_mayor:{r:['......kGGGGGGk......','......kGgGGGGk......','......kGGGGGGk......','......krrrrrrk......','....kkkGGGGGGkkk....','...kGGGGGGGGGGGGk...','....kkWWWWWWWWkk....','....kWttttttttWk....','....kWttWttytTWk....','....kWttktykyTWk....','....kWtttttytyWk....','....kWtWWWWWWyWk....','....kWtttRRttTWk....','.....kkttttttkk.....','.......kttTTk.......','.....kkkkTTkkkk.....','....kBBBwwwwBBBk....','...kBBBBBrrBBBBBk...','..kBBBBBBrBBBBBBBk..','..kBBBBBBBrBBBBBBk..']},
   pt_bram:{r:['.........kk.........','.......kkcckk.......','.....kkyywwyykk.....','....kyyyywwyyyyk....','....kyYyywwyyYyk....','....kyyyyyyyyyyk....','...kYYYYYYYYYYYYk...','....kkTTTTTTGTkk....','.....kTTgTTgTnk.....','.....kTTkTTkTnk.....','.....kTGTTTTTnk.....','.....kggggggggk.....','.....kgWgRRgggk.....','.....kggggggWgk.....','.....kggggggggk.....','.....kkggggggkk.....','....kONggggggNOk....','...kOONOWWWWONOOk...','..kOOONOOOOOONOOOk..','..kOOONOOOOOONOOOk..']},
   cake:{r:['...r..r...','...y..y...','..kkkkkk..','.kppppppk.','.kwwwwwwk.','kppppppppk','knnnnnnnnk','kwwrwwrwwk','knnnnnnnnk','.kkkkkkkk.']},
+  scarecrow:{r:['....kkkk....','...kYyyYk...','.kkkkkkkkkk.','...kttttk...','...ktkktk...','...kttttk...','...kkRRkk...','kkkkrrrrkkkk','yNnnrrrrnnNy','kkkkrrrrkkkk','...krrrrk...','...kRRRRk...','....knnk....','....knnk....','....knnk....','....knnk....','...kknnkk...']},
+  fence:{r:['.kk.....','knnk....','knnkkkkk','knnnnnnn','knnkkkkk','knnk....','knnkkkkk','knnnnnnn','knnkkkkk','kNNk....']},
+  path:{r:['..kkkkk...','.kgWWggk..','.kggggGk..','..kkkkk...','....kkkkk.','...kgWggk.','...kgggGk.','....kkkk..','.kkkkk....','kgWWggk...','kgggGGk...','.kkkkk....']},
+  flowerbed:{r:['..p...y...p...y.','.pyp.yoy.pyp.yoy','..e...e...e...e.','.kekkkekkkekkkek','knnnnnnnnnnnnnnk','kmmmmmmmmmmmmmmk','.kkkkkkkkkkkkkk.']},
+  lamp:{r:['.kkkk.','kyyyyk','kywyyk','kyyyyk','kkkkkk','..kk..','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','.kGGk.','kkkkkk']},
+  beehouse:{r:['....kk....','..kkRRkk..','.kRrrrrRk.','kkkkkkkkkk','.knnnnnnk.','.knkkkknk.','.knkyyknk.','.knkkkknk.','.knnnnnnk.','.knnnnnnk.','.kkkkkkkk.','..kk..kk..']},
+  chest:{r:['.kkkkkkkkkk.','knnnnnnnnnnk','kNNNNNNNNNNk','kkkkkyykkkkk','knnnnyynnnnk','knnnnnnnnnnk','knnnnnnnnnnk','kNNNNNNNNNNk','kkkkkkkkkkkk']},
+  crow:{r:['......kk..','.....kGGk.','....kGkGoo','kk.kGGGGk.','kGkGGGGGk.','.kGGGGGk..','..kkGGk...','...o.o....']},
   // ── farm scene (drawn at 2× in the scene) ──
   farmhouse:{r:[
     '...........kk...kkk.....',
@@ -2179,7 +2218,7 @@ const PX_EMOJI={
   '🪙':'coin','⭐':'star','⚡':'bolt','❤':'heart','💗':'heart_pink','💕':'heart_pink','💝':'heart_pink','💜':'heart_purple','♡':'heart_empty',
   '💧':'drop','💦':'drops','🫧':'amber','❓':'question','⚠':'warn','⬆':'up','⬇':'down','⏩':'ff','⚙':'gear','🔒':'lock','🔓':'unlock',
   '🎁':'gift','🥇':'medal_gold','🥈':'medal_silver','📦':'box','🏛':'townhall','🏠':'house','🏚':'house_old','🏮':'lantern','🎪':'tent',
-  '🌙':'moon','☀':'sun','❄':'snow','🎂':'cake','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
+  '🌙':'moon','☀':'sun','❄':'snow','🎂':'cake','🐦':'crow','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
   '💡':'bulb','📱':'phone','📲':'phone','🖥':'monitor','🎮':'gamepad','💬':'speech','📊':'chart','📅':'calendar','💾':'floppy','📧':'mail','🕐':'clock',
   '📄':'paper','📜':'scroll','💨':'puff','😄':'face_happy','😐':'face_meh','🤔':'face_think','😈':'face_devil','🧑':'person','👥':'person','👋':'hand','✊':'hand',
   '🤖':'robot','💰':'moneybag','🛒':'cart','👜':'bag','🎒':'bag','💼':'briefcase','🚧':'barrier','💥':'blast','💪':'arm','✂':'scissors','🚪':'door','🎩':'tophat','🐛':'bug',
@@ -2420,6 +2459,8 @@ let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
 let cookBuffs={};     // today's meal buffs {day, fishing, mining, wood, luck} — cleared each new day
 let weatherToday='sun',weatherTomorrow='sun'; // see WEATHER
 let quests={daily:null,weekly:null,done:0}; // notice board — see QUESTS
+let crafted={};   // crafted farm items, e.g. {scarecrow:1, chest:2} — see CRAFTS
+let beeDays=0;    // days since the bee house last made honey
 let knownRecipes={};  // recipe ids Hob has taught the player
 let eventsSeen={};    // festival rewards claimed, keyed 'eventId_year'
 let clockFrozenAt=null; // seconds into the day while the clock is frozen (title screen / app hidden)
@@ -2464,6 +2505,7 @@ function defaultState(){
   cookBuffs={};knownRecipes={};eventsSeen={};
   weatherToday='sun';weatherTomorrow='sun';
   quests={daily:null,weekly:null,done:0};
+  crafted={};beeDays=0;
 }
 
 function saveGame(){
@@ -2479,7 +2521,7 @@ function saveGame(){
     luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
     daySecs:getSessionSec(),dayPenaltyEnergy,
-    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,quests,
+    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,quests,crafted,beeDays,
     salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
@@ -2575,6 +2617,8 @@ function loadGame(){
     weatherTomorrow=WEATHER[d.weatherTomorrow]?d.weatherTomorrow:'sun';
     quests=(d.quests&&typeof d.quests==='object')?d.quests:{daily:null,weekly:null,done:0};
     quests.done=quests.done||0;
+    crafted=(d.crafted&&typeof d.crafted==='object')?d.crafted:{};
+    beeDays=d.beeDays||0;
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
@@ -2990,6 +3034,113 @@ function updateQuestBadge(){
   if(!ready&&dot) dot.remove();
 }
 
+// ══════════════════════════════════════
+// CRAFTING & FARM DECOR (+ crows)
+// ══════════════════════════════════════
+// Costs use the Kitchen ingredient spec (ingMatches). `max` = how many can be built.
+const CRAFTS=[
+  {id:'scarecrow',name:'SCARECROW',  sprite:'scarecrow',max:1,desc:'Keeps crows away from your crops.',
+   cost:[{type:'item',id:'wood',qty:10},{type:'item',id:'coal',qty:2},{type:'crop',qty:1}]},
+  {id:'fence',    name:'FENCE',      sprite:'fence',    max:1,desc:'A sturdy fence around the field.',
+   cost:[{type:'item',id:'wood',qty:15}]},
+  {id:'path',     name:'STONE PATH', sprite:'path',     max:1,desc:'A tidy stone path to your door.',
+   cost:[{type:'item',id:'stone',qty:10}]},
+  {id:'flowers',  name:'FLOWER BED', sprite:'flowerbed',max:1,desc:'Wildflowers out front. Pretty!',
+   cost:[{type:'item',id:'wood',qty:5},{type:'forage',qty:3}]},
+  {id:'lamp',     name:'LAMP POSTS', sprite:'lamp',     max:1,desc:'Warm light around the house at night.',
+   cost:[{type:'item',id:'wood',qty:5},{type:'item',id:'copper_ingot',qty:1},{type:'item',id:'coal',qty:2}]},
+  {id:'beehouse', name:'BEE HOUSE',  sprite:'beehouse', max:1,desc:'Makes a jar of honey every 3 days.',
+   cost:[{type:'item',id:'wood',qty:15},{type:'item',id:'sap',qty:2},{type:'item',id:'copper_ingot',qty:1}]},
+  {id:'chest',    name:'STORAGE CHEST',sprite:'chest',  max:2,desc:'+10 bag slots each (up to 2).',
+   cost:[{type:'item',id:'wood',qty:20},{type:'item',id:'copper_ingot',qty:2}]},
+];
+let craftOpen=false;
+function toggleCrafting(){craftOpen=!craftOpen;renderCrafting();}
+function craftCanMake(c){
+  if((crafted[c.id]||0)>=c.max) return false;
+  const used={};
+  return c.cost.every(ing=>{
+    let need=ing.qty;
+    for(const id of ingCandidates(ing)){const take=Math.min(need,inventory[id]-(used[id]||0));if(take>0){used[id]=(used[id]||0)+take;need-=take;}if(need<=0)break;}
+    return need<=0;
+  });
+}
+function craftItem(id){
+  const c=CRAFTS.find(x=>x.id===id);
+  if(!c) return;
+  if((crafted[c.id]||0)>=c.max){info('YOU ALREADY HAVE '+c.name+'!');return;}
+  if(!craftCanMake(c)){info('NOT ENOUGH MATERIALS FOR '+c.name+'.');playSound('error');return;}
+  c.cost.forEach(ing=>{
+    let need=ing.qty;
+    ingCandidates(ing).forEach(k=>{if(need<=0)return;const take=Math.min(need,inventory[k]);inventory[k]-=take;if(inventory[k]<=0)delete inventory[k];need-=take;});
+  });
+  crafted[c.id]=(crafted[c.id]||0)+1;
+  achFlags.craft_first=true;
+  playSound('build');
+  info('🔨 '+c.name+' BUILT! '+c.desc.toUpperCase());
+  pcAddLog('🔨 Built '+c.name);
+  renderFarmDecor();checkAchievements();saveGame();renderInv();updateInvBadge();
+}
+function renderCrafting(){
+  const btn=document.getElementById('craft-toggle'),list=document.getElementById('craft-list');
+  if(!btn||!list) return;
+  const built=CRAFTS.filter(c=>(crafted[c.id]||0)>=c.max).length;
+  btn.textContent='🔨 CRAFTING ('+built+'/'+CRAFTS.length+') '+(craftOpen?'▴':'▾');
+  if(!craftOpen){list.innerHTML='';return;}
+  list.innerHTML=CRAFTS.map(c=>{
+    const have=crafted[c.id]||0,done=have>=c.max,can=craftCanMake(c);
+    const costs=c.cost.map(i=>`<span style="color:${ingHave(i)>=i.qty?'var(--green)':'var(--muted)'}">${ingLabel(i)}</span>`).join(' + ');
+    return `<div class="craft-row${done?' done':''}">
+      <img class="craft-icon" src="${pxURL(c.sprite)}" alt="">
+      <div class="craft-info"><div class="craft-name">${c.name}${c.max>1?' ('+have+'/'+c.max+')':''}</div>
+        <div class="craft-desc">${c.desc}</div>${done?'':`<div class="craft-cost">${costs}</div>`}</div>
+      ${done?'<span class="craft-built">✓ BUILT</span>':`<button class="craft-btn" onclick="craftItem('${c.id}')" ${can?'':'disabled'}>CRAFT</button>`}
+    </div>`;
+  }).join('');
+}
+// Show crafted decor in the farm scene
+function renderFarmDecor(){
+  const set=(id,on,sprite)=>{const el=document.getElementById(id);if(!el)return;el.style.display=on?'block':'none';if(on&&sprite)pxSetSprite(el,sprite);};
+  set('decor-scarecrow',crafted.scarecrow,'scarecrow');
+  set('decor-path',crafted.path,'path');
+  set('decor-flowers',crafted.flowers,'flowerbed');
+  set('decor-beehouse',crafted.beehouse,'beehouse');
+  set('decor-chest',crafted.chest,'chest');
+  set('decor-lamp-l',crafted.lamp,'lamp');set('decor-lamp-r',crafted.lamp,'lamp');
+  const fence=document.getElementById('decor-fence');
+  if(fence){fence.style.display=crafted.fence?'block':'none';if(crafted.fence)fence.style.backgroundImage='url('+pxURL('fence',false)+')';}
+  updateCrowVisual();
+}
+// Crows: from day 5, on dry nights with no scarecrow, a crow may eat one growing crop
+function crowsNight(){
+  if(crafted.scarecrow||day<5||weatherWet()) return null;
+  const growing=tiles.map((t,i)=>({t,i})).filter(o=>o.t.st==='grow'&&o.t.crop);
+  if(!growing.length||Math.random()>=0.12) return null;
+  const pick=growing[Math.floor(Math.random()*growing.length)];
+  const name=pick.t.crop.icon+' '+pick.t.crop.name;
+  tiles[pick.i]={st:'empty',crop:null,plantedDay:0,growDays:0,daysGrown:0,watered:false,waterDueDay:0,iv:null,timer:null};
+  renderTile(pick.i);
+  return '🐦 A CROW ATE YOUR '+name+'! CRAFT A SCARECROW (BAG TAB)';
+}
+// A crow hops about the field while crops are unprotected — a hint to build a scarecrow
+function updateCrowVisual(){
+  const el=document.getElementById('decor-crow');
+  if(!el) return;
+  const show=!crafted.scarecrow&&day>=5&&tiles.some(t=>t.st==='grow');
+  el.style.display=show?'block':'none';
+  if(show){pxSetSprite(el,'crow');el.style.left=(20+((day*37)%45))+'%';}
+}
+// Bee house: a jar of honey every 3 days (waits in the hive if the bag is full)
+function beesNight(){
+  if(!crafted.beehouse) return null;
+  beeDays++;
+  if(beeDays<3) return null;
+  if(!ALL_ITEMS_MAP.honey) ALL_ITEMS_MAP.honey={icon:'🍯',name:'HONEY',sell:60,energy:8};
+  if(!bagCanTake('honey')) return '🍯 HONEY IS READY BUT YOUR BAG IS FULL';
+  addToInventory('honey',1);beeDays=0;
+  return '🍯 YOUR BEES MADE A JAR OF HONEY';
+}
+
 // ── SKY ──
 const SKY_KF=[
   {h:0,sky:'#0b0d2a',gr:'#192810'},{h:4,sky:'#0e1030',gr:'#1a2a12'},
@@ -3084,6 +3235,7 @@ function updateSky(){
   const night=h>=19||h<6;
   const houseImg=document.getElementById('house-img');
   if(houseImg) pxSetSprite(houseImg,'farmhouse'+(currentSeason().id==='winter'?'_snow':'')+(night?'_night':''));
+  document.querySelectorAll('.decor-lamp').forEach(el=>el.classList.toggle('lit',night)); // lamps glow after dark
   // Sleep label: gold pulse in evening, white during day, dim before 8am
   const sleepLbl=document.getElementById('house-sleep-label');
   if(sleepLbl){
@@ -3216,8 +3368,10 @@ const info=m=>$('info-bar').textContent=m;
 // ── INVENTORY ──
 // Can the bag take this item? (existing stacks always grow; a new item needs a free slot)
 function bagSlotsUsed(){return Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;}
-function bagCanTake(id){return (inventory[id]||0)>0||bagSlotsUsed()<bagCapacity;}
-function bagFullMsg(){info('🎒 BAG FULL! ('+bagCapacity+' SLOTS) — SHIP OR USE SOMETHING, OR BUY A BIGGER BAG FROM SAL.');playSound('error');}
+// total slots = bag (upgraded via Sal) + 10 per crafted storage chest
+function bagCap(){return bagCapacity+(crafted.chest||0)*10;}
+function bagCanTake(id){return (inventory[id]||0)>0||bagSlotsUsed()<bagCap();}
+function bagFullMsg(){info('🎒 BAG FULL! ('+bagCap()+' SLOTS) — SHIP OR USE SOMETHING, OR BUY A BIGGER BAG FROM SAL.');playSound('error');}
 // Returns true if added. Callers that would otherwise lose the item must check bagCanTake() first.
 function addToInventory(cropId,qty){
   if(!bagCanTake(cropId)){bagFullMsg();return false;}
@@ -3239,7 +3393,7 @@ function renderInv(){
   const entries=Object.entries(inventory).filter(([,q])=>q>0);
   // update label with capacity
   const lbl=$('inv-panel-label');
-  if(lbl) lbl.textContent='▸ BAG — '+entries.length+'/'+bagCapacity+' SLOTS — TAP ITEM TO EAT OR SHIP';
+  if(lbl) lbl.textContent='▸ BAG — '+entries.length+'/'+bagCap()+' SLOTS — TAP ITEM TO EAT OR SHIP';
   if(entries.length===0){
     const e=document.createElement('div');
     e.style.cssText='grid-column:1/-1;font-size:4px;color:#5a4030;text-align:center;padding:10px 0';
@@ -3277,6 +3431,7 @@ function renderInv(){
   }
   renderShipList();
   updateQuestBadge();
+  renderCrafting();
 }
 
 // ── ITEM POPUP ──
@@ -3447,6 +3602,7 @@ function triggerNewDay(shipped,total){
   advanceSeason();
   day++;$('dn').textContent=day;
   const weatherMsgs=advanceWeather();
+  [crowsNight(),beesNight()].forEach(m=>{if(m)weatherMsgs.push(m);});
   const wasPenalised=dayPenaltyEnergy;
   const newEnergy=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
   dayPenaltyEnergy=false;
@@ -3461,6 +3617,7 @@ function triggerNewDay(shipped,total){
     if(tree2RespawnDaysLeft===0){tree2Hp=treeMaxHp;info('THE TREES HAVE REGROWN!');}
   }
   questsNewDay();
+  updateCrowVisual();
   showSummary(shipped,total,wasPenalised,weatherMsgs);
   shipping={};updateShipCount();renderInv();
   if((townHall.sprinklerTier||0)>0) applySprinkler(); // sprinklers run at dawn, not up to a minute later
@@ -3654,6 +3811,7 @@ function plantTile(i){
   playSound('plant');
   pcAddLog('Planted '+sel.icon+' '+sel.name);
   tutHook('firstPlant');
+  updateCrowVisual();
   renderTile(i);
   renderWaterBtn();
   saveGame();
@@ -3662,7 +3820,7 @@ function harvestTile(i){
   if(energy<=0&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! BUY FOOD FROM HOB IN TOWN.');return}
   const c=tiles[i].crop;
   // need room for every quality of this crop we might get — otherwise the harvest would vanish
-  if(!['', '|silver','|gold'].every(q=>bagCanTake(c.id+q))&&bagSlotsUsed()>=bagCapacity){bagFullMsg();return;}
+  if(!['', '|silver','|gold'].every(q=>bagCanTake(c.id+q))&&bagSlotsUsed()>=bagCap()){bagFullMsg();return;}
   const dblChance=getFarmingDoubleChance();
   const bonus=((c.id==='potato'||c.id==='wheat'||c.id==='yam'||c.id==='crocus')&&Math.random()<dblChance)?2:1;
   const quality=getFarmingQuality();
@@ -4140,7 +4298,7 @@ function startFishing(){
   if(!fishingUnlocked){info('VISIT WREN IN THE 🏛 TOWN TAB TO GET A FISHING ROD FIRST!');return;}
   if(energy<2&&!devFlags.unlimitedEnergy){info('NEED 2 ENERGY TO FISH!');$('fish-result').textContent='NOT ENOUGH ENERGY!';return}
   if(fishActive)return;
-  if(bagSlotsUsed()>=bagCapacity){bagFullMsg();$('fish-result').textContent='BAG FULL — MAKE ROOM FIRST!';return;}
+  if(bagSlotsUsed()>=bagCap()){bagFullMsg();$('fish-result').textContent='BAG FULL — MAKE ROOM FIRST!';return;}
   if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-2);upEnergy();}
   const season=currentSeason().id;
   const allFish=FISH_BY_SEASON[season]||FISH_BY_SEASON.spring;
@@ -4689,7 +4847,7 @@ function importSaveData(jsonStr){
     refreshAllSceneCrops();updateAllSkillUI();
     renderAnimals();updateSceneBuildings();showAnimalTab();
     renderWaterBtn();renderActivities();renderTownHall();
-    updateAchBadge();pcUpdate();updateEventBanner();
+    updateAchBadge();pcUpdate();updateEventBanner();renderFarmDecor();
     if(clockFrozenAt!==null){clockFrozenAt=null;freezeClock();} // re-freeze at the imported time
     saveGame();
     renderSaveInfo();
@@ -4772,6 +4930,7 @@ function doReset(){
   defaultState();
   clockFrozenAt=null;titleScreenOpen=true;freezeClock();
   questsNewDay();
+  renderFarmDecor();
   for(const k in ALL_ITEMS_MAP) delete ALL_ITEMS_MAP[k];
   forgeIngotReady();
 
@@ -4879,6 +5038,8 @@ const ACHIEVEMENTS=[
   {id:'town_restored', cat:'🏛 TOWN',      icon:'🏛', name:'TOWN RESTORED',     desc:'Complete all 4 Town Hall rooms.',         check:()=>thCompleteCount()>=4},
   {id:'first_ingot',   cat:'🏛 TOWN',      icon:'🔥', name:'FORGEMASTER',       desc:'Smelt your first ingot.',                 check:()=>!!achFlags.first_ingot},
   {id:'quests_10',     cat:'🏛 TOWN',      icon:'📜', name:'GOOD NEIGHBOUR',    desc:'Complete 10 notice board requests.',      check:()=>(quests.done||0)>=10},
+  {id:'craft_first',   cat:'🏛 TOWN',      icon:'🔨', name:'HANDY',             desc:'Craft your first farm item.',             check:()=>!!achFlags.craft_first},
+  {id:'decorated',     cat:'🏛 TOWN',      icon:'🏠', name:'HOME SWEET HOME',   desc:'Build every crafting item for your farm.',check:()=>CRAFTS.every(c=>(crafted[c.id]||0)>=c.max)},
   {id:'first_meal',    cat:'🏛 TOWN',      icon:'🍳', name:'HOME COOKING',      desc:'Cook your first meal in the Kitchen.',    check:()=>!!achFlags.first_meal},
   {id:'all_recipes',   cat:'🏛 TOWN',      icon:'👑', name:'MASTER CHEF',       desc:'Cook every Kitchen recipe at least once.',check:()=>TH_RECIPES.every(r=>achFlags['cooked_'+r.id])},
   // SPECIAL
@@ -6651,6 +6812,8 @@ function init(){
   if(!townHall.forgeQueue) townHall.forgeQueue=[];
   if(!townHall.preserveQueue) townHall.preserveQueue=[];
   if(!quests.daily&&!quests.weekly) questsNewDay();
+  if(!ALL_ITEMS_MAP.honey) ALL_ITEMS_MAP.honey={icon:'🍯',name:'HONEY',sell:60,energy:8};
+  renderFarmDecor();
   checkAchievements();
   updateAchBadge();
   // apply axe tier to tree max HP (axeTier takes precedence over skill)
@@ -7344,7 +7507,7 @@ function vilBuy(vilId,itemId){
   else if(it.act==='allplots'){for(let i=0;i<N;i++){if(tiles[i].st==='locked'){tiles[i].st='empty';renderTile(i);}}info('ALL PLOTS UNLOCKED!');}
   else if(it.act==='bagup'){
     bagCapacity=it.arg;
-    info('👜 BAG UPGRADED! NOW HOLDS '+bagCapacity+' ITEM SLOTS.');
+    info('👜 BAG UPGRADED! NOW HOLDS '+bagCap()+' ITEM SLOTS.');
   }
   else if(it.act==='bulk_deal'){
     // Refund the 0g cost (nothing was charged), just activate the deal
@@ -8388,7 +8551,7 @@ function thCook(id){
   registerRecipeItems();
   // meals stack in an existing slot even when the bag is full; otherwise need a free slot
   const slots=Object.keys(inventory).filter(k=>(inventory[k]||0)>0).length;
-  if(!inventory[r.id]&&slots>=bagCapacity){
+  if(!inventory[r.id]&&slots>=bagCap()){
     // bag full — eat it on the spot rather than lose it
     energy=Math.min(maxEnergy,energy+r.energy);upEnergy();
     info(r.icon+' BAG FULL — YOU ATE THE '+r.name+' RIGHT AWAY! +'+r.energy+'⚡'+applyMealBuff(r.buff));
