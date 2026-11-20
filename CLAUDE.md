@@ -13,7 +13,7 @@ Current version: **v2.0** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v18` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v19` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -22,7 +22,7 @@ Current version: **v2.0** (shown on title screen and in feature requests).
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v18` → `fernhollow-v19`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v19` → `fernhollow-v20`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -93,6 +93,7 @@ All art is custom pixel art drawn in code — **no emoji are shown to the player
 - **Textures** `tx_soil`, `tx_soil_wet`, `tx_grass`, `tx_wood`, `tx_plank` are published as CSS variables
   (`--px-soil`, `--px-soil-wet`, `--px-grass`, `--px-wood`, `--px-plank`) by `pxThemeVars()` and used by the theme.
 - Villager portraits `pt_<id>` (20×20) are generated from layered parts (face, hair, hat, beard, clothes).
+- The farmhouse is a 32×28 timber cottage (terracotta roof uses palette `x`/`X`; chimney smoke at `left:44px`).
 
 ### v2.0 Theme
 A theme block at the end of `<style>` layers on top of the base styles: wood-plank frame and HUD, bevelled cards

@@ -1197,7 +1197,7 @@ body{background:#170f08 var(--px-wood) repeat;background-size:64px 32px}
 @keyframes cloudDrift{from{translate:-20px 0}to{translate:30px 0}}
 #farmer{animation:farmerIdle 1.6s steps(2) infinite}
 @keyframes farmerIdle{0%,100%{translate:0 0}50%{translate:0 -1px}}
-#chimney-smoke{position:absolute;left:34px;top:-8px;width:10px;height:20px;pointer-events:none}
+#chimney-smoke{position:absolute;left:44px;top:-6px;width:10px;height:20px;pointer-events:none}
 #chimney-smoke i{position:absolute;bottom:0;left:2px;width:5px;height:5px;background:rgba(220,220,215,.55);animation:smokeRise 3.6s linear infinite;opacity:0}
 #chimney-smoke i:nth-child(2){animation-delay:1.2s}#chimney-smoke i:nth-child(3){animation-delay:2.4s}
 @keyframes smokeRise{0%{opacity:0;transform:translate(0,0) scale(.7)}15%{opacity:.7}100%{opacity:0;transform:translate(8px,-26px) scale(1.6)}}
@@ -1386,8 +1386,8 @@ img.scene-bird{position:absolute;left:-12px;animation:birdFly 9s linear forwards
     <img id="decor-flowers" class="pxs decor" alt="" style="display:none;left:38%;bottom:20px">
     <img id="decor-beehouse" class="pxs decor" alt="" style="display:none;left:1%;bottom:18px">
     <img id="decor-chest" class="pxs decor" alt="" style="display:none;left:61%;bottom:43px">
-    <img id="decor-lamp-l" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% - 40px);bottom:43px">
-    <img id="decor-lamp-r" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% + 30px);bottom:43px">
+    <img id="decor-lamp-l" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% - 50px);bottom:43px">
+    <img id="decor-lamp-r" class="pxs decor decor-lamp" alt="" style="display:none;left:calc(52% + 40px);bottom:43px">
     <div id="scene-crops"></div>
     <img id="decor-scarecrow" class="pxs decor" alt="" style="display:none;left:92%;bottom:6px;z-index:2">
     <img id="decor-crow" class="pxs decor decor-crow" alt="" style="display:none;bottom:14px;z-index:2">
@@ -2037,6 +2037,7 @@ const PX_PAL={
   n:'#b07838', N:'#603814', t:'#f0c890', T:'#c08850', s:'#fff0c8', m:'#7a5028',
   // texture colours (tilled soil, grass, wood planks)
   a:'#8e5c32', A:'#6c4224', d:'#4e301a', D:'#331f10', f:'#62a83c', F:'#437f2c', h:'#86c656',
+  x:'#c4643c', X:'#8c3c24', // farmhouse roof shingles
   i:'#3b2716', I:'#2f1f11', j:'#46301b', J:'#25170b', q:'#82502a', Q:'#5f391b', u:'#98623a', U:'#4a2c14',
 };
 const PX_SPRITES={
@@ -2251,28 +2252,37 @@ const PX_SPRITES={
   bird:{flat:true,r:['k...k','.k.k.','..k..']},
   // ── farm scene (drawn at 2× in the scene) ──
   farmhouse:{r:[
-    '...........kk...kkk.....',
-    '..........krrk..kGk.....',
-    '.........krrrrk.kGk.....',
-    '........krrrrrrkkGk.....',
-    '.......krrrrrrrrkGk.....',
-    '......krrrrrrrrrrkk.....',
-    '.....krrrrrrrrrrrrk.....',
-    '....krrrrrrrrrrrrrrk....',
-    '...krrrrrrrrrrrrrrrrk...',
-    '..kRRRRRRRRRRRRRRRRRRk..',
-    '.kkkkkkkkkkkkkkkkkkkkkk.',
-    '...kttttttttttttttttk...',
-    '...ktkkkktkkkktkkkktk...',
-    '...ktkbbktkNNktkbbktk...',
-    '...ktkcbktkNNktkcbktk...',
-    '...ktkkkktkNNktkkkktk...',
-    '...kttttttkNykttttttk...',
-    '...kTTTTTTkNNkTTTTTTk...',
-    '...kkkkkkkkkkkkkkkkkk...']},
+    '....................kGGGGGk.....',
+    '..............kkkk...kgggk......',
+    '.............kxxxxk..kgGgk......',
+    '............kXxXxXxk.kgggk......',
+    '...........kxxxxxxxxkkgggk......',
+    '..........kxxxNNNNxxxkgGgk......',
+    '.........kXxXxNcbNXxXxgggk......',
+    '........kxxxxxNbbNxxxxxggk......',
+    '.......kxxxxxxNbbNxxxxxxgk......',
+    '......kXxXxXxXNNNNxXxXxXxk......',
+    '.....kxxxxxxxxxxxxxxxxxxxxk.....',
+    'kkkkkxxxxxxxxxxxxxxxxxxxxxxkkkkk',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN',
+    'kkkkNNNNNNNNNNNNNNNNNNNNNNNNkkkk',
+    '...kNsNNNNNssssNNsskkNNNNNsNk...',
+    '...kNsNcNbNssNNNNNNysNcNbNsNk...',
+    '...kNsNbNbNssNnnnnNksNbNbNsNk...',
+    '...kNsNNNNNssNnmmnNssNNNNNsNk...',
+    '...knnreyepnnNnnnnNnnreyepnnk...',
+    '...kNsnnnnnssNnmmyNssnnnnnsNk...',
+    'kkkkNsNNNNNssNnnnnNssNNNNNsNkkkk',
+    'elekNssssssssNnmmnNssssssTsNkele',
+    'leeeNsTssssssNnnnnNssssssssNelee',
+    'epEeNssssssssNnnnnNssssssssNeepE',
+    'eeeeWggWggWggWWWWWWWggWggWggeeee',
+    'eeeggGggGggGgWWWWWWgGggGggGggeee',
+    'kkkkkkkkkkkkkggggggkkkkkkkkkkkkk']},
   farmhouse_night:{base:'farmhouse',map:{b:'y',c:'s'}},
-  farmhouse_snow:{base:'farmhouse',map:{r:'w',R:'W'}},
-  farmhouse_snow_night:{base:'farmhouse',map:{r:'w',R:'W',b:'y',c:'s'}},
+  farmhouse_snow:{base:'farmhouse',map:{x:'w',X:'W'}},
+  farmhouse_snow_night:{base:'farmhouse',map:{x:'w',X:'W',b:'y',c:'s'}},
   coop:{r:[
     '........kk........',
     '.......kYYk.......',
