@@ -111,6 +111,20 @@ img.px{width:max(12px,1.35em);height:max(12px,1.35em);image-rendering:pixelated;
   vertical-align:-0.25em;display:inline-block;pointer-events:none;-webkit-user-drag:none}
 img.pxs{image-rendering:pixelated;image-rendering:crisp-edges;display:block;-webkit-user-drag:none}
 #sun,#moon{position:absolute;pointer-events:none}
+/* weather particles */
+#weather-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+#weather-fx i{position:absolute;top:-10px;display:block}
+.wx-drop{width:1px;height:9px;background:rgba(190,215,255,.75);animation:wxRain linear infinite}
+.wx-flake{width:3px;height:3px;background:#fff;animation:wxSnow linear infinite}
+.wx-leaf{width:4px;height:3px;animation:wxLeaf linear infinite}
+@keyframes wxRain{from{transform:translate(0,-10px)}to{transform:translate(-18px,170px)}}
+@keyframes wxSnow{0%{transform:translate(0,-10px)}50%{transform:translate(8px,80px)}100%{transform:translate(-4px,170px)}}
+@keyframes wxLeaf{0%{transform:translate(0,10px) rotate(0)}100%{transform:translate(-160px,120px) rotate(540deg)}}
+#weather-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4}
+#weather-flash.on{animation:wxFlash .7s ease-out}
+@keyframes wxFlash{0%{opacity:0}8%{opacity:.75}20%{opacity:.1}30%{opacity:.5}100%{opacity:0}}
+#status-bar .sb-weather{color:var(--cream)}
+#status-bar .sb-forecast{color:var(--muted)}
 .cloud{position:absolute;pointer-events:none;transform-origin:left top}
 .ground{position:absolute;bottom:0;left:0;right:0;height:46px;border-top:3px solid #3a5c1e}
 .soil-strip{position:absolute;bottom:0;left:0;right:0;height:18px;border-top:2px solid var(--soil2);background:#6a4820}
@@ -1180,6 +1194,8 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
         <div class="bld-label" style="color:#ff7060">BARN</div>
       </div>
     </div>
+    <div id="weather-fx"></div>
+    <div id="weather-flash"></div>
     <div id="ship-box" onclick="showTab('inv')">
       <img class="pxs" data-px="crate" alt="Shipping crate">
       <div class="sb-count" id="ship-count"></div>
@@ -1270,7 +1286,7 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
     <div class="act-section">
       <div class="act-header">
         <span class="act-title">🌿 FORAGE</span>
-        <span class="act-energy-cost">COSTS 2 ENERGY</span>
+        <span class="act-energy-cost">1 ENERGY/DIG</span>
       </div>
       <div class="act-desc">The Forest Spirit buries treasures in the forest floor. Dig for them: colours tell you how close the nearest find is. ✨ means something rare is nearby!</div>
       <button class="act-btn forage" id="forage-btn" onclick="startForageMini()">🌿 DIG FOR FINDS</button>
@@ -1283,6 +1299,7 @@ body.pc-mode #act-panel .act-section:last-child{margin-bottom:0}
           <span><i style="background:#2a5cb0"></i>COLD 5+</span><span>✨ RARE NEAR</span>
         </div>
         <div id="dig-hint"></div>
+        <button class="act-btn" id="dig-stop-btn" onclick="stopDig()" style="margin-top:6px">✓ STOP DIGGING</button>
       </div>
       <div class="act-result" id="forage-result"></div>
     </div>
@@ -1825,6 +1842,9 @@ const PX_SPRITES={
   tent:{r:['....krr...','....k.....','...kwk....','..kwrwk...','.kwrwrwk..','kwrwrwrwk.','kkkkkkkkk.','kwrkkkwrk.','kwrkNkwrk.','kkkkkkkkk.']},
   moon:{r:['...kkkk...','..kyyyk...','.kyyk.....','kyyk......','kyyk......','kyyk......','.kyyk.....','..kyyyk...','...kkkk...']},
   sun:{r:['....yy....','.y.kkkk.y.','..kyyyyk..','.kyywyyyk.','ykyyyyyyky','ykyyyyyyky','.kyyyyyYk.','..kyyyYk..','.y.kkkk.y.','....yy....']},
+  raincloud:{r:['...kkkk...','.kkWWWWkk.','kWWwwWWWWk','kWwWWWWWgk','kgWWWWWggk','.kkkkkkkk.','.b..b..b..','b..b..b...','..b..b..b.']},
+  stormcloud:{r:['...kkkk...','.kkggggkk.','kggWggggGk','kgWggggGGk','kGggggGGGk','.kkkkykkk.','....ky....','...kyk....','...yk.....']},
+  windleaf:{r:['.......kkk','.....kkllk','...kklleek','..kleeeek.','.kleeeEk..','kleeeEk...','keeEkk....','kEkk......','kk........']},
   snow:{r:['....c....','.c..c..c.','..c.c.c..','...ccc...','ccccwcccc','...ccc...','..c.c.c..','.c..c..c.','....c....']},
   zzz:{r:['......cccc','.......cc.','......cc..','cccc.cccc.','..cc......','.cc.......','cccc......']},
   fire:{r:['....k.....','...kok....','...koyk...','..koyyok..','.koyyyok.k','.koyyyyokk','kooyyyyook','kooyywyook','.koyyyyok.','..kkkkkk..']},
@@ -2120,7 +2140,7 @@ const PX_EMOJI={
   '🪙':'coin','⭐':'star','⚡':'bolt','❤':'heart','💗':'heart_pink','💕':'heart_pink','💝':'heart_pink','💜':'heart_purple','♡':'heart_empty',
   '💧':'drop','💦':'drops','🫧':'amber','❓':'question','⚠':'warn','⬆':'up','⬇':'down','⏩':'ff','⚙':'gear','🔒':'lock','🔓':'unlock',
   '🎁':'gift','🥇':'medal_gold','🥈':'medal_silver','📦':'box','🏛':'townhall','🏠':'house','🏚':'house_old','🏮':'lantern','🎪':'tent',
-  '🌙':'moon','☀':'sun','❄':'snow','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
+  '🌙':'moon','☀':'sun','❄':'snow','🌧':'raincloud','⛈':'stormcloud','🍃':'windleaf','💤':'zzz','🔥':'fire','✨':'sparkle','🎵':'note','🔔':'bell','🔕':'bell_off','🔊':'speaker','🔈':'speaker_lo','🔇':'speaker_off',
   '💡':'bulb','📱':'phone','📲':'phone','🖥':'monitor','🎮':'gamepad','💬':'speech','📊':'chart','📅':'calendar','💾':'floppy','📧':'mail','🕐':'clock',
   '📄':'paper','📜':'scroll','💨':'puff','😄':'face_happy','😐':'face_meh','🤔':'face_think','😈':'face_devil','🧑':'person','👥':'person','👋':'hand','✊':'hand',
   '🤖':'robot','💰':'moneybag','🛒':'cart','👜':'bag','🎒':'bag','💼':'briefcase','🚧':'barrier','💥':'blast','💪':'arm','✂':'scissors','🚪':'door','🎩':'tophat','🐛':'bug',
@@ -2359,6 +2379,7 @@ let salStockWindow=0;    // which window (seasonDay÷5 floor) was last stocked
 let salBulkDealUsed=false; // bulk deal used this season (resets on new season)
 // ── KITCHEN / EVENTS ──
 let cookBuffs={};     // today's meal buffs {day, fishing, mining, wood, luck} — cleared each new day
+let weatherToday='sun',weatherTomorrow='sun'; // see WEATHER
 let knownRecipes={};  // recipe ids Hob has taught the player
 let eventsSeen={};    // festival rewards claimed, keyed 'eventId_year'
 let clockFrozenAt=null; // seconds into the day while the clock is frozen (title screen / app hidden)
@@ -2401,6 +2422,7 @@ function defaultState(){
   salStockWindow=0;
   salBulkDealUsed=false;
   cookBuffs={};knownRecipes={};eventsSeen={};
+  weatherToday='sun';weatherTomorrow='sun';
 }
 
 function saveGame(){
@@ -2416,7 +2438,7 @@ function saveGame(){
     luckyBaitReady,fishNetReady,
     achFlags,achUnlocked,
     daySecs:getSessionSec(),dayPenaltyEnergy,
-    cookBuffs,knownRecipes,eventsSeen,
+    cookBuffs,knownRecipes,eventsSeen,weatherToday,weatherTomorrow,
     salStockRemaining,salStockWindow,salBulkDealUsed,
     allItemsMap:ALL_ITEMS_MAP,
     tiles:tiles.map(t=>({
@@ -2508,6 +2530,8 @@ function loadGame(){
     if(cookBuffs.day!==d.day) cookBuffs={};
     knownRecipes=d.knownRecipes||{};
     eventsSeen=d.eventsSeen||{};
+    weatherToday=WEATHER[d.weatherToday]?d.weatherToday:'sun';
+    weatherTomorrow=WEATHER[d.weatherTomorrow]?d.weatherTomorrow:'sun';
     if(d.allItemsMap)Object.assign(ALL_ITEMS_MAP,d.allItemsMap);
     tiles=(d.tiles||[]).map((t,i)=>{
       const crop=ALL_CROPS.find(c=>c.id===t.cropId)||null;
@@ -2558,6 +2582,7 @@ function applySeasonVisuals(){
   ['tree-t1','tree-t2'].forEach(id=>{const el=document.getElementById(id);if(el)pxSetSprite(el,treeSprite);});
   updateSeasonBar();
   updateEventBanner();
+  _weatherFxType=null;renderWeatherFx(); // leaf colours follow the season
 }
 
 function updateSeasonBar(){
@@ -2696,6 +2721,8 @@ function updateEventBanner(){
   const el=document.getElementById('status-bar');
   if(!el) return;
   const parts=[];
+  const w=WEATHER[weatherToday]||WEATHER.sun,wt=WEATHER[weatherTomorrow]||WEATHER.sun;
+  parts.push(`<span class="sb-weather" title="${w.note||''}">${w.icon} ${w.name}</span><span class="sb-forecast">TMRW ${wt.icon}</span>`);
   const f=getEventToday();
   if(f) parts.push(`<span class="sb-event">${f.icon} ${f.name} TODAY</span>`);
   else{
@@ -2707,6 +2734,89 @@ function updateEventBanner(){
   el.innerHTML=parts.join('<span style="color:var(--dim)"> · </span>');
   el.style.display=parts.length?'flex':'none';
   if(f) el.title=f.effect;
+}
+
+// ══════════════════════════════════════
+// WEATHER — rolled a day ahead so the player gets a forecast
+// ══════════════════════════════════════
+const WEATHER={
+  sun:  {icon:'☀', name:'SUNNY', wet:false},
+  rain: {icon:'🌧',name:'RAIN',  wet:true,  note:'Crops watered · rare fish bite more'},
+  storm:{icon:'⛈',name:'STORM', wet:true,  note:'Crops watered · rare fish bite more · lightning!'},
+  snow: {icon:'❄', name:'SNOW',  wet:true,  note:'Crops watered by the snowmelt'},
+  wind: {icon:'🍃',name:'WINDY', wet:false, note:'+1 forage dig — the wind stirs up finds'},
+};
+const WEATHER_ODDS={ // weights per season
+  spring:{sun:55,rain:30,storm:5,wind:10},
+  summer:{sun:65,rain:15,storm:15,wind:5},
+  fall:  {sun:50,rain:30,storm:5,wind:15},
+  winter:{sun:45,snow:45,wind:10},
+};
+function weatherWet(){return !!(WEATHER[weatherToday]||{}).wet;}
+// Weather for a given season/day: day 1 of a season and festival days are always sunny
+function rollWeather(sIdx,sDay){
+  const s=SEASONS[sIdx];
+  if(sDay===1||FESTIVALS.some(f=>f.season===s.id&&f.day===sDay)) return 'sun';
+  const odds=WEATHER_ODDS[s.id];
+  return weightedRandom(Object.entries(odds).map(([id,weight])=>({id,weight}))).id;
+}
+// Called after the day advances: tomorrow's forecast becomes today, roll a new forecast
+function advanceWeather(){
+  weatherToday=weatherTomorrow;
+  let ns=seasonIndex,nd=seasonDay+1;
+  if(nd>SEASONS[ns].daysPerSeason){nd=1;ns=(ns+1)%SEASONS.length;}
+  weatherTomorrow=rollWeather(ns,nd);
+  const msgs=[];
+  if(weatherWet()){
+    let n=0;
+    tiles.forEach((t,i)=>{if(t.st==='grow'&&t.crop){t.watered=true;t.waterDueDay=day+1;renderTile(i);n++;}});
+    if(n) msgs.push(WEATHER[weatherToday].icon+' THE '+(weatherToday==='snow'?'SNOW':'RAIN')+' WATERED YOUR CROPS');
+  }
+  if(weatherToday==='storm'&&Math.random()<0.3){
+    // lightning splits a tree — free wood by the stump
+    const hit=treeHp>0?1:tree2Hp>0?2:0;
+    if(hit){
+      if(hit===1){treeHp=0;treeRespawnDaysLeft=3;}else{tree2Hp=0;tree2RespawnDaysLeft=3;}
+      const got=bagCanTake('wood')&&addToInventory('wood',4);
+      msgs.push('⚡ LIGHTNING SPLIT A TREE'+(got?' — 4 🪵 WOOD LEFT BY THE STUMP':''));
+    }
+  }
+  return msgs;
+}
+
+// Scene weather: falling particles, darker sky, lightning flashes
+let _weatherFxType=null,_lightningTimer=null;
+function renderWeatherFx(){
+  const fx=document.getElementById('weather-fx');
+  if(!fx) return;
+  const type=weatherToday;
+  if(type===_weatherFxType) return;
+  _weatherFxType=type;
+  fx.innerHTML='';fx.className='wx-'+type;
+  const kinds={rain:'wx-drop',storm:'wx-drop',snow:'wx-flake',wind:'wx-leaf'};
+  const k=kinds[type];
+  if(k){
+    const n=type==='storm'?46:type==='rain'?34:type==='snow'?26:10;
+    const leafColors=currentSeason().id==='spring'?['#f890a8','#ffd0dc']:currentSeason().id==='fall'?['#f09030','#e04030','#f8e048']:['#98e050','#50a830'];
+    for(let i=0;i<n;i++){
+      const d=document.createElement('i');d.className=k;
+      d.style.left=(Math.random()*110-5)+'%';
+      d.style.animationDelay=(-Math.random()*3)+'s';
+      d.style.animationDuration=(type==='snow'?3+Math.random()*3:type==='wind'?2.5+Math.random()*2:0.5+Math.random()*0.4)+'s';
+      if(k==='wx-leaf') d.style.background=leafColors[i%leafColors.length];
+      fx.appendChild(d);
+    }
+  }
+  clearTimeout(_lightningTimer);
+  if(type==='storm') scheduleLightning();
+}
+function scheduleLightning(){
+  _lightningTimer=setTimeout(()=>{
+    if(weatherToday!=='storm') return;
+    const fl=document.getElementById('weather-flash');
+    if(fl&&!document.hidden){fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');setTimeout(()=>playSound('thunder'),350);}
+    scheduleLightning();
+  },7000+Math.random()*14000);
 }
 
 // ── SKY ──
@@ -2776,7 +2886,11 @@ function buildStars(){
 }
 function getRealH(){ return getGameH(); }
 function updateSky(){
-  const h=getRealH(),{sky,gr}=getSky(h);
+  const h=getRealH();
+  let {sky,gr}=getSky(h);
+  // overcast skies on wet days
+  const dim={rain:0.45,storm:0.62,snow:0.3}[weatherToday];
+  if(dim){sky=lerpHex(sky,weatherToday==='snow'?'#8a96a8':'#4a5260',dim);gr=lerpHex(gr,'#2a3420',dim*0.4);}
   document.getElementById('sky').style.background=sky;
   document.getElementById('ground').style.background=gr;
   const co=getCloudOp(h);
@@ -3159,6 +3273,7 @@ function triggerNewDay(shipped,total){
   advanceCropDay();
   advanceSeason();
   day++;$('dn').textContent=day;
+  const weatherMsgs=advanceWeather();
   const wasPenalised=dayPenaltyEnergy;
   const newEnergy=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
   dayPenaltyEnergy=false;
@@ -3172,7 +3287,7 @@ function triggerNewDay(shipped,total){
     tree2RespawnDaysLeft--;
     if(tree2RespawnDaysLeft===0){tree2Hp=treeMaxHp;info('THE TREES HAVE REGROWN!');}
   }
-  showSummary(shipped,total,wasPenalised);
+  showSummary(shipped,total,wasPenalised,weatherMsgs);
   shipping={};updateShipCount();renderInv();
   if((townHall.sprinklerTier||0)>0) applySprinkler(); // sprinklers run at dawn, not up to a minute later
   renderWaterBtn();
@@ -3192,7 +3307,7 @@ function triggerNewDay(shipped,total){
   if(clockFrozenAt!==null) clockFrozenAt=0;
   saveGame();
 }
-function showSummary(shipped,total,wasPenalised){
+function showSummary(shipped,total,wasPenalised,weatherMsgs){
   $('sum-day').textContent='DAY '+day+'  |  '+currentSeason().icon+' '+currentSeason().name;
   const lines=$('sum-lines');lines.innerHTML='';
   $('summary').className='show';
@@ -3224,7 +3339,10 @@ function showSummary(shipped,total,wasPenalised){
     const energyAmt=wasPenalised?Math.max(1,Math.floor(maxEnergy*0.9)):maxEnergy;
     const penaltyNote=wasPenalised?' ⚠ STAYED UP TILL 1AM -10%':'';
     $('sum-bonus').style.opacity=1;
-    $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED';
+    const w=WEATHER[weatherToday]||WEATHER.sun;
+    $('sum-bonus').textContent='⚡ '+energyAmt+' ENERGY RESTORED'+penaltyNote+'\n💰 +'+total+'g DEPOSITED'
+      +'\n'+w.icon+' TODAY: '+w.name+'  ·  TOMORROW: '+(WEATHER[weatherTomorrow]||WEATHER.sun).icon
+      +((weatherMsgs&&weatherMsgs.length)?'\n'+weatherMsgs.join('\n'):'');
   },d+500);
   setTimeout(()=>$('sum-sleep').style.opacity=1,d+900);
 }
@@ -3235,7 +3353,9 @@ function dismissSummary(){
   updateSky();
   renderSeeds();
   if(musicEnabled) musicStart();
-  info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. HAPPY FARMING!');
+  const w=WEATHER[weatherToday]||WEATHER.sun;
+  info('GOOD MORNING! DAY '+day+' OF '+currentSeason().icon+' '+currentSeason().name+'. '+w.icon+' '+w.name+(w.note?' — '+w.note.toUpperCase():'')+'.');
+  renderWeatherFx();updateEventBanner();
   renderActivities();
   if(document.getElementById('th-panel').className==='on') renderTownHall();
   setTimeout(announceEventToday,700);
@@ -3855,7 +3975,7 @@ function startFishing(){
   const baseWeights=[64,32,16,8,4,2];
   // rod bonus: adds flat weight to T4(idx3), T5(idx4), T6(idx5)
   const rodBonus=[0,10,25,50];
-  const bonus=rodBonus[fishingRod]||0;
+  const bonus=(rodBonus[fishingRod]||0)+(weatherWet()&&weatherToday!=='snow'?15:0); // rain/storm: rare fish bite more
   const pool=allFish
     .filter(f=>fishLv>=(tierUnlock[(f.tier||1)-1]||1))
     .map(f=>({...f, weight:baseWeights[(f.tier||1)-1]+(f.tier>=4?bonus:0)}));
@@ -4012,7 +4132,7 @@ function renderActivities(){
   renderTreeHp();
   renderTreeHp2();
   const noEnergy=energy<2&&!devFlags.unlimitedEnergy;
-  const fb=$('forage-btn');if(fb)fb.disabled=noEnergy||digActive;
+  const fb=$('forage-btn');if(fb)fb.disabled=(energy<1&&!devFlags.unlimitedEnergy)||digActive;
   const cb=$('chop-btn');
   if(cb){
     if(!hasAxe){cb.disabled=true;cb.textContent='GET AXE FROM FORD';}
@@ -4059,7 +4179,7 @@ let digActive=false,digGrid=[],digLeft=0,digTotal=0;
 
 function forageDigCount(){
   const lv=skills.foraging.level;
-  return 5+(lv>=3?1:0)+(lv>=7?1:0)+(cookBuffs.forage?1:0); // Forager's Salad: +1 dig
+  return 5+(lv>=3?1:0)+(lv>=7?1:0)+(cookBuffs.forage?1:0)+(weatherToday==='wind'?1:0); // Forager's Salad / windy day: +1 dig
 }
 function forageShimmerRange(){ return skills.foraging.level>=5?3:2; }
 
@@ -4080,10 +4200,10 @@ function forageBuildPrizes(){
   return [{it:rare,rare:true},{it:band(3,4)},{it:band(3,4)},{it:band(1,2)},{it:band(1,2)}];
 }
 
+// Starting a hunt is free; every dig costs 1 energy (like chopping or mining)
 function startForageMini(){
-  if(energy<2&&!devFlags.unlimitedEnergy){info('NEED 2 ENERGY TO FORAGE!');return}
+  if(energy<1&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! EAT SOMETHING TO KEEP FORAGING.');return}
   if(digActive)return;
-  if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-2);upEnergy();}
   digActive=true;
   digTotal=digLeft=forageDigCount();
   digGrid=Array(DIG_SIZE*DIG_SIZE).fill(0).map(()=>({prize:null,dug:false}));
@@ -4095,7 +4215,7 @@ function startForageMini(){
   $('forage-btn').textContent='DIGGING...';
   $('forage-result').textContent='';
   renderDig();
-  info('DIG FOR WILD FINDS! RED = HOT (CLOSE), BLUE = COLD. ✨ MEANS THE RARE FIND IS NEARBY.');
+  info('DIG FOR WILD FINDS! EACH DIG COSTS 1 ENERGY. RED = HOT (CLOSE), BLUE = COLD. ✨ = RARE FIND NEARBY.');
 }
 
 function digDist(a,b){
@@ -4148,8 +4268,10 @@ function forageDig(i){
   if(!digActive||digLeft<=0) return;
   const c=digGrid[i];
   if(!c||c.dug) return;
+  if(energy<1&&!devFlags.unlimitedEnergy){info('OUT OF ENERGY! EAT SOMETHING OR STOP DIGGING.');playSound('error');return;}
   if(c.prize&&!bagCanTake(c.prize.it.id+'_forage')){bagFullMsg();return;} // leave it buried until there's room
   c.dug=true;digLeft--;
+  if(!devFlags.unlimitedEnergy){energy=Math.max(0,energy-1);upEnergy();}
   if(c.prize){
     const pz=c.prize.it;
     const key=pz.id+'_forage';
@@ -4174,6 +4296,10 @@ function forageDig(i){
   else renderDig();
 }
 
+function stopDig(){
+  if(!digActive) return;
+  endDig(digGrid.every(c=>!c.prize||c.dug));
+}
 function endDig(allFound){
   digActive=false;
   $('forage-btn').disabled=false;
@@ -5804,6 +5930,7 @@ function playSound(type){
       case 'rpswin':    sfxRpsWin(ctx);    break;
       case 'rpslose':   sfxRpsLose(ctx);   break;
       case 'titlestart':sfxTitleStart(ctx);break;
+      case 'thunder':   sfxThunder(ctx);   break;
     }
   }catch(e){}
 }
@@ -5920,6 +6047,17 @@ function sfxBuild(ctx){
   osc(ctx,'sine',220,0.1,0.08,0.18);
   osc(ctx,'sine',330,0.22,0.3,0.22); // satisfying finish
   osc(ctx,'sine',440,0.32,0.3,0.18);
+}
+function sfxThunder(ctx){
+  // low rolling rumble
+  const dur=2.2,buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate),d=buf.getChannelData(0);
+  let last=0;for(let i=0;i<d.length;i++){last=(last+0.04*(Math.random()*2-1))/1.04;d[i]=last*3.5;}
+  const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+  src.buffer=buf;f.type='lowpass';f.frequency.value=180;
+  src.connect(f);f.connect(g);g.connect(ctx.destination);
+  g.gain.setValueAtTime(0.001,ctx.currentTime);g.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.08);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+  src.start();src.stop(ctx.currentTime+dur);
 }
 function sfxSleep(ctx){
   // soft descending lullaby — gentle night tones fading out
