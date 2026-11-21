@@ -13,7 +13,7 @@ Current version: **v2.1** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v22` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v23` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -26,7 +26,7 @@ Icons (v2.1) are drawn from the game's own sprites (cottage, sun, trees, crops) 
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v22` → `fernhollow-v23`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v23` → `fernhollow-v24`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -315,6 +315,8 @@ Sequential rooms — each unlocks only after the previous is complete:
 | Storeroom 📦 | Winter | 500g + 30 wood + 30 ore + 10 Snow Yam | Preserves crafting |
 
 Town Hall completion target: ~Day 100 (late Winter, Year 1). Full year arc.
+DONATE WHAT I HAVE is enabled whenever the bag holds anything still needed (`renderTownHall` — compare the bag to 0,
+never to what was already donated). Locked items are never counted or donated (`thCount*`, `thRoomReqAvail`, `thDonate`).
 
 ### Kitchen / Cooking (Kitchen reward)
 `TH_RECIPES` — 11 recipes. Ingredients: `crop` (opt. `minTier`, `quality`), `fish` (opt. `minTier`), `animal`, `forage`, `item` (exact id).
