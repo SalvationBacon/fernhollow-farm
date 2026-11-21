@@ -8896,13 +8896,13 @@ const TH_SPRINKLERS = [
 function thCountOres(){
   let total=0;
   const oreIds=['stone','coal','copper_ore','iron_ore','gold_ore','quartz','topaz','ruby','emerald'];
-  oreIds.forEach(id=>{total+=(inventory[id]||0);});
+  oreIds.forEach(id=>{if(!lockedItems[id])total+=(inventory[id]||0);});
   return total;
 }
 
 function thCountFish(){
   let total=0;
-  Object.entries(inventory).forEach(([id,qty])=>{if(id.endsWith('_fish'))total+=qty;});
+  Object.entries(inventory).forEach(([id,qty])=>{if(id.endsWith('_fish')&&!lockedItems[id])total+=qty;});
   return total;
 }
 
@@ -8915,7 +8915,7 @@ function thCountSeasonCrop(cropId){
   // count specific crop in inventory (any quality)
   let total=0;
   Object.entries(inventory).forEach(([id,qty])=>{
-    if(id.split('|')[0]===cropId) total+=qty;
+    if(id.split('|')[0]===cropId&&!lockedItems[id]) total+=qty;
   });
   return total;
 }
@@ -8942,7 +8942,7 @@ function thRoomContrib(roomId,type){
 function thRoomReqAvail(req){
   // how much the player currently has available to donate for this req type
   if(req.type==='gold') return coins;
-  if(req.type==='wood') return inventory['wood']||0;
+  if(req.type==='wood') return lockedItems.wood?0:(inventory['wood']||0);
   if(req.type==='crop') return thCountCrops(req.tier);
   if(req.type==='animal') return thCountAnimalProducts();
   if(req.type==='fish') return thCountFish();
@@ -8982,7 +8982,7 @@ function invIsCrop(id,tier){
 function thCountCrops(tier){
   let total=0;
   Object.entries(inventory).forEach(([id,qty])=>{
-    if(id&&invIsCrop(id,tier)) total+=qty;
+    if(id&&invIsCrop(id,tier)&&!lockedItems[id]) total+=qty;
   });
   return total;
 }
@@ -8990,7 +8990,7 @@ function thCountCrops(tier){
 function thCountAnimalProducts(){
   let total=0;
   Object.entries(inventory).forEach(([id,qty])=>{
-    if(id.endsWith('_product')) total+=qty;
+    if(id.endsWith('_product')&&!lockedItems[id]) total+=qty;
   });
   return total;
 }
@@ -9018,7 +9018,7 @@ function thDonate(roomIdx){
       const give=Math.min(stillNeeded,coins);
       if(give>0){coins-=give;contribs.gold+=give;upCoins();donated=true;}
     } else if(req.type==='wood'){
-      const have=inventory['wood']||0;
+      const have=lockedItems.wood?0:(inventory['wood']||0);
       const give=Math.min(stillNeeded,have);
       if(give>0){
         inventory['wood']-=give;
@@ -9039,7 +9039,7 @@ function thDonate(roomIdx){
       let toGive=stillNeeded;
       Object.keys(inventory).forEach(id=>{
         if(toGive<=0)return;
-        if(!id.endsWith('_product'))return;
+        if(!id.endsWith('_product')||lockedItems[id])return;
         const give=Math.min(toGive,inventory[id]);
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
         contribs.animal+=give;toGive-=give;donated=true;
@@ -9048,7 +9048,7 @@ function thDonate(roomIdx){
       let toGive=stillNeeded;
       Object.keys(inventory).forEach(id=>{
         if(toGive<=0)return;
-        if(!id.endsWith('_fish'))return;
+        if(!id.endsWith('_fish')||lockedItems[id])return;
         const give=Math.min(toGive,inventory[id]);
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
         contribs.fish=(contribs.fish||0)+give;toGive-=give;donated=true;
@@ -9058,7 +9058,7 @@ function thDonate(roomIdx){
       let toGive=stillNeeded;
       oreIds.forEach(id=>{
         if(toGive<=0)return;
-        const have=inventory[id]||0;if(!have)return;
+        const have=lockedItems[id]?0:(inventory[id]||0);if(!have)return;
         const give=Math.min(toGive,have);
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
         contribs.ore=(contribs.ore||0)+give;toGive-=give;donated=true;
@@ -9069,7 +9069,7 @@ function thDonate(roomIdx){
       let toGive=stillNeeded;
       Object.keys(inventory).forEach(id=>{
         if(toGive<=0)return;
-        if(id.split('|')[0]!==cropId)return;
+        if(id.split('|')[0]!==cropId||lockedItems[id])return;
         const give=Math.min(toGive,inventory[id]||0);
         if(give<=0)return;
         inventory[id]-=give;if(inventory[id]<=0)delete inventory[id];
@@ -9545,7 +9545,7 @@ function renderTownHall(){
         if(still<=0)return;
         const avail=thRoomReqAvail(req);
         const already=(req.type==='fish'?(contribs.fish||0):req.type==='ore'?(contribs.ore||0):req.type==='multiseason'?(contribs.multiseason||0):req.type==='seasoncrop'?(contribs.seasoncrop||0):req.type==='seasons'?(contribs.seasons||0):(contribs[req.type]||0));
-        if(avail>already||avail>0&&req.type==='seasons')canDonate=true;
+        if(req.type==='seasons'?avail>already:avail>0)canDonate=true;
       });
     }
 
@@ -9557,6 +9557,7 @@ function renderTownHall(){
       // Show available in inventory
       let avail=0;
       avail=thRoomReqAvail(req);
+      const lockedN=req.type==='seasoncrop'?Object.keys(inventory).filter(id=>id.split('|')[0]===req.cropId&&lockedItems[id]).reduce((a,id)=>a+inventory[id],0):0;
 
       return `<div class="th-req-row">
         <div class="th-req-left">
@@ -9564,7 +9565,7 @@ function renderTownHall(){
           <span>${req.label}</span>
         </div>
         <div class="th-req-right">
-          <span class="th-req-progress ${progClass}">${have}/${req.needed}${done?' ✓':req.type==='seasons'?' ('+avail+' seasons harvested)':req.type==='seasoncrop'?' ('+avail+' in bag)':' (have '+avail+')'}</span>
+          <span class="th-req-progress ${progClass}">${have}/${req.needed}${done?' ✓':req.type==='seasons'?' ('+avail+' seasons harvested)':req.type==='seasoncrop'?' ('+avail+' in bag'+(lockedN?', '+lockedN+' locked':'')+')':' (have '+avail+')'}</span>
         </div>
       </div>`;
     }).join('');
