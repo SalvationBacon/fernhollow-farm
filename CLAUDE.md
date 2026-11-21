@@ -4,7 +4,7 @@
 Single HTML file farming game. No frameworks, vanilla JS only. Pixel aesthetic, Press Start 2P font.
 Working file: `index.html` — only build file (~9,350 lines).
 Hosted as PWA on GitHub Pages: https://salvationbacon.github.io/fernhollow-farm/
-Current version: **v2.1** (shown on title screen and in feature requests).
+Current version: **v2.1.2** (shown on title screen and in feature requests).
 
 ---
 
@@ -13,7 +13,7 @@ Current version: **v2.1** (shown on title screen and in feature requests).
 |---|---|
 | `index.html` | Full game + PWA meta tags + service worker registration |
 | `manifest.json` | App name, icons, theme colors, standalone display, orientation: any |
-| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v23` |
+| `sw.js` | Service worker — network-first for HTML, cache-first for assets. Current: `fernhollow-v24` |
 | `icon-192.png` | Android home screen icon |
 | `icon-512.png` | Splash screen / store icon |
 | `apple-touch-icon.png` | iOS home screen icon |
@@ -26,7 +26,7 @@ Icons (v2.1) are drawn from the game's own sprites (cottage, sun, trees, crops) 
 
 ### Updating GitHub
 - Upload changed files via Add file → Upload files, or `.` web editor (or git push)
-- Always bump cache version in `sw.js` on every update (`fernhollow-v23` → `fernhollow-v24`)
+- Always bump cache version in `sw.js` on every update (`fernhollow-v24` → `fernhollow-v25`)
 - GitHub Pages auto-redeploys within 1–2 minutes
 - SW uses **network-first for HTML** — players automatically get updates on next open without clearing cache
 
@@ -711,6 +711,7 @@ Stub functions kept for old call sites: `notifScheduleCrop()`, `notifCancelCrop(
 - Sleep confirm popup
 - Network-first SW (auto-updates for players)
 - **v1.1:** Cooking depth (11 recipes, Hob teaches, meal buffs) · Sap has a use (cooking) · Seasonal festivals · Formspree feedback integration (needs endpoint) · bug-fix pass
+- **v2.1.2:** Town Hall DONATE button fix (partial donations, locked items) · **v2.1.1:** rain waters new plantings, ship menu closes · new pixel-art app icons
 - **v2.1:** Handheld UI (full-screen farm, HUD chips, slide-up sheet, bottom bar + MENU tab, toast messages, bigger text) · cozy cottage farmhouse · yard pond & butterflies
 - **v2.0:** Graphics overhaul (auto-shaded sprites, wood theme, soil tiles, living scene, juice) · weather ·
   notice board quests · villager portraits/talk/birthdays/loved gifts · crafting & decor + crows · foraging 1⚡/dig ·

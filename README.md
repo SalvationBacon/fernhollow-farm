@@ -10,7 +10,7 @@ Installable as an app on mobile — tap "Add to Home Screen" for the full offlin
 
 ---
 
-## v2.1 — What's in the game
+## v2.1.2 — What's in the game
 
 ### 🌱 Farming
 - **24 crops** across 4 seasons — Parsnip to Ice Leek, T1 (1 day) through T6 (14 days)
@@ -116,6 +116,14 @@ Settings → Import Save → type `2531` → Import. Speed controls, instant gro
 ---
 
 ## Changelog
+
+### v2.1.2 — Fixes
+- Town Hall: DONATE WHAT I HAVE works again after a partial donation; locked items are never donated
+
+### v2.1.1 — Fixes
+- Rain, storms and snow water crops planted later in the day too
+- The item menu no longer stays open on top of the ship quantity window
+- New pixel-art app icon
 
 ### v2.1 — Handheld UI
 - New handheld layout: the farm scene and your plots fill the screen, with day/time/weather/energy/gold as chips over the sky
