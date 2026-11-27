@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fernhollow Farm</title>
 <meta name="description" content="A cozy pixel-art farming game. Wake at 6am, tend your crops, fish the river, mine 100 floors and befriend 6 villagers. Rebuild the town hall one season at a time. Your farm, your pace.">
+<link rel="canonical" href="https://salvationbacon.github.io/fernhollow-farm/">
+<meta property="og:title" content="Fernhollow Farm">
+<meta property="og:description" content="A cozy pixel-art farming game. Wake at 6am, tend your crops, fish the river, mine 100 floors and befriend 6 villagers. Rebuild the town hall one season at a time. Your farm, your pace.">
+<meta property="og:image" content="https://salvationbacon.github.io/fernhollow-farm/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fernhollow Farm title screen: a sunny pixel-art farm with a cottage, trees and the farmer.">
+<meta property="og:url" content="https://salvationbacon.github.io/fernhollow-farm/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SalvationBacon Games">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fernhollow Farm">
+<meta name="twitter:description" content="A cozy pixel-art farming game. Wake at 6am, tend your crops, fish the river, mine 100 floors and befriend 6 villagers. Rebuild the town hall one season at a time. Your farm, your pace.">
+<meta name="twitter:image" content="https://salvationbacon.github.io/fernhollow-farm/og-image.png">
+<meta name="twitter:image:alt" content="Fernhollow Farm title screen: a sunny pixel-art farm with a cottage, trees and the farmer.">
 <meta name="theme-color" content="#1a1208">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,6 +28,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=21">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=21">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script data-goatcounter="https://salvationbacon.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
 /* ═══════════════════════════════════
    FERNHOLLOW FARM — DESIGN SYSTEM
@@ -9621,7 +9637,21 @@ function sfxTitleStart(ctx){
   noise(ctx,0,0.06,0.04);
 }
 
+// Counts a start in GoatCounter once the counter script has loaded. Skips quietly if it never does.
+function trackFarmStart(){
+  const ev={path:'fernhollow-farm-start',title:'Game started',event:true};
+  let tries=0;
+  const t=setInterval(()=>{
+    tries++;
+    if(window.goatcounter&&typeof window.goatcounter.count==='function'){
+      clearInterval(t);
+      try{window.goatcounter.count(ev);}catch(e){}
+    }else if(tries>50) clearInterval(t);
+  },100);
+}
+
 function titleStart(){
+  trackFarmStart();
   playSound('titlestart');
   titleScreenOpen=false;
   unfreezeClock();
